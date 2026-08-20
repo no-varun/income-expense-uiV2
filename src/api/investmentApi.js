@@ -54,7 +54,7 @@ export const getInvestmentById = async (id) => {
             `/investments/${id}`
         );
 
-    return response.data;
+    return response;
 
 };
 
