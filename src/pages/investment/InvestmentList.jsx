@@ -17,7 +17,7 @@ import {
 } from "../../api/investmentApi";
 
 import {
-    getActiveAccounts
+    getAccounts
 } from "../../api/accountApi";
 
 
@@ -125,7 +125,7 @@ const InvestmentList = () => {
             setAccountsLoading(true);
 
             const response =
-                await getActiveAccounts();
+                await getAccounts();
 
             if (response.success) {
 

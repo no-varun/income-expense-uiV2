@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import {
-    getAccountById,
+    getAccount,
     updateAccount
 } from "../../api/accountApi";
 
@@ -34,7 +34,7 @@ const EditAccount = () => {
             setLoading(true);
 
             const response =
-                await getAccountById(id);
+                await getAccount(id);
 
             if (!response.success) {
 

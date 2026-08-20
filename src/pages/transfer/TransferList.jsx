@@ -15,7 +15,7 @@ import {
 } from "../../api/transferApi";
 
 import {
-    getActiveAccounts
+    getAccounts
 } from "../../api/accountApi";
 
 const TransferList = () => {
@@ -65,8 +65,7 @@ const TransferList = () => {
 
             setAccountsLoading(true);
 
-            const response =
-                await getActiveAccounts();
+            const response = await getAccounts();
 
             if (response.success) {
 

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+    Link,
+    useNavigate
+} from "react-router-dom";
 
 import {
     createTransfer,
@@ -7,14 +10,23 @@ import {
 } from "../../api/transferApi";
 
 import {
-    getActiveAccounts
+    getAccounts
 } from "../../api/accountApi";
+
 
 const AddTransfer = () => {
 
     const navigate = useNavigate();
 
-    const [accounts, setAccounts] = useState([]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
+
+    const [accounts, setAccounts] =
+        useState([]);
 
     const [loadingAccounts, setLoadingAccounts] =
         useState(true);
@@ -22,9 +34,11 @@ const AddTransfer = () => {
     const [loadingBalance, setLoadingBalance] =
         useState(false);
 
-    const [saving, setSaving] = useState(false);
+    const [saving, setSaving] =
+        useState(false);
 
-    const [balance, setBalance] = useState(null);
+    const [balance, setBalance] =
+        useState(null);
 
     const [form, setForm] = useState({
 
@@ -34,9 +48,10 @@ const AddTransfer = () => {
 
         amount: "",
 
-        date: new Date()
-            .toISOString()
-            .split("T")[0],
+        date:
+            new Date()
+                .toISOString()
+                .split("T")[0],
 
         purpose: "",
 
@@ -45,37 +60,177 @@ const AddTransfer = () => {
     });
 
 
-    /**
-     * Load Active Accounts
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZE API RESPONSE
+    |--------------------------------------------------------------------------
+    */
+
+    const normalizeResponse = (
+        response
+    ) => {
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Direct API response
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            typeof response === "object" &&
+            response.success !== undefined
+        ) {
+
+            return response;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nested Axios response
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            response.data &&
+            typeof response.data === "object" &&
+            response.data.success !== undefined
+        ) {
+
+            return response.data;
+
+        }
+
+
+        return response;
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
     const loadAccounts = async () => {
 
         try {
 
             setLoadingAccounts(true);
 
+
+            const rawResponse =
+                await getAccounts();
+
+
+            console.log(
+                "TRANSFER ACCOUNT RAW RESPONSE:",
+                rawResponse
+            );
+
+
             const response =
-                await getActiveAccounts();
+                normalizeResponse(
+                    rawResponse
+                );
 
-            if (response.success) {
 
-                const rows =
-                    Array.isArray(response.data)
-                        ? response.data
-                        : response.data?.rows || [];
+            console.log(
+                "TRANSFER ACCOUNT RESPONSE:",
+                response
+            );
 
-                setAccounts(rows);
+
+            if (
+                response?.success === true
+            ) {
+
+                const data =
+                    response.data;
+
+
+                let rows = [];
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Response data is array
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    Array.isArray(data)
+                ) {
+
+                    rows =
+                        data;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Response data.rows
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    Array.isArray(
+                        data?.rows
+                    )
+                ) {
+
+                    rows =
+                        data.rows;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Only active accounts
+                |--------------------------------------------------------------------------
+                */
+
+                rows =
+                    rows.filter(
+                        account =>
+                            account.status !== false
+                    );
+
+
+                console.log(
+                    "TRANSFER ACCOUNTS:",
+                    rows
+                );
+
+
+                setAccounts(
+                    rows
+                );
+
 
             } else {
 
                 setAccounts([]);
 
+
                 alert(
-                    response.message ||
+                    response?.message ||
                     "Unable to load accounts."
                 );
 
             }
+
 
         } catch (error) {
 
@@ -84,10 +239,16 @@ const AddTransfer = () => {
                 error
             );
 
+
+            setAccounts([]);
+
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to load accounts."
             );
+
 
         } finally {
 
@@ -98,6 +259,12 @@ const AddTransfer = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
+
     useEffect(() => {
 
         loadAccounts();
@@ -105,10 +272,15 @@ const AddTransfer = () => {
     }, []);
 
 
-    /**
-     * Load Source Account Balance
-     */
-    const loadBalance = async (accountId) => {
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNT BALANCE
+    |--------------------------------------------------------------------------
+    */
+
+    const loadBalance = async (
+        accountId
+    ) => {
 
         if (!accountId) {
 
@@ -118,45 +290,188 @@ const AddTransfer = () => {
 
         }
 
+
         try {
 
             setLoadingBalance(true);
 
-            const response =
+            setBalance(null);
+
+
+            console.log(
+                "================================"
+            );
+
+            console.log(
+                "LOADING ACCOUNT BALANCE"
+            );
+
+            console.log(
+                "ACCOUNT ID:",
+                accountId
+            );
+
+
+            const rawResponse =
                 await getAccountBalance(
                     accountId
                 );
 
-            if (response.success) {
 
-                setBalance(
-                    response.data
+            console.log(
+                "ACCOUNT BALANCE RAW RESPONSE:",
+                rawResponse
+            );
+
+
+            const response =
+                normalizeResponse(
+                    rawResponse
                 );
 
-            } else {
 
-                setBalance(null);
+            console.log(
+                "ACCOUNT BALANCE NORMALIZED:",
+                response
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                response?.success === true
+            ) {
+
+                const data =
+                    response.data;
+
+
+                console.log(
+                    "ACCOUNT BALANCE DATA:",
+                    data
+                );
+
+
+                if (
+                    data &&
+                    typeof data === "object"
+                ) {
+
+                    setBalance({
+
+                        openingBalance:
+                            Number(
+                                data.openingBalance ?? 0
+                            ),
+
+                        income:
+                            Number(
+                                data.income ?? 0
+                            ),
+
+                        expense:
+                            Number(
+                                data.expense ?? 0
+                            ),
+
+                        outgoingTransfer:
+                            Number(
+                                data.outgoingTransfer ?? 0
+                            ),
+
+                        incomingTransfer:
+                            Number(
+                                data.incomingTransfer ?? 0
+                            ),
+
+                        balance:
+                            Number(
+                                data.balance ?? 0
+                            )
+
+                    });
+
+
+                    console.log(
+                        "BALANCE SET SUCCESSFULLY"
+                    );
+
+
+                    return;
+
+                }
+
+
+                console.error(
+                    "Balance data missing:",
+                    response
+                );
+
 
                 alert(
-                    response.message ||
-                    "Unable to get account balance."
+                    "Account balance data not found."
                 );
 
+
+                return;
+
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | API FAILURE
+            |--------------------------------------------------------------------------
+            */
+
+            console.error(
+                "Balance API returned failure:",
+                response
+            );
+
+
+            setBalance(null);
+
+
+            alert(
+                response?.message ||
+                "Unable to get account balance."
+            );
+
 
         } catch (error) {
 
             console.error(
-                "Get Account Balance Error:",
+                "GET ACCOUNT BALANCE ERROR:",
                 error
             );
 
+
+            console.error(
+                "ERROR RESPONSE:",
+                error?.response
+            );
+
+
+            console.error(
+                "ERROR DATA:",
+                error?.response?.data
+            );
+
+
             setBalance(null);
 
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to get account balance."
             );
+
 
         } finally {
 
@@ -167,10 +482,15 @@ const AddTransfer = () => {
     };
 
 
-    /**
-     * Handle Input
-     */
-    const handleChange = (e) => {
+    /*
+    |--------------------------------------------------------------------------
+    | HANDLE INPUT
+    |--------------------------------------------------------------------------
+    */
+
+    const handleChange = (
+        e
+    ) => {
 
         const {
             name,
@@ -178,67 +498,214 @@ const AddTransfer = () => {
         } = e.target;
 
 
-        setForm({
+        /*
+        |--------------------------------------------------------------------------
+        | FROM ACCOUNT
+        |--------------------------------------------------------------------------
+        */
 
-            ...form,
-
-            [name]: value
-
-        });
-
-
-        if (name === "fromAccount") {
-
-            loadBalance(value);
+        if (
+            name === "fromAccount"
+        ) {
 
             /*
-             * If destination is same as
-             * newly selected source,
-             * clear destination.
-             */
-            if (
-                value === form.toAccount
-            ) {
+            |--------------------------------------------------------------------------
+            | Clear previous balance
+            |--------------------------------------------------------------------------
+            */
 
-                setForm(prev => ({
+            setBalance(null);
 
-                    ...prev,
 
-                    fromAccount: value,
+            /*
+            |--------------------------------------------------------------------------
+            | Update source account
+            |--------------------------------------------------------------------------
+            */
 
-                    toAccount: ""
+            setForm(
+                previous => ({
 
-                }));
+                    ...previous,
+
+                    fromAccount:
+                        value,
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Prevent same source/destination
+                    |--------------------------------------------------------------------------
+                    */
+
+                    toAccount:
+                        value ===
+                        previous.toAccount
+                            ? ""
+                            : previous.toAccount
+
+                })
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Load balance
+            |--------------------------------------------------------------------------
+            */
+
+            if (value) {
+
+                loadBalance(
+                    value
+                );
 
             }
 
+
+            return;
+
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            name === "amount"
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Allow empty input
+            |--------------------------------------------------------------------------
+            */
+
+            if (value === "") {
+
+                setForm(
+                    previous => ({
+
+                        ...previous,
+
+                        amount: ""
+
+                    })
+                );
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Allow decimal numbers
+            |--------------------------------------------------------------------------
+            */
+
+            const numericValue =
+                Number(value);
+
+
+            if (
+                Number.isFinite(
+                    numericValue
+                ) &&
+                numericValue >= 0
+            ) {
+
+                setForm(
+                    previous => ({
+
+                        ...previous,
+
+                        amount:
+                            value
+
+                    })
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | OTHER FIELDS
+        |--------------------------------------------------------------------------
+        */
+
+        setForm(
+            previous => ({
+
+                ...previous,
+
+                [name]:
+                    value
+
+            })
+        );
 
     };
 
 
-    /**
-     * Format Currency
-     */
-    const formatAmount = (amount) => {
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT CURRENCY
+    |--------------------------------------------------------------------------
+    */
 
-        return Number(
-            amount || 0
-        ).toLocaleString(
+    const formatAmount = (
+        amount
+    ) => {
+
+        const number =
+            Number(amount);
+
+
+        if (
+            !Number.isFinite(
+                number
+            )
+        ) {
+
+            return "₹0.00";
+
+        }
+
+
+        return number.toLocaleString(
             "en-IN",
             {
-                style: "currency",
-                currency: "INR",
-                maximumFractionDigits: 2
+
+                style:
+                    "currency",
+
+                currency:
+                    "INR",
+
+                maximumFractionDigits:
+                    2
+
             }
         );
 
     };
 
 
-    /**
-     * Selected Source Account
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | SELECTED FROM ACCOUNT
+    |--------------------------------------------------------------------------
+    */
+
     const selectedFromAccount =
         accounts.find(
             account =>
@@ -247,9 +714,12 @@ const AddTransfer = () => {
         );
 
 
-    /**
-     * Selected Destination Account
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | SELECTED TO ACCOUNT
+    |--------------------------------------------------------------------------
+    */
+
     const selectedToAccount =
         accounts.find(
             account =>
@@ -258,220 +728,318 @@ const AddTransfer = () => {
         );
 
 
-    /**
-     * Calculate Maximum Transfer
-     */
-    const maximumTransfer = balance
-        ? Math.max(
+    /*
+    |--------------------------------------------------------------------------
+    | CURRENT BALANCE
+    |--------------------------------------------------------------------------
+    */
+
+    const currentBalance =
+        Number(
+            balance?.balance ?? 0
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MINIMUM BALANCE
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | This is ONLY displayed.
+    |
+    | It does NOT reduce the transferable amount.
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    const minimumBalance =
+        Number(
+            selectedFromAccount?.minimumBalance ?? 0
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MAXIMUM TRANSFER
+    |--------------------------------------------------------------------------
+    |
+    | User can transfer the complete current balance.
+    |
+    | Example:
+    |
+    | Current balance = ₹20,000
+    | Minimum balance = ₹20,000
+    |
+    | Maximum transfer = ₹20,000
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    const maximumTransfer =
+        Math.max(
             0,
-            Number(balance.balance || 0) -
-            Number(
-                selectedFromAccount?.minimumBalance || 0
-            )
-        )
-        : 0;
+            currentBalance
+        );
 
 
-    /**
-     * Submit
-     */
-    const handleSubmit = async (e) => {
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
 
-        e.preventDefault();
+   const handleSubmit = async (e) => {
 
+    e.preventDefault();
 
-        if (!form.fromAccount) {
+    const amount = Number(form.amount);
 
-            alert(
-                "Please select the source account."
-            );
+    if (!form.fromAccount) {
 
-            return;
+        alert("Please select the source account.");
 
-        }
+        return;
 
+    }
 
-        if (!form.toAccount) {
+    if (!form.toAccount) {
 
-            alert(
-                "Please select the destination account."
-            );
+        alert("Please select the destination account.");
 
-            return;
+        return;
 
-        }
+    }
 
+    if (
+        form.fromAccount ===
+        form.toAccount
+    ) {
 
-        if (
-            form.fromAccount ===
-            form.toAccount
-        ) {
+        alert(
+            "From account and to account cannot be the same."
+        );
 
-            alert(
-                "From account and to account cannot be the same."
-            );
+        return;
 
-            return;
+    }
 
-        }
+    if (
+        !Number.isFinite(amount) ||
+        amount <= 0
+    ) {
 
+        alert(
+            "Please enter a valid transfer amount."
+        );
 
-        const amount =
-            Number(form.amount);
+        return;
 
+    }
 
-        if (
-            !Number.isFinite(amount) ||
-            amount <= 0
-        ) {
+    if (!balance) {
 
-            alert(
-                "Please enter a valid transfer amount."
-            );
+        alert(
+            "Unable to verify source account balance."
+        );
 
-            return;
+        return;
 
-        }
-
-
-        if (!balance) {
-
-            alert(
-                "Unable to verify source account balance."
-            );
-
-            return;
-
-        }
+    }
 
 
-        if (
-            amount >
-            Number(balance.balance || 0)
-        ) {
-
-            alert(
-                `Insufficient balance. Available balance is ${formatAmount(
-                    balance.balance
-                )}.`
-            );
-
-            return;
-
-        }
+    const currentBalance =
+        Number(
+            balance.balance || 0
+        );
 
 
-        if (
-            amount >
-            maximumTransfer
-        ) {
+    /*
+    |--------------------------------------------------------------------------
+    | ONLY CURRENT BALANCE LIMIT
+    |--------------------------------------------------------------------------
+    |
+    | minimumBalance is NOT used here.
+    |
+    */
 
-            alert(
-                `You must maintain a minimum balance of ${formatAmount(
-                    selectedFromAccount?.minimumBalance
-                )}. Maximum transferable amount is ${formatAmount(
-                    maximumTransfer
-                )}.`
-            );
+    if (
+        amount >
+        currentBalance
+    ) {
 
-            return;
+        alert(
+            `Insufficient balance. Available balance is ₹${currentBalance.toLocaleString(
+                "en-IN",
+                {
+                    maximumFractionDigits: 2
+                }
+            )}.`
+        );
 
-        }
+        return;
+
+    }
 
 
-        try {
+    try {
 
-            setSaving(true);
+        setSaving(true);
 
 
-            const payload = {
+        const payload = {
 
-                fromAccount:
-                    form.fromAccount,
+            fromAccount:
+                form.fromAccount,
 
-                toAccount:
-                    form.toAccount,
+            toAccount:
+                form.toAccount,
 
+            amount:
                 amount,
 
-                date:
-                    form.date,
+            date:
+                form.date,
 
-                purpose:
-                    form.purpose.trim(),
+            purpose:
+                form.purpose?.trim() || "",
 
-                note:
-                    form.note.trim()
+            note:
+                form.note?.trim() || ""
 
-            };
-
-
-            const response =
-                await createTransfer(
-                    payload
-                );
+        };
 
 
-            if (response.success) {
+        console.log(
+            "CREATE TRANSFER PAYLOAD:",
+            payload
+        );
 
-                alert(
-                    "Transfer created successfully."
-                );
 
-                navigate(
-                    "/transfers"
-                );
-
-            } else {
-
-                alert(
-                    response.message ||
-                    "Unable to create transfer."
-                );
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Create Transfer Error:",
-                error
+        const response =
+            await createTransfer(
+                payload
             );
+
+
+        console.log(
+            "CREATE TRANSFER RESPONSE:",
+            response
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCESS
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            response?.success === true
+        ) {
 
             alert(
-                error.response?.data?.message ||
-                "Unable to create transfer."
+                response.message ||
+                "Transfer created successfully."
             );
 
-        } finally {
 
-            setSaving(false);
+            navigate(
+                "/transfers"
+            );
+
+
+            return;
 
         }
 
-    };
 
+        /*
+        |--------------------------------------------------------------------------
+        | FAILURE
+        |--------------------------------------------------------------------------
+        */
+
+        console.error(
+            "TRANSFER API FAILURE:",
+            response
+        );
+
+
+        alert(
+            response?.message ||
+            "Unable to create transfer."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "CREATE TRANSFER ERROR:",
+            error
+        );
+
+
+        console.error(
+            "ERROR RESPONSE:",
+            error?.response
+        );
+
+
+        console.error(
+            "ERROR DATA:",
+            error?.response?.data
+        );
+
+
+        alert(
+            error?.response?.data?.message ||
+            error?.message ||
+            "Unable to create transfer."
+        );
+
+
+    } finally {
+
+        setSaving(false);
+
+    }
+
+};
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
         <div className="container-fluid">
 
-            {/* Header */}
+            {/* ================================================================
+                HEADER
+            ================================================================= */}
 
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div className="
+                d-flex
+                flex-wrap
+                justify-content-between
+                align-items-center
+                mb-4
+                gap-2
+            ">
 
                 <div>
 
                     <h3 className="mb-1">
-
                         Add Transfer
-
                     </h3>
 
                     <small className="text-muted">
-
                         Transfer money between your accounts
-
                     </small>
 
                 </div>
@@ -489,6 +1057,10 @@ const AddTransfer = () => {
             </div>
 
 
+            {/* ================================================================
+                FORM CARD
+            ================================================================= */}
+
             <div className="row justify-content-center">
 
                 <div className="col-xl-8 col-lg-10">
@@ -498,9 +1070,7 @@ const AddTransfer = () => {
                         <div className="card-header bg-white">
 
                             <h5 className="mb-0">
-
                                 Transfer Details
-
                             </h5>
 
                         </div>
@@ -517,7 +1087,9 @@ const AddTransfer = () => {
                                 <div className="row">
 
 
-                                    {/* From Account */}
+                                    {/* ==================================================
+                                        FROM ACCOUNT
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -530,6 +1102,7 @@ const AddTransfer = () => {
                                             </span>
 
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -547,14 +1120,11 @@ const AddTransfer = () => {
                                         >
 
                                             <option value="">
-
                                                 Select source account
-
                                             </option>
 
 
                                             {
-
                                                 accounts.map(
                                                     account => (
 
@@ -581,7 +1151,6 @@ const AddTransfer = () => {
 
                                                     )
                                                 )
-
                                             }
 
                                         </select>
@@ -589,7 +1158,9 @@ const AddTransfer = () => {
                                     </div>
 
 
-                                    {/* To Account */}
+                                    {/* ==================================================
+                                        TO ACCOUNT
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -602,6 +1173,7 @@ const AddTransfer = () => {
                                             </span>
 
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -619,44 +1191,43 @@ const AddTransfer = () => {
                                         >
 
                                             <option value="">
-
                                                 Select destination account
-
                                             </option>
 
 
                                             {
-
-                                                accounts.map(
-                                                    account => (
-
-                                                        account._id !==
-                                                        form.fromAccount &&
-
-                                                        <option
-                                                            key={
-                                                                account._id
-                                                            }
-                                                            value={
-                                                                account._id
-                                                            }
-                                                        >
-
-                                                            {
-                                                                account.name
-                                                            }
-
-                                                            {
-                                                                account.bank
-                                                                    ? ` (${account.bank})`
-                                                                    : ""
-                                                            }
-
-                                                        </option>
-
+                                                accounts
+                                                    .filter(
+                                                        account =>
+                                                            account._id !==
+                                                            form.fromAccount
                                                     )
-                                                )
+                                                    .map(
+                                                        account => (
 
+                                                            <option
+                                                                key={
+                                                                    account._id
+                                                                }
+                                                                value={
+                                                                    account._id
+                                                                }
+                                                            >
+
+                                                                {
+                                                                    account.name
+                                                                }
+
+                                                                {
+                                                                    account.bank
+                                                                        ? ` (${account.bank})`
+                                                                        : ""
+                                                                }
+
+                                                            </option>
+
+                                                        )
+                                                    )
                                             }
 
                                         </select>
@@ -664,114 +1235,121 @@ const AddTransfer = () => {
                                     </div>
 
 
-                                    {/* Available Balance */}
+                                    {/* ==================================================
+                                        BALANCE INFORMATION
+                                    =================================================== */}
 
                                     <div className="col-12 mb-3">
 
                                         {
+                                            loadingBalance && (
 
-                                            loadingBalance
+                                                <div className="alert alert-info mb-0">
 
-                                                ?
+                                                    <span
+                                                        className="
+                                                            spinner-border
+                                                            spinner-border-sm
+                                                            me-2
+                                                        "
+                                                    />
 
-                                                (
+                                                    Checking account balance...
 
-                                                    <div className="alert alert-info">
+                                                </div>
 
-                                                        <span
-                                                            className="spinner-border spinner-border-sm me-2"
-                                                        />
-
-                                                        Checking account balance...
-
-                                                    </div>
-
-                                                )
-
-                                                :
-
-                                                balance &&
-
-                                                (
-
-                                                    <div className="alert alert-light border">
-
-                                                        <div className="row g-3">
-
-                                                            <div className="col-md-4">
-
-                                                                <small className="text-muted d-block">
-
-                                                                    Current Balance
-
-                                                                </small>
-
-                                                                <strong className="fs-5 text-primary">
-
-                                                                    {
-                                                                        formatAmount(
-                                                                            balance.balance
-                                                                        )
-                                                                    }
-
-                                                                </strong>
-
-                                                            </div>
+                                            )
+                                        }
 
 
-                                                            <div className="col-md-4">
+                                        {
+                                            !loadingBalance &&
+                                            balance && (
 
-                                                                <small className="text-muted d-block">
+                                                <div className="alert alert-light border mb-0">
 
-                                                                    Minimum Balance
-
-                                                                </small>
-
-                                                                <strong className="fs-5">
-
-                                                                    {
-                                                                        formatAmount(
-                                                                            selectedFromAccount?.minimumBalance
-                                                                        )
-                                                                    }
-
-                                                                </strong>
-
-                                                            </div>
+                                                    <div className="row g-3">
 
 
-                                                            <div className="col-md-4">
+                                                        {/* CURRENT BALANCE */}
 
-                                                                <small className="text-muted d-block">
+                                                        <div className="col-md-4">
 
-                                                                    Maximum Transfer
+                                                            <small className="text-muted d-block">
+                                                                Current Balance
+                                                            </small>
 
-                                                                </small>
+                                                            <strong className="fs-5 text-primary">
 
-                                                                <strong className="fs-5 text-success">
+                                                                {
+                                                                    formatAmount(
+                                                                        balance.balance
+                                                                    )
+                                                                }
 
-                                                                    {
-                                                                        formatAmount(
-                                                                            maximumTransfer
-                                                                        )
-                                                                    }
+                                                            </strong>
 
-                                                                </strong>
+                                                        </div>
 
-                                                            </div>
+
+                                                        {/* MINIMUM BALANCE */}
+
+                                                        <div className="col-md-4">
+
+                                                            <small className="text-muted d-block">
+                                                                Minimum Balance
+                                                            </small>
+
+                                                            <strong className="fs-5">
+
+                                                                {
+                                                                    formatAmount(
+                                                                        minimumBalance
+                                                                    )
+                                                                }
+
+                                                            </strong>
+
+                                                            <small className="text-muted d-block">
+                                                                Informational only
+                                                            </small>
+
+                                                        </div>
+
+
+                                                        {/* MAXIMUM TRANSFER */}
+
+                                                        <div className="col-md-4">
+
+                                                            <small className="text-muted d-block">
+                                                                Maximum Transfer
+                                                            </small>
+
+                                                            <strong className="fs-5 text-success">
+
+                                                                {
+                                                                    formatAmount(
+                                                                        maximumTransfer
+                                                                    )
+                                                                }
+
+                                                            </strong>
 
                                                         </div>
 
                                                     </div>
 
-                                                )
+                                                </div>
 
+                                            )
                                         }
 
                                     </div>
 
 
-                                    {/* Amount */}
+                                    {/* ==================================================
+                                        AMOUNT
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -785,19 +1363,23 @@ const AddTransfer = () => {
 
                                         </label>
 
+
                                         <div className="input-group">
 
                                             <span className="input-group-text">
-
                                                 ₹
-
                                             </span>
+
 
                                             <input
                                                 type="number"
                                                 className="form-control"
                                                 name="amount"
                                                 min="0.01"
+                                                max={
+                                                    maximumTransfer ||
+                                                    undefined
+                                                }
                                                 step="0.01"
                                                 placeholder="Enter amount"
                                                 value={
@@ -807,52 +1389,56 @@ const AddTransfer = () => {
                                                     handleChange
                                                 }
                                                 disabled={
-                                                    saving
+                                                    saving ||
+                                                    !form.fromAccount ||
+                                                    loadingBalance
                                                 }
                                             />
 
                                         </div>
 
+
                                         {
-
-                                            maximumTransfer > 0 &&
-
-                                            (
+                                            balance && (
 
                                                 <small className="text-muted">
 
-                                                    Maximum transferable:
+                                                    You can transfer from
 
                                                     {" "}
 
                                                     <strong>
+                                                        ₹0.01
+                                                    </strong>
 
+                                                    {" "}to{" "}
+
+                                                    <strong>
                                                         {
                                                             formatAmount(
                                                                 maximumTransfer
                                                             )
                                                         }
-
                                                     </strong>
 
                                                 </small>
 
                                             )
-
                                         }
 
                                     </div>
 
 
-                                    {/* Date */}
+                                    {/* ==================================================
+                                        DATE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
                                         <label className="form-label">
-
                                             Transfer Date
-
                                         </label>
+
 
                                         <input
                                             type="date"
@@ -872,15 +1458,16 @@ const AddTransfer = () => {
                                     </div>
 
 
-                                    {/* Purpose */}
+                                    {/* ==================================================
+                                        PURPOSE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
                                         <label className="form-label">
-
                                             Purpose
-
                                         </label>
+
 
                                         <input
                                             type="text"
@@ -902,15 +1489,16 @@ const AddTransfer = () => {
                                     </div>
 
 
-                                    {/* Note */}
+                                    {/* ==================================================
+                                        NOTE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
                                         <label className="form-label">
-
                                             Note
-
                                         </label>
+
 
                                         <input
                                             type="text"
@@ -932,62 +1520,57 @@ const AddTransfer = () => {
                                     </div>
 
 
-                                    {/* Transfer Preview */}
+                                    {/* ==================================================
+                                        PREVIEW
+                                    =================================================== */}
 
                                     {
-
                                         selectedFromAccount &&
                                         selectedToAccount &&
-                                        form.amount &&
-
-                                        (
+                                        form.amount && (
 
                                             <div className="col-12 mb-4">
 
-                                                <div className="alert alert-primary">
+                                                <div className="alert alert-primary mb-0">
 
-                                                    <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                                    <div className="
+                                                        d-flex
+                                                        flex-wrap
+                                                        justify-content-between
+                                                        align-items-center
+                                                        gap-3
+                                                    ">
 
                                                         <div>
 
                                                             <small className="d-block text-muted">
-
                                                                 From
-
                                                             </small>
 
                                                             <strong>
-
                                                                 {
                                                                     selectedFromAccount.name
                                                                 }
-
                                                             </strong>
 
                                                         </div>
 
 
                                                         <div className="fs-4">
-
                                                             →
-
                                                         </div>
 
 
                                                         <div>
 
                                                             <small className="d-block text-muted">
-
                                                                 To
-
                                                             </small>
 
                                                             <strong>
-
                                                                 {
                                                                     selectedToAccount.name
                                                                 }
-
                                                             </strong>
 
                                                         </div>
@@ -996,19 +1579,15 @@ const AddTransfer = () => {
                                                         <div>
 
                                                             <small className="d-block text-muted">
-
                                                                 Amount
-
                                                             </small>
 
                                                             <strong>
-
                                                                 {
                                                                     formatAmount(
                                                                         form.amount
                                                                     )
                                                                 }
-
                                                             </strong>
 
                                                         </div>
@@ -1020,15 +1599,20 @@ const AddTransfer = () => {
                                             </div>
 
                                         )
-
                                     }
 
                                 </div>
 
 
-                                {/* Buttons */}
+                                {/* ========================================================
+                                    BUTTONS
+                                ========================================================= */}
 
-                                <div className="d-flex flex-wrap gap-2">
+                                <div className="
+                                    d-flex
+                                    flex-wrap
+                                    gap-2
+                                ">
 
                                     <button
                                         type="submit"
@@ -1038,33 +1622,27 @@ const AddTransfer = () => {
                                             loadingAccounts ||
                                             loadingBalance ||
                                             !form.fromAccount ||
-                                            !form.toAccount
+                                            !form.toAccount ||
+                                            !balance
                                         }
                                     >
 
                                         {
-
                                             saving
-
-                                                ?
-
-                                                (
-
+                                                ? (
                                                     <>
                                                         <span
-                                                            className="spinner-border spinner-border-sm me-2"
+                                                            className="
+                                                                spinner-border
+                                                                spinner-border-sm
+                                                                me-2
+                                                            "
                                                         />
 
                                                         Transferring...
-
                                                     </>
-
                                                 )
-
-                                                :
-
-                                                "Transfer Money"
-
+                                                : "Transfer Money"
                                         }
 
                                     </button>
@@ -1096,5 +1674,6 @@ const AddTransfer = () => {
     );
 
 };
+
 
 export default AddTransfer;

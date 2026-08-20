@@ -1,96 +1,167 @@
-import api from "./axios";
+import axios from "./axios";
 
-/**
- * Get Accounts
- *
- * Supports:
- * page
- * limit
- * search
- * bank
- * accountType
- * status
- */
+/*
+|--------------------------------------------------------------------------
+| NORMALIZE RESPONSE
+|--------------------------------------------------------------------------
+|
+| Supports both:
+|
+| 1. Normal Axios:
+|    axios.post() => { data: { success: true, ... } }
+|
+| 2. Axios interceptor:
+|    axios.post() => { success: true, ... }
+|
+|--------------------------------------------------------------------------
+*/
+
+const normalizeResponse = (response) => {
+
+    if (
+        response &&
+        typeof response === "object" &&
+        response.success !== undefined
+    ) {
+
+        return response;
+
+    }
+
+
+    if (
+        response &&
+        typeof response === "object" &&
+        response.data &&
+        typeof response.data === "object"
+    ) {
+
+        return response.data;
+
+    }
+
+
+    return response;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET ACCOUNT LIST
+|--------------------------------------------------------------------------
+*/
+
 export const getAccounts = async (params = {}) => {
 
-    const response = await api.get("/accounts", {
-        params
-    });
+    const response = await axios.get(
+        "/accounts",
+        {
+            params
+        }
+    );
 
-    return response.data;
-
-};
-
-
-/**
- * Get Active Accounts
- *
- * Used by:
- * Income
- * Expense
- * Transfer
- * Investment
- */
-export const getActiveAccounts = async () => {
-
-    const response = await api.get("/accounts/active");
-
-    return response.data;
+    return normalizeResponse(
+        response
+    );
 
 };
 
 
-/**
- * Get Account By ID
- */
-export const getAccountById = async (id) => {
+/*
+|--------------------------------------------------------------------------
+| GET ACCOUNT BY ID
+|--------------------------------------------------------------------------
+*/
 
-    const response = await api.get(`/accounts/${id}`);
+export const getAccount = async (id) => {
 
-    return response.data;
+    const response = await axios.get(
+        `/accounts/${id}`
+    );
+
+    return normalizeResponse(
+        response
+    );
 
 };
 
 
-/**
- * Create Account
- */
+/*
+|--------------------------------------------------------------------------
+| CREATE ACCOUNT
+|--------------------------------------------------------------------------
+*/
+
 export const createAccount = async (data) => {
 
-    const response = await api.post(
+    const response = await axios.post(
         "/accounts",
         data
     );
 
-    return response.data;
+    console.log(
+        "CREATE ACCOUNT RAW RESPONSE:",
+        response
+    );
+
+
+    const result =
+        normalizeResponse(
+            response
+        );
+
+
+    console.log(
+        "CREATE ACCOUNT NORMALIZED RESPONSE:",
+        result
+    );
+
+
+    return result;
 
 };
 
 
-/**
- * Update Account
- */
-export const updateAccount = async (id, data) => {
+/*
+|--------------------------------------------------------------------------
+| UPDATE ACCOUNT
+|--------------------------------------------------------------------------
+*/
 
-    const response = await api.put(
+export const updateAccount = async (
+    id,
+    data
+) => {
+
+    const response = await axios.put(
         `/accounts/${id}`,
         data
     );
 
-    return response.data;
+    return normalizeResponse(
+        response
+    );
 
 };
 
 
-/**
- * Delete Account
- */
-export const deleteAccount = async (id) => {
+/*
+|--------------------------------------------------------------------------
+| DELETE ACCOUNT
+|--------------------------------------------------------------------------
+*/
 
-    const response = await api.delete(
+export const deleteAccount = async (
+    id
+) => {
+
+    const response = await axios.delete(
         `/accounts/${id}`
     );
 
-    return response.data;
+    return normalizeResponse(
+        response
+    );
 
 };

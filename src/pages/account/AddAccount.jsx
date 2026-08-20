@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
     createAccount
 } from "../../api/accountApi";
 
+
 const AddAccount = () => {
 
     const navigate = useNavigate();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
 
     const [form, setForm] = useState({
 
@@ -27,8 +35,22 @@ const AddAccount = () => {
 
     });
 
-    const [loading, setLoading] = useState(false);
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
+
+    const [loading, setLoading] =
+        useState(false);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HANDLE CHANGE
+    |--------------------------------------------------------------------------
+    */
 
     const handleChange = (e) => {
 
@@ -40,40 +62,68 @@ const AddAccount = () => {
         } = e.target;
 
 
-        setForm({
+        setForm(
+            previous => ({
 
-            ...form,
+                ...previous,
 
-            [name]:
-                type === "checkbox"
-                    ? checked
-                    : value
+                [name]:
+                    type === "checkbox"
+                        ? checked
+                        : value
 
-        });
+            })
+        );
 
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
 
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
-
         if (!form.name.trim()) {
 
+            alert("Account name is required.");
+
+            return;
+
+        }
+
+        if (!form.bank) {
+
+            alert("Bank is required.");
+
+            return;
+
+        }
+
+        if (
+            form.openingBalance === "" ||
+            Number(form.openingBalance) < 0
+        ) {
+
             alert(
-                "Account name is required."
+                "Please enter a valid opening balance."
             );
 
             return;
 
         }
 
-
-        if (!form.bank) {
+        if (
+            form.minimumBalance === "" ||
+            Number(form.minimumBalance) < 0
+        ) {
 
             alert(
-                "Please select a bank."
+                "Please enter a valid minimum balance."
             );
 
             return;
@@ -88,67 +138,161 @@ const AddAccount = () => {
 
             const payload = {
 
-                name: form.name.trim(),
+                name:
+                    form.name.trim(),
 
-                bank: form.bank,
+                bank:
+                    form.bank,
 
-                accountType: form.accountType,
+                accountType:
+                    form.accountType,
 
                 openingBalance:
-                    form.openingBalance === ""
-                        ? 0
-                        : Number(
-                            form.openingBalance
-                        ),
+                    Number(
+                        form.openingBalance || 0
+                    ),
 
                 minimumBalance:
-                    form.minimumBalance === ""
-                        ? 0
-                        : Number(
-                            form.minimumBalance
-                        ),
+                    Number(
+                        form.minimumBalance || 0
+                    ),
 
-                purpose: form.purpose.trim(),
+                purpose:
+                    form.purpose.trim(),
 
-                status: form.status
+                status:
+                    Boolean(
+                        form.status
+                    )
 
             };
 
 
+            console.log(
+                "================================="
+            );
+
+            console.log(
+                "CREATE ACCOUNT PAYLOAD:",
+                payload
+            );
+
+
             const response =
-                await createAccount(payload);
+                await createAccount(
+                    payload
+                );
 
 
-            if (response.success) {
+            console.log(
+                "CREATE ACCOUNT FINAL RESPONSE:",
+                response
+            );
+
+
+            console.log(
+                "SUCCESS VALUE:",
+                response?.success
+            );
+
+
+            console.log(
+                "MESSAGE VALUE:",
+                response?.message
+            );
+
+
+            console.log(
+                "DATA VALUE:",
+                response?.data
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                response &&
+                response.success === true
+            ) {
 
                 alert(
+                    response.message ||
                     "Account created successfully."
                 );
+
+
+                /*
+                | Redirect only after confirmed success
+                */
 
                 navigate(
                     "/accounts"
                 );
 
-            } else {
 
-                alert(
-                    response.message ||
-                    "Unable to create account."
-                );
+                return;
 
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BACKEND RETURNED FAILURE
+            |--------------------------------------------------------------------------
+            */
+
+            alert(
+
+                response?.message ||
+
+                "Unable to create account."
+
+            );
+
 
         } catch (error) {
 
             console.error(
-                "Create Account Error:",
+                "================================="
+            );
+
+            console.error(
+                "CREATE ACCOUNT ERROR:",
                 error
             );
 
-            alert(
-                error.response?.data?.message ||
-                "Unable to create account."
+
+            console.error(
+                "ERROR RESPONSE:",
+                error?.response
             );
+
+
+            console.error(
+                "ERROR RESPONSE DATA:",
+                error?.response?.data
+            );
+
+
+            const message =
+
+                error?.response?.data?.message ||
+
+                error?.response?.data?.error ||
+
+                error?.message ||
+
+                "Unable to create account.";
+
+
+            alert(
+                message
+            );
+
 
         } finally {
 
@@ -159,438 +303,442 @@ const AddAccount = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
-        <div className="container-fluid">
+        <div className="container-fluid px-4 py-4">
 
-            {/* Header */}
+            {/* ================================================================
+                HEADER
+            ================================================================= */}
 
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <div>
 
-                    <h3 className="mb-1">
-
+                    <h2 className="mb-1">
                         Add Account
+                    </h2>
 
-                    </h3>
-
-                    <small className="text-muted">
-
+                    <div className="text-muted">
                         Create a new bank or cash account
-
-                    </small>
+                    </div>
 
                 </div>
 
 
-                <Link
-                    to="/accounts"
-                    className="btn btn-outline-secondary"
+                <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() =>
+                        navigate("/accounts")
+                    }
+                    disabled={loading}
                 >
-
                     Back
-
-                </Link>
+                </button>
 
             </div>
 
 
-            {/* Form */}
+            {/* ================================================================
+                FORM CARD
+            ================================================================= */}
 
-            <div className="row justify-content-center">
+            <div className="card shadow-sm">
 
-                <div className="col-xl-8 col-lg-10">
+                <div className="card-header bg-white">
 
-                    <div className="card shadow-sm">
+                    <h4 className="mb-0">
+                        Account Information
+                    </h4>
 
-                        <div className="card-header bg-white">
+                </div>
 
-                            <h5 className="mb-0">
 
-                                Account Information
+                <div className="card-body">
 
-                            </h5>
+                    <form
+                        onSubmit={
+                            handleSubmit
+                        }
+                    >
 
-                        </div>
+                        <div className="row g-4">
 
+                            {/* ==================================================
+                                ACCOUNT NAME
+                            =================================================== */}
 
-                        <div className="card-body">
+                            <div className="col-md-6">
 
-                            <form
-                                onSubmit={
-                                    handleSubmit
-                                }
-                            >
+                                <label className="form-label">
 
-                                <div className="row">
+                                    Account Name
 
+                                    <span className="text-danger">
+                                        {" "}*
+                                    </span>
 
-                                    {/* Account Name */}
+                                </label>
 
-                                    <div className="col-md-6 mb-3">
 
-                                        <label className="form-label">
+                                <input
+                                    type="text"
+                                    name="name"
+                                    className="form-control"
+                                    placeholder="e.g. RBL Salary Account"
+                                    value={
+                                        form.name
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                />
 
-                                            Account Name
 
-                                            <span className="text-danger">
-                                                {" "}*
-                                            </span>
+                                <small className="text-muted">
 
-                                        </label>
+                                    Give your account a meaningful name.
 
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="name"
-                                            placeholder="e.g. RBL Salary Account"
-                                            value={
-                                                form.name
-                                            }
-                                            onChange={
-                                                handleChange
-                                            }
-                                            disabled={
-                                                loading
-                                            }
-                                        />
+                                </small>
 
-                                        <small className="text-muted">
+                            </div>
 
-                                            Give your account a
-                                            meaningful name.
 
-                                        </small>
+                            {/* ==================================================
+                                BANK
+                            =================================================== */}
 
-                                    </div>
+                            <div className="col-md-6">
 
+                                <label className="form-label">
 
-                                    {/* Bank */}
+                                    Bank
 
-                                    <div className="col-md-6 mb-3">
+                                    <span className="text-danger">
+                                        {" "}*
+                                    </span>
 
-                                        <label className="form-label">
+                                </label>
 
-                                            Bank
 
-                                            <span className="text-danger">
-                                                {" "}*
-                                            </span>
+                                <select
+                                    name="bank"
+                                    className="form-select"
+                                    value={
+                                        form.bank
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                >
 
-                                        </label>
+                                    <option value="Pnb">
+                                        PNB
+                                    </option>
 
-                                        <select
-                                            className="form-select"
-                                            name="bank"
-                                            value={
-                                                form.bank
-                                            }
-                                            onChange={
-                                                handleChange
-                                            }
-                                            disabled={
-                                                loading
-                                            }
-                                        >
+                                    <option value="Rbl">
+                                        RBL
+                                    </option>
 
-                                            <option value="Rbl">
+                                    <option value="icici">
+                                        ICICI
+                                    </option>
 
-                                                RBL
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
 
-                                            </option>
+                                    <option value="Other">
+                                        Other
+                                    </option>
 
-                                            <option value="Pnb">
+                                </select>
 
-                                                PNB
+                            </div>
 
-                                            </option>
 
-                                            <option value="Icici">
+                            {/* ==================================================
+                                ACCOUNT TYPE
+                            =================================================== */}
 
-                                                ICICI
+                            <div className="col-md-6">
 
-                                            </option>
+                                <label className="form-label">
 
-                                            <option value="Cash">
+                                    Account Type
 
-                                                Cash
+                                </label>
 
-                                            </option>
 
-                                            <option value="Other">
+                                <select
+                                    name="accountType"
+                                    className="form-select"
+                                    value={
+                                        form.accountType
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                >
 
-                                                Other
+                                    <option value="Savings">
+                                        Savings
+                                    </option>
 
-                                            </option>
+                                    <option value="Current">
+                                        Current
+                                    </option>
 
-                                        </select>
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
 
-                                    </div>
+                                </select>
 
+                            </div>
 
-                                    {/* Account Type */}
 
-                                    <div className="col-md-6 mb-3">
+                            {/* ==================================================
+                                OPENING BALANCE
+                            =================================================== */}
 
-                                        <label className="form-label">
+                            <div className="col-md-6">
 
-                                            Account Type
+                                <label className="form-label">
 
-                                        </label>
+                                    Opening Balance
 
-                                        <select
-                                            className="form-select"
-                                            name="accountType"
-                                            value={
-                                                form.accountType
-                                            }
-                                            onChange={
-                                                handleChange
-                                            }
-                                            disabled={
-                                                loading
-                                            }
-                                        >
+                                </label>
 
-                                            <option value="Savings">
 
-                                                Savings
+                                <div className="input-group">
 
-                                            </option>
+                                    <span className="input-group-text">
+                                        ₹
+                                    </span>
 
-                                            <option value="Current">
 
-                                                Current
-
-                                            </option>
-
-                                            <option value="Cash">
-
-                                                Cash
-
-                                            </option>
-
-                                        </select>
-
-                                    </div>
-
-
-                                    {/* Opening Balance */}
-
-                                    <div className="col-md-6 mb-3">
-
-                                        <label className="form-label">
-
-                                            Opening Balance
-
-                                        </label>
-
-                                        <div className="input-group">
-
-                                            <span className="input-group-text">
-
-                                                ₹
-
-                                            </span>
-
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                name="openingBalance"
-                                                placeholder="0.00"
-                                                min="0"
-                                                step="0.01"
-                                                value={
-                                                    form.openingBalance
-                                                }
-                                                onChange={
-                                                    handleChange
-                                                }
-                                                disabled={
-                                                    loading
-                                                }
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-
-                                    {/* Minimum Balance */}
-
-                                    <div className="col-md-6 mb-3">
-
-                                        <label className="form-label">
-
-                                            Minimum Balance
-
-                                        </label>
-
-                                        <div className="input-group">
-
-                                            <span className="input-group-text">
-
-                                                ₹
-
-                                            </span>
-
-                                            <input
-                                                type="number"
-                                                className="form-control"
-                                                name="minimumBalance"
-                                                placeholder="0.00"
-                                                min="0"
-                                                step="0.01"
-                                                value={
-                                                    form.minimumBalance
-                                                }
-                                                onChange={
-                                                    handleChange
-                                                }
-                                                disabled={
-                                                    loading
-                                                }
-                                            />
-
-                                        </div>
-
-                                        <small className="text-muted">
-
-                                            Minimum amount you
-                                            want to maintain.
-
-                                        </small>
-
-                                    </div>
-
-
-                                    {/* Purpose */}
-
-                                    <div className="col-md-6 mb-3">
-
-                                        <label className="form-label">
-
-                                            Purpose
-
-                                        </label>
-
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="purpose"
-                                            placeholder="e.g. Salary, Daily Expenses"
-                                            value={
-                                                form.purpose
-                                            }
-                                            onChange={
-                                                handleChange
-                                            }
-                                            disabled={
-                                                loading
-                                            }
-                                        />
-
-                                    </div>
-
-
-                                    {/* Status */}
-
-                                    <div className="col-12 mb-4">
-
-                                        <div className="form-check form-switch">
-
-                                            <input
-                                                className="form-check-input"
-                                                type="checkbox"
-                                                role="switch"
-                                                id="accountStatus"
-                                                name="status"
-                                                checked={
-                                                    form.status
-                                                }
-                                                onChange={
-                                                    handleChange
-                                                }
-                                                disabled={
-                                                    loading
-                                                }
-                                            />
-
-                                            <label
-                                                className="form-check-label"
-                                                htmlFor="accountStatus"
-                                            >
-
-                                                Active Account
-
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-
-                                </div>
-
-
-                                {/* Buttons */}
-
-                                <div className="d-flex gap-2">
-
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary"
+                                    <input
+                                        type="number"
+                                        name="openingBalance"
+                                        className="form-control"
+                                        placeholder="0.00"
+                                        min="0"
+                                        step="0.01"
+                                        value={
+                                            form.openingBalance
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
                                         disabled={
                                             loading
                                         }
-                                    >
+                                    />
 
-                                        {
+                                </div>
 
-                                            loading
+                            </div>
 
-                                                ?
 
-                                                (
+                            {/* ==================================================
+                                MINIMUM BALANCE
+                            =================================================== */}
 
-                                                    <>
-                                                        <span
-                                                            className="spinner-border spinner-border-sm me-2"
-                                                        />
+                            <div className="col-md-6">
 
-                                                        Saving...
+                                <label className="form-label">
 
-                                                    </>
+                                    Minimum Balance
 
-                                                )
+                                </label>
 
-                                                :
 
-                                                "Save Account"
+                                <div className="input-group">
 
+                                    <span className="input-group-text">
+                                        ₹
+                                    </span>
+
+
+                                    <input
+                                        type="number"
+                                        name="minimumBalance"
+                                        className="form-control"
+                                        placeholder="0.00"
+                                        min="0"
+                                        step="0.01"
+                                        value={
+                                            form.minimumBalance
                                         }
-
-                                    </button>
-
-
-                                    <Link
-                                        to="/accounts"
-                                        className="btn btn-secondary"
-                                    >
-
-                                        Cancel
-
-                                    </Link>
+                                        onChange={
+                                            handleChange
+                                        }
+                                        disabled={
+                                            loading
+                                        }
+                                    />
 
                                 </div>
 
 
-                            </form>
+                                <small className="text-muted">
+
+                                    Minimum amount you want to maintain.
+
+                                </small>
+
+                            </div>
+
+
+                            {/* ==================================================
+                                PURPOSE
+                            =================================================== */}
+
+                            <div className="col-md-6">
+
+                                <label className="form-label">
+
+                                    Purpose
+
+                                </label>
+
+
+                                <input
+                                    type="text"
+                                    name="purpose"
+                                    className="form-control"
+                                    placeholder="e.g. Salary, Daily Expenses"
+                                    value={
+                                        form.purpose
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* ==================================================
+                                STATUS
+                            =================================================== */}
+
+                            <div className="col-12">
+
+                                <div className="form-check form-switch">
+
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        id="status"
+                                        name="status"
+                                        checked={
+                                            form.status
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        disabled={
+                                            loading
+                                        }
+                                    />
+
+
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="status"
+                                    >
+
+                                        Active Account
+
+                                    </label>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
-                    </div>
+
+                        {/* ======================================================
+                            BUTTONS
+                        ======================================================= */}
+
+                        <div className="d-flex gap-2 mt-4">
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={
+                                    loading
+                                }
+                            >
+
+                                {
+
+                                    loading
+
+                                        ?
+
+                                        <>
+
+                                            <span
+                                                className="spinner-border spinner-border-sm me-2"
+                                                role="status"
+                                                aria-hidden="true"
+                                            />
+
+                                            Saving...
+
+                                        </>
+
+                                        :
+
+                                        "Save Account"
+
+                                }
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() =>
+                                    navigate("/accounts")
+                                }
+                                disabled={
+                                    loading
+                                }
+                            >
+
+                                Cancel
+
+                            </button>
+
+                        </div>
+
+                    </form>
 
                 </div>
 
@@ -601,5 +749,6 @@ const AddAccount = () => {
     );
 
 };
+
 
 export default AddAccount;
