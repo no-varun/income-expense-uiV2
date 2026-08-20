@@ -23,70 +23,129 @@ import {
 
 const InvestmentList = () => {
 
-    const [investments, setInvestments] = useState([]);
+    /*
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
 
-    const [accounts, setAccounts] = useState([]);
+    const [investments, setInvestments] =
+        useState([]);
+
+    const [accounts, setAccounts] =
+        useState([]);
 
     const [summary, setSummary] = useState({
+
         totalInvested: 0,
+
         totalCurrentValue: 0,
+
         totalProfitLoss: 0,
+
         returnPercentage: 0,
+
         typeSummary: []
+
     });
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [accountsLoading, setAccountsLoading] = useState(true);
+    const [accountsLoading, setAccountsLoading] =
+        useState(true);
 
-    const [deleting, setDeleting] = useState(null);
+    const [deleting, setDeleting] =
+        useState(null);
 
-    const [search, setSearch] = useState("");
+    const [search, setSearch] =
+        useState("");
 
-    const [type, setType] = useState("");
+    const [type, setType] =
+        useState("");
 
-    const [account, setAccount] = useState("");
+    const [account, setAccount] =
+        useState("");
 
-    const [status, setStatus] = useState("");
+    const [status, setStatus] =
+        useState("");
 
-    const [dateFrom, setDateFrom] = useState("");
+    const [dateFrom, setDateFrom] =
+        useState("");
 
-    const [dateTo, setDateTo] = useState("");
+    const [dateTo, setDateTo] =
+        useState("");
 
-    const [page, setPage] = useState(1);
+    const [page, setPage] =
+        useState(1);
 
     const limit = 10;
 
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] =
+        useState(0);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVESTMENT TYPES
+    |--------------------------------------------------------------------------
+    */
 
     const investmentTypes = [
+
         "FD",
+
         "RD",
+
         "SIP",
+
         "STOCK",
+
         "MUTUAL_FUND",
+
         "GOLD",
+
         "OTHER"
+
     ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TYPE LABEL
+    |--------------------------------------------------------------------------
+    */
 
     const getTypeLabel = (value) => {
 
         const labels = {
+
             FD: "FD",
+
             RD: "RD",
+
             SIP: "SIP",
+
             STOCK: "Stock",
+
             MUTUAL_FUND: "Mutual Fund",
+
             GOLD: "Gold",
+
             OTHER: "Other"
+
         };
 
         return labels[value] || value;
 
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TYPE BADGE
+    |--------------------------------------------------------------------------
+    */
 
     const getTypeBadge = (value) => {
 
@@ -118,27 +177,62 @@ const InvestmentList = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
     const loadAccounts = async () => {
 
         try {
 
             setAccountsLoading(true);
 
+
             const response =
                 await getAccounts();
 
-            if (response.success) {
+
+            console.log(
+                "Account API Response:",
+                response
+            );
+
+
+            if (
+                response?.success === true
+            ) {
 
                 const rows =
-                    Array.isArray(response.data)
-                        ? response.data
-                        : response.data?.rows || [];
 
-                setAccounts(rows);
+                    Array.isArray(
+                        response.data
+                    )
+
+                        ? response.data
+
+                        : Array.isArray(
+                            response.data?.rows
+                        )
+
+                            ? response.data.rows
+
+                            : [];
+
+
+                setAccounts(
+                    rows
+                );
 
             } else {
 
                 setAccounts([]);
+
+                console.error(
+                    response?.message ||
+                    "Unable to load accounts."
+                );
 
             }
 
@@ -160,17 +254,20 @@ const InvestmentList = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD INVESTMENTS
+    |--------------------------------------------------------------------------
+    */
+
     const loadInvestments = async () => {
-
         try {
-
             setLoading(true);
 
             const params = {
                 page,
                 limit
             };
-
 
             if (search.trim()) {
                 params.search = search.trim();
@@ -196,28 +293,61 @@ const InvestmentList = () => {
                 params.dateTo = dateTo;
             }
 
+            console.log(
+                "Investment List Params:",
+                params
+            );
 
-            const response =
-                await getInvestments(params);
+            const response = await getInvestments(params);
 
+            console.log(
+                "Investment List Response:",
+                response
+            );
 
-            if (response.success) {
+            /*
+            |--------------------------------------------------------------------------
+            | SUPPORT ALL API RESPONSE FORMATS
+            |--------------------------------------------------------------------------
+            |
+            | Format 1:
+            | {
+            |   success: true,
+            |   data: {
+            |       rows: []
+            |   }
+            | }
+            |
+            | Format 2:
+            | {
+            |   total: 1,
+            |   rows: []
+            | }
+            |
+            */
 
-                setInvestments(
-                    response.data?.rows || []
-                );
+            const result =
+                response?.data?.rows !== undefined
+                    ? response.data
+                    : response;
 
-                setTotal(
-                    response.data?.total || 0
-                );
+            const rows =
+                Array.isArray(result?.rows)
+                    ? result.rows
+                    : [];
 
-            } else {
+            console.log(
+                "Investment Rows:",
+                rows
+            );
 
-                setInvestments([]);
+            setInvestments(rows);
 
-                setTotal(0);
-
-            }
+            setTotal(
+                Number(
+                    result?.total || 0
+                )
+            );
 
         } catch (error) {
 
@@ -226,8 +356,13 @@ const InvestmentList = () => {
                 error
             );
 
+            setInvestments([]);
+
+            setTotal(0);
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to load investments."
             );
 
@@ -236,9 +371,14 @@ const InvestmentList = () => {
             setLoading(false);
 
         }
-
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD SUMMARY
+    |--------------------------------------------------------------------------
+    */
 
     const loadSummary = async () => {
 
@@ -247,13 +387,154 @@ const InvestmentList = () => {
             const response =
                 await getInvestmentSummary();
 
-            if (response.success) {
+            console.log(
+                "Investment Summary Response:",
+                response
+            );
 
-                setSummary(
-                    response.data || {}
-                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUPPORT BOTH RESPONSE FORMATS
+            |--------------------------------------------------------------------------
+            |
+            | FORMAT 1
+            |
+            | {
+            |     success: true,
+            |     message: "Investment summary",
+            |     data: {
+            |         totalInvested: 3333,
+            |         ...
+            |     }
+            | }
+            |
+            | FORMAT 2 - CURRENT API HELPER
+            |
+            | {
+            |     totalInvested: 3333,
+            |     totalCurrentValue: 3456,
+            |     totalProfitLoss: 123,
+            |     returnPercentage: 3.69,
+            |     totalInvestments: 1,
+            |     typeSummary: [...]
+            | }
+            |
+            */
+
+
+            let summaryData = null;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FORMAT 1
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                response?.success === true &&
+                response?.data
+            ) {
+
+                summaryData =
+                    response.data;
 
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FORMAT 2
+            |--------------------------------------------------------------------------
+            */
+
+            else if (
+                response &&
+                typeof response === "object" &&
+                (
+                    response.totalInvested !== undefined ||
+                    response.totalCurrentValue !== undefined ||
+                    response.totalProfitLoss !== undefined ||
+                    response.totalInvestments !== undefined
+                )
+            ) {
+
+                summaryData =
+                    response;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | NO DATA
+            |--------------------------------------------------------------------------
+            */
+
+            if (!summaryData) {
+
+                console.error(
+                    "Invalid Investment Summary Response:",
+                    response
+                );
+
+                setSummary({
+
+                    totalInvested: 0,
+
+                    totalCurrentValue: 0,
+
+                    totalProfitLoss: 0,
+
+                    returnPercentage: 0,
+
+                    typeSummary: []
+
+                });
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SET SUMMARY
+            |--------------------------------------------------------------------------
+            */
+
+            setSummary({
+
+                totalInvested:
+                    Number(
+                        summaryData.totalInvested || 0
+                    ),
+
+                totalCurrentValue:
+                    Number(
+                        summaryData.totalCurrentValue || 0
+                    ),
+
+                totalProfitLoss:
+                    Number(
+                        summaryData.totalProfitLoss || 0
+                    ),
+
+                returnPercentage:
+                    Number(
+                        summaryData.returnPercentage || 0
+                    ),
+
+                typeSummary:
+                    Array.isArray(
+                        summaryData.typeSummary
+                    )
+                        ? summaryData.typeSummary
+                        : []
+
+            });
+
 
         } catch (error) {
 
@@ -262,10 +543,30 @@ const InvestmentList = () => {
                 error
             );
 
+
+            setSummary({
+
+                totalInvested: 0,
+
+                totalCurrentValue: 0,
+
+                totalProfitLoss: 0,
+
+                returnPercentage: 0,
+
+                typeSummary: []
+
+            });
+
         }
 
     };
 
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -274,20 +575,40 @@ const InvestmentList = () => {
     }, []);
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INVESTMENT LIST
+    |--------------------------------------------------------------------------
+    */
+
     useEffect(() => {
 
         loadInvestments();
 
     }, [
+
         page,
+
         search,
+
         type,
+
         account,
+
         status,
+
         dateFrom,
+
         dateTo
+
     ]);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUMMARY
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -296,36 +617,72 @@ const InvestmentList = () => {
     }, []);
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RESET
+    |--------------------------------------------------------------------------
+    */
+
     const handleReset = () => {
 
         setSearch("");
+
         setType("");
+
         setAccount("");
+
         setStatus("");
+
         setDateFrom("");
+
         setDateTo("");
+
         setPage(1);
 
     };
 
 
-    const handleRefresh = () => {
+    /*
+    |--------------------------------------------------------------------------
+    | REFRESH
+    |--------------------------------------------------------------------------
+    */
 
-        loadInvestments();
-        loadSummary();
+    const handleRefresh = async () => {
+
+        await Promise.all([
+
+            loadInvestments(),
+
+            loadSummary(),
+
+            loadAccounts()
+
+        ]);
 
     };
 
 
-    const handleDelete = async (id) => {
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    const handleDelete = async (
+        id
+    ) => {
 
         const confirmed =
             window.confirm(
                 "Are you sure you want to delete this investment?"
             );
 
+
         if (!confirmed) {
+
             return;
+
         }
 
 
@@ -333,35 +690,55 @@ const InvestmentList = () => {
 
             setDeleting(id);
 
+
             const response =
-                await deleteInvestment(id);
+                await deleteInvestment(
+                    id
+                );
 
 
-            if (response.success) {
+            console.log(
+                "Delete Investment Response:",
+                response
+            );
+
+
+            if (
+                response?.success === true
+            ) {
 
                 alert(
+                    response.message ||
                     "Investment deleted successfully."
                 );
 
+
                 if (
+
                     investments.length === 1 &&
+
                     page > 1
+
                 ) {
 
-                    setPage(page - 1);
+                    setPage(
+                        page - 1
+                    );
 
                 } else {
 
-                    loadInvestments();
+                    await loadInvestments();
 
                 }
 
-                loadSummary();
+
+                await loadSummary();
+
 
             } else {
 
                 alert(
-                    response.message ||
+                    response?.message ||
                     "Unable to delete investment."
                 );
 
@@ -374,9 +751,15 @@ const InvestmentList = () => {
                 error
             );
 
+
             alert(
-                error.response?.data?.message ||
+
+                error?.response?.data?.message ||
+
+                error?.message ||
+
                 "Unable to delete investment."
+
             );
 
         } finally {
@@ -388,75 +771,174 @@ const InvestmentList = () => {
     };
 
 
-    const formatAmount = (amount) => {
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
+    const formatAmount = (
+        amount
+    ) => {
 
         return Number(
             amount || 0
         ).toLocaleString(
             "en-IN",
             {
-                style: "currency",
-                currency: "INR",
-                maximumFractionDigits: 2
+
+                style:
+                    "currency",
+
+                currency:
+                    "INR",
+
+                maximumFractionDigits:
+                    2
+
             }
         );
 
     };
 
 
-    const formatDate = (date) => {
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT DATE
+    |--------------------------------------------------------------------------
+    */
+
+    const formatDate = (
+        date
+    ) => {
 
         if (!date) {
+
             return "-";
+
         }
 
-        return new Date(date).toLocaleDateString(
+
+        const parsedDate =
+            new Date(date);
+
+
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
+
+            return "-";
+
+        }
+
+
+        return parsedDate.toLocaleDateString(
             "en-IN",
             {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
+
+                day:
+                    "2-digit",
+
+                month:
+                    "short",
+
+                year:
+                    "numeric"
+
             }
         );
 
     };
 
 
-    const profitLossClass = (value) => {
+    /*
+    |--------------------------------------------------------------------------
+    | PROFIT LOSS CLASS
+    |--------------------------------------------------------------------------
+    */
 
-        if (Number(value) > 0) {
+    const profitLossClass = (
+        value
+    ) => {
+
+        const number =
+            Number(value || 0);
+
+
+        if (
+            number > 0
+        ) {
+
             return "text-success";
+
         }
 
-        if (Number(value) < 0) {
+
+        if (
+            number < 0
+        ) {
+
             return "text-danger";
+
         }
+
 
         return "text-muted";
 
     };
 
 
-    const totalPages =
-        Math.ceil(total / limit);
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL PAGES
+    |--------------------------------------------------------------------------
+    */
 
+    const totalPages =
+        Math.ceil(
+            total / limit
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
         <div className="container-fluid">
 
-            {/* Header */}
 
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            {/* ================================================================
+                HEADER
+            ================================================================= */}
+
+            <div className="
+                d-flex
+                flex-wrap
+                justify-content-between
+                align-items-center
+                mb-4
+                gap-2
+            ">
 
                 <div>
 
                     <h3 className="mb-1">
+
                         Investments
+
                     </h3>
 
+
                     <small className="text-muted">
+
                         Manage FD, RD, SIP, Stocks, Mutual Funds and Gold
+
                     </small>
 
                 </div>
@@ -465,9 +947,14 @@ const InvestmentList = () => {
                 <div className="d-flex gap-2">
 
                     <button
+                        type="button"
                         className="btn btn-outline-secondary"
-                        onClick={handleRefresh}
-                        disabled={loading}
+                        onClick={
+                            handleRefresh
+                        }
+                        disabled={
+                            loading
+                        }
                     >
 
                         <FaSync className="me-2" />
@@ -493,19 +980,31 @@ const InvestmentList = () => {
             </div>
 
 
-            {/* Summary */}
+            {/* ================================================================
+                SUMMARY
+            ================================================================= */}
 
             <div className="row g-3 mb-4">
 
+
+                {/* TOTAL INVESTED */}
+
                 <div className="col-xl-3 col-md-6">
 
-                    <div className="card shadow-sm h-100">
+                    <div className="
+                        card
+                        shadow-sm
+                        h-100
+                    ">
 
                         <div className="card-body">
 
                             <small className="text-muted">
+
                                 Total Invested
+
                             </small>
+
 
                             <h4 className="mt-2 mb-0">
 
@@ -524,17 +1023,30 @@ const InvestmentList = () => {
                 </div>
 
 
+                {/* CURRENT VALUE */}
+
                 <div className="col-xl-3 col-md-6">
 
-                    <div className="card shadow-sm h-100">
+                    <div className="
+                        card
+                        shadow-sm
+                        h-100
+                    ">
 
                         <div className="card-body">
 
                             <small className="text-muted">
+
                                 Current Value
+
                             </small>
 
-                            <h4 className="mt-2 mb-0 text-primary">
+
+                            <h4 className="
+                                mt-2
+                                mb-0
+                                text-primary
+                            ">
 
                                 {
                                     formatAmount(
@@ -551,29 +1063,46 @@ const InvestmentList = () => {
                 </div>
 
 
+                {/* PROFIT LOSS */}
+
                 <div className="col-xl-3 col-md-6">
 
-                    <div className="card shadow-sm h-100">
+                    <div className="
+                        card
+                        shadow-sm
+                        h-100
+                    ">
 
                         <div className="card-body">
 
                             <small className="text-muted">
+
                                 Profit / Loss
+
                             </small>
 
+
                             <h4
-                                className={`mt-2 mb-0 ${profitLossClass(
+                                className={`
+                                    mt-2
+                                    mb-0
+                                    ${profitLossClass(
                                     summary.totalProfitLoss
-                                )}`}
+                                )}
+                                `}
                             >
 
                                 {
                                     Number(
-                                        summary.totalProfitLoss || 0
+                                        summary.totalProfitLoss ||
+                                        0
                                     ) >= 0
+
                                         ? "+"
+
                                         : ""
                                 }
+
 
                                 {
                                     formatAmount(
@@ -590,25 +1119,39 @@ const InvestmentList = () => {
                 </div>
 
 
+                {/* RETURN */}
+
                 <div className="col-xl-3 col-md-6">
 
-                    <div className="card shadow-sm h-100">
+                    <div className="
+                        card
+                        shadow-sm
+                        h-100
+                    ">
 
                         <div className="card-body">
 
                             <small className="text-muted">
+
                                 Return
+
                             </small>
 
+
                             <h4
-                                className={`mt-2 mb-0 ${profitLossClass(
+                                className={`
+                                    mt-2
+                                    mb-0
+                                    ${profitLossClass(
                                     summary.totalProfitLoss
-                                )}`}
+                                )}
+                                `}
                             >
 
                                 {
                                     Number(
-                                        summary.returnPercentage || 0
+                                        summary.returnPercentage ||
+                                        0
                                     ).toFixed(2)
                                 }%
 
@@ -623,36 +1166,60 @@ const InvestmentList = () => {
             </div>
 
 
-            {/* Filters */}
+            {/* ================================================================
+                FILTERS
+            ================================================================= */}
 
-            <div className="card shadow-sm mb-4">
+            <div className="
+                card
+                shadow-sm
+                mb-4
+            ">
 
                 <div className="card-body">
 
                     <div className="row g-3">
 
-                        {/* Search */}
 
-                        <div className="col-xl-3 col-lg-4 col-md-6">
+                        {/* SEARCH */}
+
+                        <div className="
+                            col-xl-3
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 Search
+
                             </label>
+
 
                             <div className="input-group">
 
                                 <span className="input-group-text">
+
                                     <FaSearch />
+
                                 </span>
+
 
                                 <input
                                     type="text"
                                     className="form-control"
                                     placeholder="Search investment..."
-                                    value={search}
+                                    value={
+                                        search
+                                    }
                                     onChange={(e) => {
-                                        setSearch(e.target.value);
+
+                                        setSearch(
+                                            e.target.value
+                                        );
+
                                         setPage(1);
+
                                     }}
                                 />
 
@@ -661,42 +1228,67 @@ const InvestmentList = () => {
                         </div>
 
 
-                        {/* Type */}
+                        {/* TYPE */}
 
-                        <div className="col-xl-2 col-lg-4 col-md-6">
+                        <div className="
+                            col-xl-2
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 Type
+
                             </label>
+
 
                             <select
                                 className="form-select"
-                                value={type}
+                                value={
+                                    type
+                                }
                                 onChange={(e) => {
-                                    setType(e.target.value);
+
+                                    setType(
+                                        e.target.value
+                                    );
+
                                     setPage(1);
+
                                 }}
                             >
 
                                 <option value="">
+
                                     All Types
+
                                 </option>
 
+
                                 {
-                                    investmentTypes.map(item => (
+                                    investmentTypes.map(
+                                        item => (
 
-                                        <option
-                                            key={item}
-                                            value={item}
-                                        >
+                                            <option
+                                                key={
+                                                    item
+                                                }
+                                                value={
+                                                    item
+                                                }
+                                            >
 
-                                            {
-                                                getTypeLabel(item)
-                                            }
+                                                {
+                                                    getTypeLabel(
+                                                        item
+                                                    )
+                                                }
 
-                                        </option>
+                                            </option>
 
-                                    ))
+                                        )
+                                    )
                                 }
 
                             </select>
@@ -704,47 +1296,74 @@ const InvestmentList = () => {
                         </div>
 
 
-                        {/* Account */}
+                        {/* ACCOUNT */}
 
-                        <div className="col-xl-2 col-lg-4 col-md-6">
+                        <div className="
+                            col-xl-2
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 Account
+
                             </label>
+
 
                             <select
                                 className="form-select"
-                                value={account}
+                                value={
+                                    account
+                                }
                                 onChange={(e) => {
-                                    setAccount(e.target.value);
+
+                                    setAccount(
+                                        e.target.value
+                                    );
+
                                     setPage(1);
+
                                 }}
-                                disabled={accountsLoading}
+                                disabled={
+                                    accountsLoading
+                                }
                             >
 
                                 <option value="">
+
                                     All Accounts
+
                                 </option>
 
+
                                 {
-                                    accounts.map(item => (
+                                    accounts.map(
+                                        item => (
 
-                                        <option
-                                            key={item._id}
-                                            value={item._id}
-                                        >
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
 
-                                            {item.name}
+                                                {
+                                                    item.name
+                                                }
 
-                                            {
-                                                item.bank
-                                                    ? ` (${item.bank})`
-                                                    : ""
-                                            }
+                                                {
+                                                    item.bank
+                                                        ? ` (${item.bank})`
+                                                        : ""
+                                                }
 
-                                        </option>
+                                            </option>
 
-                                    ))
+                                        )
+                                    )
                                 }
 
                             </select>
@@ -752,33 +1371,55 @@ const InvestmentList = () => {
                         </div>
 
 
-                        {/* Status */}
+                        {/* STATUS */}
 
-                        <div className="col-xl-2 col-lg-4 col-md-6">
+                        <div className="
+                            col-xl-2
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 Status
+
                             </label>
+
 
                             <select
                                 className="form-select"
-                                value={status}
+                                value={
+                                    status
+                                }
                                 onChange={(e) => {
-                                    setStatus(e.target.value);
+
+                                    setStatus(
+                                        e.target.value
+                                    );
+
                                     setPage(1);
+
                                 }}
                             >
 
                                 <option value="">
+
                                     All Status
+
                                 </option>
+
 
                                 <option value="true">
+
                                     Active
+
                                 </option>
 
+
                                 <option value="false">
+
                                     Inactive
+
                                 </option>
 
                             </select>
@@ -786,55 +1427,96 @@ const InvestmentList = () => {
                         </div>
 
 
-                        {/* From */}
+                        {/* FROM */}
 
-                        <div className="col-xl-1 col-lg-4 col-md-6">
+                        <div className="
+                            col-xl-1
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 From
+
                             </label>
+
 
                             <input
                                 type="date"
                                 className="form-control"
-                                value={dateFrom}
+                                value={
+                                    dateFrom
+                                }
                                 onChange={(e) => {
-                                    setDateFrom(e.target.value);
+
+                                    setDateFrom(
+                                        e.target.value
+                                    );
+
                                     setPage(1);
+
                                 }}
                             />
 
                         </div>
 
 
-                        {/* To */}
+                        {/* TO */}
 
-                        <div className="col-xl-1 col-lg-4 col-md-6">
+                        <div className="
+                            col-xl-1
+                            col-lg-4
+                            col-md-6
+                        ">
 
                             <label className="form-label">
+
                                 To
+
                             </label>
+
 
                             <input
                                 type="date"
                                 className="form-control"
-                                value={dateTo}
+                                value={
+                                    dateTo
+                                }
                                 onChange={(e) => {
-                                    setDateTo(e.target.value);
+
+                                    setDateTo(
+                                        e.target.value
+                                    );
+
                                     setPage(1);
+
                                 }}
                             />
 
                         </div>
 
 
-                        {/* Reset */}
+                        {/* RESET */}
 
-                        <div className="col-xl-1 col-lg-4 col-md-6 d-flex align-items-end">
+                        <div className="
+                            col-xl-1
+                            col-lg-4
+                            col-md-6
+                            d-flex
+                            align-items-end
+                        ">
 
                             <button
-                                className="btn btn-outline-secondary w-100"
-                                onClick={handleReset}
+                                type="button"
+                                className="
+                                    btn
+                                    btn-outline-secondary
+                                    w-100
+                                "
+                                onClick={
+                                    handleReset
+                                }
                             >
 
                                 Reset
@@ -850,15 +1532,23 @@ const InvestmentList = () => {
             </div>
 
 
-            {/* Table */}
+            {/* ================================================================
+                TABLE
+            ================================================================= */}
 
             <div className="card shadow-sm">
+
 
                 <div className="card-body p-0">
 
                     <div className="table-responsive">
 
-                        <table className="table table-hover align-middle mb-0">
+                        <table className="
+                            table
+                            table-hover
+                            align-middle
+                            mb-0
+                        ">
 
                             <thead className="table-light">
 
@@ -887,7 +1577,9 @@ const InvestmentList = () => {
                                     <th>Status</th>
 
                                     <th className="text-end">
+
                                         Action
+
                                     </th>
 
                                 </tr>
@@ -897,292 +1589,73 @@ const InvestmentList = () => {
 
                             <tbody>
 
+
+                                {/* ==================================================
+                                    LOADING
+                                =================================================== */}
+
                                 {
-                                    loading ? (
+                                    loading
 
-                                        <tr>
+                                        ? (
 
-                                            <td
-                                                colSpan="12"
-                                                className="text-center py-5"
-                                            >
+                                            <tr>
 
-                                                <div className="spinner-border text-primary" />
-
-                                                <div className="text-muted mt-2">
-                                                    Loading investments...
-                                                </div>
-
-                                            </td>
-
-                                        </tr>
-
-                                    ) : investments.length === 0 ? (
-
-                                        <tr>
-
-                                            <td
-                                                colSpan="12"
-                                                className="text-center py-5"
-                                            >
-
-                                                <FaChartLine
-                                                    size={35}
-                                                    className="text-muted mb-3"
-                                                />
-
-                                                <div className="text-muted">
-                                                    No investments found.
-                                                </div>
-
-                                            </td>
-
-                                        </tr>
-
-                                    ) : (
-
-                                        investments.map(
-                                            (investment, index) => (
-
-                                                <tr
-                                                    key={
-                                                        investment._id
-                                                    }
+                                                <td
+                                                    colSpan="12"
+                                                    className="
+                                                        text-center
+                                                        py-5
+                                                    "
                                                 >
 
-                                                    <td>
-                                                        {
-                                                            (
-                                                                page - 1
-                                                            ) *
-                                                                limit +
-                                                            index +
-                                                            1
-                                                        }
-                                                    </td>
+                                                    <div className="
+                                                        spinner-border
+                                                        text-primary
+                                                    " />
+
+                                                    <div className="
+                                                        text-muted
+                                                        mt-2
+                                                    ">
+
+                                                        Loading investments...
+
+                                                    </div>
+
+                                                </td>
+
+                                            </tr>
+
+                                        )
 
 
-                                                    <td>
-                                                        {
-                                                            formatDate(
-                                                                investment.date
-                                                            )
-                                                        }
-                                                    </td>
+                                        : investments.length === 0
+
+                                            ? (
+
+                                                <tr>
+
+                                                    <td
+                                                        colSpan="12"
+                                                        className="
+                                                            text-center
+                                                            py-5
+                                                        "
+                                                    >
+
+                                                        <FaChartLine
+                                                            size={35}
+                                                            className="
+                                                                text-muted
+                                                                mb-3
+                                                            "
+                                                        />
 
 
-                                                    <td>
+                                                        <div className="text-muted">
 
-                                                        <div className="fw-semibold">
-                                                            {
-                                                                investment.name
-                                                            }
-                                                        </div>
-
-                                                        {
-                                                            investment.note && (
-
-                                                                <small className="text-muted">
-                                                                    {
-                                                                        investment.note
-                                                                    }
-                                                                </small>
-
-                                                            )
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <span
-                                                            className={`badge ${getTypeBadge(
-                                                                investment.type
-                                                            )}`}
-                                                        >
-
-                                                            {
-                                                                getTypeLabel(
-                                                                    investment.type
-                                                                )
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <div className="fw-semibold">
-                                                            {
-                                                                investment.account?.name ||
-                                                                "-"
-                                                            }
-                                                        </div>
-
-                                                        <small className="text-muted">
-                                                            {
-                                                                investment.account?.bank ||
-                                                                ""
-                                                            }
-                                                        </small>
-
-                                                    </td>
-
-
-                                                    <td className="fw-semibold">
-
-                                                        {
-                                                            formatAmount(
-                                                                investment.investedAmount
-                                                            )
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td className="fw-semibold text-primary">
-
-                                                        {
-                                                            formatAmount(
-                                                                investment.currentValue
-                                                            )
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <span
-                                                            className={`fw-bold ${profitLossClass(
-                                                                investment.profitLoss
-                                                            )}`}
-                                                        >
-
-                                                            {
-                                                                Number(
-                                                                    investment.profitLoss || 0
-                                                                ) >= 0
-                                                                    ? "+"
-                                                                    : ""
-                                                            }
-
-                                                            {
-                                                                formatAmount(
-                                                                    investment.profitLoss
-                                                                )
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <span
-                                                            className={
-                                                                profitLossClass(
-                                                                    investment.profitLoss
-                                                                )
-                                                            }
-                                                        >
-
-                                                            {
-                                                                Number(
-                                                                    investment.returnPercentage || 0
-                                                                ) >= 0
-                                                                    ? "+"
-                                                                    : ""
-                                                            }
-
-                                                            {
-                                                                Number(
-                                                                    investment.returnPercentage || 0
-                                                                ).toFixed(2)
-                                                            }%
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            investment.maturityDate
-                                                                ? formatDate(
-                                                                    investment.maturityDate
-                                                                )
-                                                                : "-"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            investment.status
-                                                                ? (
-                                                                    <span className="badge bg-success">
-                                                                        Active
-                                                                    </span>
-                                                                )
-                                                                : (
-                                                                    <span className="badge bg-secondary">
-                                                                        Inactive
-                                                                    </span>
-                                                                )
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <div className="d-flex justify-content-end gap-2">
-
-                                                            <Link
-                                                                to={`/investments/edit/${investment._id}`}
-                                                                className="btn btn-sm btn-outline-primary"
-                                                                title="Edit"
-                                                            >
-
-                                                                <FaEdit />
-
-                                                            </Link>
-
-
-                                                            <button
-                                                                type="button"
-                                                                className="btn btn-sm btn-outline-danger"
-                                                                disabled={
-                                                                    deleting ===
-                                                                    investment._id
-                                                                }
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        investment._id
-                                                                    )
-                                                                }
-                                                            >
-
-                                                                {
-                                                                    deleting ===
-                                                                    investment._id
-                                                                        ? (
-                                                                            <span className="spinner-border spinner-border-sm" />
-                                                                        )
-                                                                        : (
-                                                                            <FaTrash />
-                                                                        )
-                                                                }
-
-                                                            </button>
+                                                            No investments found.
 
                                                         </div>
 
@@ -1191,9 +1664,370 @@ const InvestmentList = () => {
                                                 </tr>
 
                                             )
-                                        )
 
-                                    )
+
+                                            : (
+
+                                                investments.map(
+                                                    (
+                                                        investment,
+                                                        index
+                                                    ) => (
+
+                                                        <tr
+                                                            key={
+                                                                investment._id
+                                                            }
+                                                        >
+
+
+                                                            {/* NUMBER */}
+
+                                                            <td>
+
+                                                                {
+                                                                    (
+                                                                        page -
+                                                                        1
+                                                                    ) *
+                                                                    limit +
+                                                                    index +
+                                                                    1
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* DATE */}
+
+                                                            <td>
+
+                                                                {
+                                                                    formatDate(
+                                                                        investment.date
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* INVESTMENT */}
+
+                                                            <td>
+
+                                                                <div className="
+                                                                    fw-semibold
+                                                                ">
+
+                                                                    {
+                                                                        investment.name
+                                                                    }
+
+                                                                </div>
+
+
+                                                                {
+                                                                    investment.note && (
+
+                                                                        <small className="
+                                                                            text-muted
+                                                                        ">
+
+                                                                            {
+                                                                                investment.note
+                                                                            }
+
+                                                                        </small>
+
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* TYPE */}
+
+                                                            <td>
+
+                                                                <span
+                                                                    className={`
+                                                                        badge
+                                                                        ${getTypeBadge(
+                                                                        investment.type
+                                                                    )}
+                                                                    `}
+                                                                >
+
+                                                                    {
+                                                                        getTypeLabel(
+                                                                            investment.type
+                                                                        )
+                                                                    }
+
+                                                                </span>
+
+                                                            </td>
+
+
+                                                            {/* ACCOUNT */}
+
+                                                            <td>
+                                                                {investment.account &&
+                                                                    typeof investment.account === "object" ? (
+                                                                    <div>
+                                                                        <div className="fw-semibold">
+                                                                            {investment.account.name || "-"}
+                                                                        </div>
+
+                                                                        <small className="text-muted">
+                                                                            {investment.account.bank || ""}
+                                                                            {investment.account.accountType
+                                                                                ? ` • ${investment.account.accountType}`
+                                                                                : ""}
+                                                                        </small>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-muted">
+                                                                        -
+                                                                    </span>
+                                                                )}
+                                                            </td>
+
+                                                            {/* INVESTED */}
+
+                                                            <td className="fw-semibold">
+
+                                                                {
+                                                                    formatAmount(
+                                                                        investment.investedAmount
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* CURRENT VALUE */}
+
+                                                            <td className="
+                                                                fw-semibold
+                                                                text-primary
+                                                            ">
+
+                                                                {
+                                                                    formatAmount(
+                                                                        investment.currentValue
+                                                                    )
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* PROFIT LOSS */}
+
+                                                            <td>
+
+                                                                <span
+                                                                    className={`
+                                                                        fw-bold
+                                                                        ${profitLossClass(
+                                                                        investment.profitLoss
+                                                                    )}
+                                                                    `}
+                                                                >
+
+                                                                    {
+                                                                        Number(
+                                                                            investment.profitLoss ||
+                                                                            0
+                                                                        ) >= 0
+
+                                                                            ? "+"
+
+                                                                            : ""
+                                                                    }
+
+
+                                                                    {
+                                                                        formatAmount(
+                                                                            investment.profitLoss
+                                                                        )
+                                                                    }
+
+                                                                </span>
+
+                                                            </td>
+
+
+                                                            {/* RETURN */}
+
+                                                            <td>
+
+                                                                <span
+                                                                    className={
+                                                                        profitLossClass(
+                                                                            investment.profitLoss
+                                                                        )
+                                                                    }
+                                                                >
+
+                                                                    {
+                                                                        Number(
+                                                                            investment.returnPercentage ||
+                                                                            0
+                                                                        ) >= 0
+
+                                                                            ? "+"
+
+                                                                            : ""
+                                                                    }
+
+
+                                                                    {
+                                                                        Number(
+                                                                            investment.returnPercentage ||
+                                                                            0
+                                                                        ).toFixed(
+                                                                            2
+                                                                        )
+                                                                    }%
+
+                                                                </span>
+
+                                                            </td>
+
+
+                                                            {/* MATURITY */}
+
+                                                            <td>
+
+                                                                {
+                                                                    investment.maturityDate
+
+                                                                        ? formatDate(
+                                                                            investment.maturityDate
+                                                                        )
+
+                                                                        : "-"
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* STATUS */}
+
+                                                            <td>
+
+                                                                {
+                                                                    investment.status
+
+                                                                        ? (
+
+                                                                            <span className="
+                                                                                badge
+                                                                                bg-success
+                                                                            ">
+
+                                                                                Active
+
+                                                                            </span>
+
+                                                                        )
+
+                                                                        : (
+
+                                                                            <span className="
+                                                                                badge
+                                                                                bg-secondary
+                                                                            ">
+
+                                                                                Inactive
+
+                                                                            </span>
+
+                                                                        )
+                                                                }
+
+                                                            </td>
+
+
+                                                            {/* ACTION */}
+
+                                                            <td>
+
+                                                                <div className="
+                                                                    d-flex
+                                                                    justify-content-end
+                                                                    gap-2
+                                                                ">
+
+
+                                                                    <Link
+                                                                        to={`/investments/edit/${investment._id}`}
+                                                                        className="
+                                                                            btn
+                                                                            btn-sm
+                                                                            btn-outline-primary
+                                                                        "
+                                                                        title="Edit"
+                                                                    >
+
+                                                                        <FaEdit />
+
+                                                                    </Link>
+
+
+                                                                    <button
+                                                                        type="button"
+                                                                        className="
+                                                                            btn
+                                                                            btn-sm
+                                                                            btn-outline-danger
+                                                                        "
+                                                                        disabled={
+                                                                            deleting ===
+                                                                            investment._id
+                                                                        }
+                                                                        onClick={() =>
+                                                                            handleDelete(
+                                                                                investment._id
+                                                                            )
+                                                                        }
+                                                                        title="Delete"
+                                                                    >
+
+                                                                        {
+                                                                            deleting ===
+                                                                                investment._id
+
+                                                                                ? (
+
+                                                                                    <span className="
+                                                                                        spinner-border
+                                                                                        spinner-border-sm
+                                                                                    " />
+
+                                                                                )
+
+                                                                                : (
+
+                                                                                    <FaTrash />
+
+                                                                                )
+                                                                        }
+
+                                                                    </button>
+
+                                                                </div>
+
+                                                            </td>
+
+                                                        </tr>
+
+                                                    )
+
+                                                )
+
+                                            )
                                 }
 
                             </tbody>
@@ -1205,21 +2039,40 @@ const InvestmentList = () => {
                 </div>
 
 
-                {/* Pagination */}
+                {/* ================================================================
+                    PAGINATION
+                ================================================================= */}
 
                 {
                     totalPages > 1 && (
 
-                        <div className="card-footer bg-white">
+                        <div className="
+                            card-footer
+                            bg-white
+                        ">
 
-                            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div className="
+                                d-flex
+                                flex-wrap
+                                justify-content-between
+                                align-items-center
+                                gap-2
+                            ">
+
 
                                 <div className="text-muted">
 
                                     Page{" "}
-                                    <strong>{page}</strong>
+
+                                    <strong>
+                                        {page}
+                                    </strong>
+
                                     {" "}of{" "}
-                                    <strong>{totalPages}</strong>
+
+                                    <strong>
+                                        {totalPages}
+                                    </strong>
 
                                     {" "}(
                                     {total} investments
@@ -1228,23 +2081,38 @@ const InvestmentList = () => {
                                 </div>
 
 
-                                <div className="d-flex gap-2">
+                                <div className="
+                                    d-flex
+                                    gap-2
+                                ">
 
                                     <button
-                                        className="btn btn-outline-primary"
-                                        disabled={page <= 1}
+                                        type="button"
+                                        className="
+                                            btn
+                                            btn-outline-primary
+                                        "
+                                        disabled={
+                                            page <= 1
+                                        }
                                         onClick={() =>
                                             setPage(
                                                 page - 1
                                             )
                                         }
                                     >
+
                                         Previous
+
                                     </button>
 
 
                                     <button
-                                        className="btn btn-outline-primary"
+                                        type="button"
+                                        className="
+                                            btn
+                                            btn-outline-primary
+                                        "
                                         disabled={
                                             page >=
                                             totalPages
@@ -1255,7 +2123,9 @@ const InvestmentList = () => {
                                             )
                                         }
                                     >
+
                                         Next
+
                                     </button>
 
                                 </div>
@@ -1274,5 +2144,6 @@ const InvestmentList = () => {
     );
 
 };
+
 
 export default InvestmentList;

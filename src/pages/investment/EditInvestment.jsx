@@ -21,14 +21,24 @@ const EditInvestment = () => {
 
     const navigate = useNavigate();
 
-    const [accounts, setAccounts] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+    /*
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
+
+    const [accounts, setAccounts] =
+        useState([]);
+
+    const [loading, setLoading] =
+        useState(true);
 
     const [loadingAccounts, setLoadingAccounts] =
         useState(true);
 
-    const [saving, setSaving] = useState(false);
+    const [saving, setSaving] =
+        useState(false);
 
     const [form, setForm] = useState({
 
@@ -53,6 +63,12 @@ const EditInvestment = () => {
     });
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INVESTMENT TYPES
+    |--------------------------------------------------------------------------
+    */
+
     const investmentTypes = [
         "FD",
         "RD",
@@ -63,6 +79,12 @@ const EditInvestment = () => {
         "OTHER"
     ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TYPE LABEL
+    |--------------------------------------------------------------------------
+    */
 
     const getTypeLabel = (type) => {
 
@@ -89,20 +111,35 @@ const EditInvestment = () => {
     };
 
 
-    /**
-     * Convert API date to input date
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT DATE FOR INPUT
+    |--------------------------------------------------------------------------
+    */
+
     const formatDateForInput = (date) => {
 
         if (!date) {
+
             return "";
+
         }
 
-        const parsedDate = new Date(date);
 
-        if (Number.isNaN(parsedDate.getTime())) {
+        const parsedDate =
+            new Date(date);
+
+
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
+
             return "";
+
         }
+
 
         return parsedDate
             .toISOString()
@@ -111,33 +148,139 @@ const EditInvestment = () => {
     };
 
 
-    /**
-     * Load Accounts
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALIZE API RESPONSE
+    |--------------------------------------------------------------------------
+    |
+    | Handles both:
+    |
+    | response = {
+    |     success: true,
+    |     data: {...}
+    | }
+    |
+    | and:
+    |
+    | response = {
+    |     data: {
+    |         success: true,
+    |         data: {...}
+    |     }
+    | }
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    const normalizeResponse = (response) => {
+
+        if (
+            response &&
+            typeof response === "object" &&
+            typeof response.success === "boolean"
+        ) {
+
+            return response;
+
+        }
+
+
+        if (
+            response?.data &&
+            typeof response.data === "object" &&
+            typeof response.data.success === "boolean"
+        ) {
+
+            return response.data;
+
+        }
+
+
+        return response;
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
     const loadAccounts = async () => {
 
         try {
 
             setLoadingAccounts(true);
 
-            const response =
+
+            const rawResponse =
                 await getAccounts();
 
-            if (response.success) {
+
+            console.log(
+                "Get Accounts Response:",
+                rawResponse
+            );
+
+
+            const response =
+                normalizeResponse(
+                    rawResponse
+                );
+
+
+            console.log(
+                "Normalized Accounts Response:",
+                response
+            );
+
+
+            if (
+                response?.success === true
+            ) {
 
                 const rows =
-                    Array.isArray(response.data)
-                        ? response.data
-                        : response.data?.rows || [];
+                    Array.isArray(
+                        response.data
+                    )
 
-                setAccounts(rows);
+                        ? response.data
+
+                        : Array.isArray(
+                            response.data?.rows
+                        )
+
+                            ? response.data.rows
+
+                            : [];
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Only active accounts
+                |--------------------------------------------------------------------------
+                */
+
+                const activeAccounts =
+                    rows.filter(
+                        account =>
+                            account.status !== false
+                    );
+
+
+                setAccounts(
+                    activeAccounts
+                );
+
 
             } else {
 
                 setAccounts([]);
 
+
                 alert(
-                    response.message ||
+                    response?.message ||
                     "Unable to load accounts."
                 );
 
@@ -150,10 +293,25 @@ const EditInvestment = () => {
                 error
             );
 
+
+            console.error(
+                "Accounts Error Response:",
+                error?.response
+            );
+
+
+            console.error(
+                "Accounts Error Data:",
+                error?.response?.data
+            );
+
+
             setAccounts([]);
 
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to load accounts."
             );
 
@@ -166,48 +324,158 @@ const EditInvestment = () => {
     };
 
 
-    /**
-     * Load Investment
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD INVESTMENT
+    |--------------------------------------------------------------------------
+    */
+
     const loadInvestment = async () => {
 
         try {
 
             setLoading(true);
 
+
+            const rawResponse =
+                await getInvestmentById(
+                    id
+                );
+
+
+            console.log(
+                "Get Investment Response:",
+                rawResponse
+            );
+
+
             const response =
-                await getInvestmentById(id);
+                normalizeResponse(
+                    rawResponse
+                );
 
 
-            if (!response.success) {
+            console.log(
+                "Normalized Investment Response:",
+                response
+            );
+
+
+            if (
+                response?.success !== true
+            ) {
 
                 alert(
-                    response.message ||
+                    response?.message ||
                     "Investment not found."
                 );
 
-                navigate("/investments");
+
+                navigate(
+                    "/investments",
+                    {
+                        replace: true
+                    }
+                );
+
 
                 return;
 
             }
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | GET DATA
+            |--------------------------------------------------------------------------
+            */
+
             const investment =
                 response.data;
 
 
+            if (
+                !investment
+            ) {
+
+                alert(
+                    "Investment data not found."
+                );
+
+
+                navigate(
+                    "/investments",
+                    {
+                        replace: true
+                    }
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ACCOUNT ID
+            |--------------------------------------------------------------------------
+            |
+            | Supports:
+            |
+            | account: {
+            |     _id: "..."
+            | }
+            |
+            | OR
+            |
+            | account: "..."
+            |
+            |--------------------------------------------------------------------------
+            */
+
+            const accountId =
+
+                typeof investment.account ===
+                "object" &&
+
+                investment.account !== null
+
+                    ? investment.account._id
+
+                    : investment.account;
+
+
+            console.log(
+                "Investment Account:",
+                investment.account
+            );
+
+
+            console.log(
+                "Investment Account ID:",
+                accountId
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SET FORM
+            |--------------------------------------------------------------------------
+            */
+
             setForm({
 
                 name:
-                    investment.name || "",
+                    investment.name ||
+                    "",
 
                 type:
-                    investment.type || "SIP",
+                    investment.type ||
+                    "SIP",
 
                 account:
-                    investment.account?._id ||
-                    investment.account ||
+                    accountId ||
                     "",
 
                 investedAmount:
@@ -232,7 +500,8 @@ const EditInvestment = () => {
                     investment.status !== false,
 
                 note:
-                    investment.note || ""
+                    investment.note ||
+                    ""
 
             });
 
@@ -243,12 +512,32 @@ const EditInvestment = () => {
                 error
             );
 
+
+            console.error(
+                "Investment Error Response:",
+                error?.response
+            );
+
+
+            console.error(
+                "Investment Error Data:",
+                error?.response?.data
+            );
+
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to load investment."
             );
 
-            navigate("/investments");
+
+            navigate(
+                "/investments",
+                {
+                    replace: true
+                }
+            );
 
         } finally {
 
@@ -259,7 +548,27 @@ const EditInvestment = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
+
     useEffect(() => {
+
+        if (!id) {
+
+            navigate(
+                "/investments",
+                {
+                    replace: true
+                }
+            );
+
+            return;
+
+        }
+
 
         loadAccounts();
 
@@ -268,9 +577,12 @@ const EditInvestment = () => {
     }, [id]);
 
 
-    /**
-     * Handle Input
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | HANDLE INPUT
+    |--------------------------------------------------------------------------
+    */
+
     const handleChange = (e) => {
 
         const {
@@ -279,78 +591,133 @@ const EditInvestment = () => {
         } = e.target;
 
 
-        setForm(prev => ({
+        setForm(
+            previous => ({
 
-            ...prev,
+                ...previous,
 
-            [name]:
-                name === "status"
-                    ? value === "true"
-                    : value
+                [name]:
+                    name === "status"
 
-        }));
+                        ? value === "true"
+
+                        : value
+
+            })
+        );
 
     };
 
 
-    /**
-     * Currency
-     */
-    const formatAmount = (amount) => {
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
+    const formatAmount = (
+        amount
+    ) => {
 
         return Number(
             amount || 0
         ).toLocaleString(
             "en-IN",
             {
-                style: "currency",
-                currency: "INR",
-                maximumFractionDigits: 2
+
+                style:
+                    "currency",
+
+                currency:
+                    "INR",
+
+                maximumFractionDigits:
+                    2
+
             }
         );
 
     };
 
 
-    /**
-     * Profit / Loss
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | INVESTED AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
     const invested =
         Number(
             form.investedAmount || 0
         );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | CURRENT VALUE
+    |--------------------------------------------------------------------------
+    */
+
     const currentValue =
+
         form.currentValue === ""
+
             ? invested
+
             : Number(
                 form.currentValue || 0
             );
 
 
-    const profitLoss =
-        currentValue - invested;
+    /*
+    |--------------------------------------------------------------------------
+    | PROFIT / LOSS
+    |--------------------------------------------------------------------------
+    */
 
+    const profitLoss =
+        currentValue -
+        invested;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN %
+    |--------------------------------------------------------------------------
+    */
 
     const returnPercentage =
+
         invested > 0
+
             ? (
                 profitLoss /
                 invested
             ) * 100
+
             : 0;
 
 
-    /**
-     * Submit
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
+
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
 
-        if (!form.name.trim()) {
+        /*
+        |--------------------------------------------------------------------------
+        | NAME
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.name.trim()
+        ) {
 
             alert(
                 "Please enter investment name."
@@ -361,7 +728,15 @@ const EditInvestment = () => {
         }
 
 
-        if (!form.type) {
+        /*
+        |--------------------------------------------------------------------------
+        | TYPE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.type
+        ) {
 
             alert(
                 "Please select investment type."
@@ -372,7 +747,15 @@ const EditInvestment = () => {
         }
 
 
-        if (!form.account) {
+        /*
+        |--------------------------------------------------------------------------
+        | ACCOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.account
+        ) {
 
             alert(
                 "Please select account."
@@ -383,7 +766,15 @@ const EditInvestment = () => {
         }
 
 
-        if (!form.date) {
+        /*
+        |--------------------------------------------------------------------------
+        | DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.date
+        ) {
 
             alert(
                 "Please select investment date."
@@ -393,6 +784,12 @@ const EditInvestment = () => {
 
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | INVESTED AMOUNT
+        |--------------------------------------------------------------------------
+        */
 
         const investedAmount =
             Number(
@@ -416,16 +813,27 @@ const EditInvestment = () => {
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT VALUE
+        |--------------------------------------------------------------------------
+        */
+
         const current =
+
             form.currentValue === ""
+
                 ? investedAmount
+
                 : Number(
                     form.currentValue
                 );
 
 
         if (
-            !Number.isFinite(current) ||
+            !Number.isFinite(
+                current
+            ) ||
             current < 0
         ) {
 
@@ -439,14 +847,22 @@ const EditInvestment = () => {
 
 
         /*
-         * FD / RD maturity validation
-         */
+        |--------------------------------------------------------------------------
+        | FD / RD MATURITY
+        |--------------------------------------------------------------------------
+        */
+
         if (
+
             (
                 form.type === "FD" ||
                 form.type === "RD"
-            ) &&
+            )
+
+            &&
+
             !form.maturityDate
+
         ) {
 
             alert(
@@ -459,14 +875,23 @@ const EditInvestment = () => {
 
 
         /*
-         * Maturity date should not
-         * be before investment date.
-         */
+        |--------------------------------------------------------------------------
+        | MATURITY DATE VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
         if (
+
             form.maturityDate &&
+
             form.date &&
-            new Date(form.maturityDate) <
-            new Date(form.date)
+
+            new Date(
+                form.maturityDate
+            ) < new Date(
+                form.date
+            )
+
         ) {
 
             alert(
@@ -482,6 +907,12 @@ const EditInvestment = () => {
 
             setSaving(true);
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | PAYLOAD
+            |--------------------------------------------------------------------------
+            */
 
             const payload = {
 
@@ -517,31 +948,83 @@ const EditInvestment = () => {
             };
 
 
-            const response =
+            console.log(
+                "Update Investment Payload:",
+                payload
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | API
+            |--------------------------------------------------------------------------
+            */
+
+            const rawResponse =
                 await updateInvestment(
                     id,
                     payload
                 );
 
 
-            if (response.success) {
+            console.log(
+                "Update Investment Raw Response:",
+                rawResponse
+            );
 
-                alert(
-                    "Investment updated successfully."
+
+            const response =
+                normalizeResponse(
+                    rawResponse
                 );
 
-                navigate(
-                    "/investments"
-                );
 
-            } else {
+            console.log(
+                "Update Investment Response:",
+                response
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                response?.success === true
+            ) {
 
                 alert(
                     response.message ||
-                    "Unable to update investment."
+                    "Investment updated successfully."
                 );
 
+
+                navigate(
+                    "/investments",
+                    {
+                        replace: true
+                    }
+                );
+
+
+                return;
+
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | API FAILURE
+            |--------------------------------------------------------------------------
+            */
+
+            alert(
+                response?.message ||
+                "Unable to update investment."
+            );
+
 
         } catch (error) {
 
@@ -550,8 +1033,22 @@ const EditInvestment = () => {
                 error
             );
 
+
+            console.error(
+                "Update Investment Error Response:",
+                error?.response
+            );
+
+
+            console.error(
+                "Update Investment Error Data:",
+                error?.response?.data
+            );
+
+
             alert(
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to update investment."
             );
 
@@ -564,25 +1061,39 @@ const EditInvestment = () => {
     };
 
 
-    /**
-     * Loading
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
+
     if (loading) {
 
         return (
 
             <div className="container-fluid">
 
-                <div className="d-flex justify-content-center align-items-center py-5">
+                <div className="
+                    d-flex
+                    justify-content-center
+                    align-items-center
+                    py-5
+                ">
 
                     <div className="text-center">
 
                         <div
-                            className="spinner-border text-primary"
+                            className="
+                                spinner-border
+                                text-primary
+                            "
                             role="status"
                         />
 
-                        <div className="text-muted mt-3">
+                        <div className="
+                            text-muted
+                            mt-3
+                        ">
 
                             Loading investment...
 
@@ -599,13 +1110,28 @@ const EditInvestment = () => {
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | PAGE
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="container-fluid">
 
-            {/* Header */}
+            {/* ================================================================
+                HEADER
+            ================================================================= */}
 
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div className="
+                d-flex
+                flex-wrap
+                justify-content-between
+                align-items-center
+                mb-4
+                gap-2
+            ">
 
                 <div>
 
@@ -636,11 +1162,20 @@ const EditInvestment = () => {
             </div>
 
 
+            {/* ================================================================
+                FORM
+            ================================================================= */}
+
             <div className="row justify-content-center">
 
                 <div className="col-xl-8 col-lg-10">
 
                     <div className="card shadow-sm">
+
+
+                        {/* ====================================================
+                            HEADER
+                        ===================================================== */}
 
                         <div className="card-header bg-white">
 
@@ -653,6 +1188,10 @@ const EditInvestment = () => {
                         </div>
 
 
+                        {/* ====================================================
+                            BODY
+                        ===================================================== */}
+
                         <div className="card-body">
 
                             <form
@@ -664,7 +1203,9 @@ const EditInvestment = () => {
                                 <div className="row">
 
 
-                                    {/* Name */}
+                                    {/* ==================================================
+                                        NAME
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -677,6 +1218,7 @@ const EditInvestment = () => {
                                             </span>
 
                                         </label>
+
 
                                         <input
                                             type="text"
@@ -698,7 +1240,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Type */}
+                                    {/* ==================================================
+                                        TYPE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -711,6 +1255,7 @@ const EditInvestment = () => {
                                             </span>
 
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -756,7 +1301,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Account */}
+                                    {/* ==================================================
+                                        ACCOUNT
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -769,6 +1316,7 @@ const EditInvestment = () => {
                                             </span>
 
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -789,7 +1337,9 @@ const EditInvestment = () => {
 
                                                 {
                                                     loadingAccounts
+
                                                         ? "Loading accounts..."
+
                                                         : "Select account"
                                                 }
 
@@ -830,7 +1380,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Investment Date */}
+                                    {/* ==================================================
+                                        INVESTMENT DATE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -843,6 +1395,7 @@ const EditInvestment = () => {
                                             </span>
 
                                         </label>
+
 
                                         <input
                                             type="date"
@@ -862,7 +1415,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Invested Amount */}
+                                    {/* ==================================================
+                                        INVESTED AMOUNT
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -876,6 +1431,7 @@ const EditInvestment = () => {
 
                                         </label>
 
+
                                         <div className="input-group">
 
                                             <span className="input-group-text">
@@ -883,6 +1439,7 @@ const EditInvestment = () => {
                                                 ₹
 
                                             </span>
+
 
                                             <input
                                                 type="number"
@@ -907,7 +1464,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Current Value */}
+                                    {/* ==================================================
+                                        CURRENT VALUE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -917,6 +1476,7 @@ const EditInvestment = () => {
 
                                         </label>
 
+
                                         <div className="input-group">
 
                                             <span className="input-group-text">
@@ -924,6 +1484,7 @@ const EditInvestment = () => {
                                                 ₹
 
                                             </span>
+
 
                                             <input
                                                 type="number"
@@ -948,7 +1509,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Maturity Date */}
+                                    {/* ==================================================
+                                        MATURITY DATE
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -971,6 +1534,7 @@ const EditInvestment = () => {
 
                                         </label>
 
+
                                         <input
                                             type="date"
                                             className="form-control"
@@ -986,6 +1550,7 @@ const EditInvestment = () => {
                                             }
                                         />
 
+
                                         <small className="text-muted">
 
                                             Required for FD and RD.
@@ -995,7 +1560,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Status */}
+                                    {/* ==================================================
+                                        STATUS
+                                    =================================================== */}
 
                                     <div className="col-md-6 mb-3">
 
@@ -1004,6 +1571,7 @@ const EditInvestment = () => {
                                             Status
 
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -1038,7 +1606,9 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Note */}
+                                    {/* ==================================================
+                                        NOTE
+                                    =================================================== */}
 
                                     <div className="col-12 mb-3">
 
@@ -1047,6 +1617,7 @@ const EditInvestment = () => {
                                             Note
 
                                         </label>
+
 
                                         <textarea
                                             className="form-control"
@@ -1068,14 +1639,20 @@ const EditInvestment = () => {
                                     </div>
 
 
-                                    {/* Preview */}
+                                    {/* ==================================================
+                                        PREVIEW
+                                    =================================================== */}
 
                                     {
                                         invested > 0 && (
 
                                             <div className="col-12 mb-4">
 
-                                                <div className="card border bg-light">
+                                                <div className="
+                                                    card
+                                                    border
+                                                    bg-light
+                                                ">
 
                                                     <div className="card-body">
 
@@ -1089,6 +1666,8 @@ const EditInvestment = () => {
                                                         <div className="row g-3">
 
 
+                                                            {/* INVESTED */}
+
                                                             <div className="col-md-3">
 
                                                                 <small className="text-muted d-block">
@@ -1096,6 +1675,7 @@ const EditInvestment = () => {
                                                                     Invested
 
                                                                 </small>
+
 
                                                                 <strong className="fs-5">
 
@@ -1110,6 +1690,8 @@ const EditInvestment = () => {
                                                             </div>
 
 
+                                                            {/* CURRENT */}
+
                                                             <div className="col-md-3">
 
                                                                 <small className="text-muted d-block">
@@ -1117,6 +1699,7 @@ const EditInvestment = () => {
                                                                     Current Value
 
                                                                 </small>
+
 
                                                                 <strong className="fs-5 text-primary">
 
@@ -1131,6 +1714,8 @@ const EditInvestment = () => {
                                                             </div>
 
 
+                                                            {/* PROFIT LOSS */}
+
                                                             <div className="col-md-3">
 
                                                                 <small className="text-muted d-block">
@@ -1139,10 +1724,13 @@ const EditInvestment = () => {
 
                                                                 </small>
 
+
                                                                 <strong
                                                                     className={
                                                                         profitLoss >= 0
+
                                                                             ? "fs-5 text-success"
+
                                                                             : "fs-5 text-danger"
                                                                     }
                                                                 >
@@ -1164,6 +1752,8 @@ const EditInvestment = () => {
                                                             </div>
 
 
+                                                            {/* RETURN */}
+
                                                             <div className="col-md-3">
 
                                                                 <small className="text-muted d-block">
@@ -1172,10 +1762,13 @@ const EditInvestment = () => {
 
                                                                 </small>
 
+
                                                                 <strong
                                                                     className={
                                                                         profitLoss >= 0
+
                                                                             ? "fs-5 text-success"
+
                                                                             : "fs-5 text-danger"
                                                                     }
                                                                 >
@@ -1210,9 +1803,15 @@ const EditInvestment = () => {
                                 </div>
 
 
-                                {/* Buttons */}
+                                {/* ========================================================
+                                    BUTTONS
+                                ========================================================= */}
 
-                                <div className="d-flex flex-wrap gap-2">
+                                <div className="
+                                    d-flex
+                                    flex-wrap
+                                    gap-2
+                                ">
 
                                     <button
                                         type="submit"
@@ -1225,13 +1824,21 @@ const EditInvestment = () => {
 
                                         {
                                             saving
+
                                                 ? (
                                                     <>
-                                                        <span className="spinner-border spinner-border-sm me-2" />
+                                                        <span
+                                                            className="
+                                                                spinner-border
+                                                                spinner-border-sm
+                                                                me-2
+                                                            "
+                                                        />
 
                                                         Updating...
                                                     </>
                                                 )
+
                                                 : "Update Investment"
                                         }
 
@@ -1264,5 +1871,4 @@ const EditInvestment = () => {
     );
 
 };
-
 export default EditInvestment;

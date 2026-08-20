@@ -1,121 +1,118 @@
-import api from "./axios";
+import axios from "./axios";
 
-/**
- * Get Investment List
- *
- * Supports:
- * page
- * limit
- * search
- * type
- * account
- * status
- * dateFrom
- * dateTo
- */
+
+/*
+|--------------------------------------------------------------------------
+| Create Investment
+|--------------------------------------------------------------------------
+*/
+
+export const createInvestment = async (payload) => {
+
+    const response =
+        await axios.post(
+            "/investments",
+            payload
+        );
+
+    return response.data;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| Get Investments
+|--------------------------------------------------------------------------
+*/
+
 export const getInvestments = async (params = {}) => {
 
-    const response = await api.get(
-        "/investments",
-        {
-            params
-        }
-    );
+    const response =
+        await axios.get(
+            "/investments",
+            {
+                params
+            }
+        );
 
     return response.data;
 
 };
 
 
-/**
- * Get Investment By ID
- */
+/*
+|--------------------------------------------------------------------------
+| Get Investment By ID
+|--------------------------------------------------------------------------
+*/
+
 export const getInvestmentById = async (id) => {
 
-    const response = await api.get(
-        `/investments/${id}`
-    );
+    const response =
+        await axios.get(
+            `/investments/${id}`
+        );
 
     return response.data;
 
 };
 
 
-/**
- * Create Investment
- *
- * Example:
- *
- * {
- *   name: "ICICI SIP",
- *   type: "SIP",
- *   account: "ACCOUNT_ID",
- *   investedAmount: 10000,
- *   currentValue: 10500,
- *   investmentDate: "2026-08-20",
- *   status: true,
- *   note: "Monthly SIP"
- * }
- */
-export const createInvestment = async (data) => {
+/*
+|--------------------------------------------------------------------------
+| Update Investment
+|--------------------------------------------------------------------------
+*/
 
-    const response = await api.post(
-        "/investments",
-        data
-    );
-
-    return response.data;
-
-};
-
-
-/**
- * Update Investment
- */
 export const updateInvestment = async (
     id,
-    data
+    payload
 ) => {
 
-    const response = await api.put(
-        `/investments/${id}`,
-        data
-    );
+    const response =
+        await axios.put(
+            `/investments/${id}`,
+            payload
+        );
 
     return response.data;
 
 };
 
 
-/**
- * Delete Investment
- */
-export const deleteInvestment = async (id) => {
+/*
+|--------------------------------------------------------------------------
+| Delete Investment
+|--------------------------------------------------------------------------
+*/
 
-    const response = await api.delete(
-        `/investments/${id}`
-    );
+export const deleteInvestment = async (
+    id
+) => {
+
+    const response =
+        await axios.delete(
+            `/investments/${id}`
+        );
 
     return response.data;
 
 };
 
 
-/**
- * Get Investment Summary
- *
- * Returns:
- * totalInvested
- * totalCurrentValue
- * totalProfitLoss
- * returnPercentage
- * typeSummary
- */
+/*
+|--------------------------------------------------------------------------
+| Investment Summary
+|--------------------------------------------------------------------------
+*/
+
 export const getInvestmentSummary = async () => {
 
-    const response = await api.get(
-        "/investments/summary"
-    );
+    const response =
+        await axios.get(
+            "/investments/summary"
+        );
 
     return response.data;
 

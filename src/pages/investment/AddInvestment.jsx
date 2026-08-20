@@ -14,12 +14,29 @@ const AddInvestment = () => {
 
     const navigate = useNavigate();
 
+    /*
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
+
     const [accounts, setAccounts] = useState([]);
 
     const [loadingAccounts, setLoadingAccounts] =
         useState(true);
 
-    const [saving, setSaving] = useState(false);
+    const [saving, setSaving] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
 
     const [form, setForm] = useState({
 
@@ -47,16 +64,36 @@ const AddInvestment = () => {
     });
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INVESTMENT TYPES
+    |--------------------------------------------------------------------------
+    */
+
     const investmentTypes = [
+
         "FD",
+
         "RD",
+
         "SIP",
+
         "STOCK",
+
         "MUTUAL_FUND",
+
         "GOLD",
+
         "OTHER"
+
     ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TYPE LABEL
+    |--------------------------------------------------------------------------
+    */
 
     const getTypeLabel = (type) => {
 
@@ -83,34 +120,87 @@ const AddInvestment = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | MATURITY DATE REQUIRED?
+    |--------------------------------------------------------------------------
+    */
+
+    const requiresMaturityDate =
+        form.type === "FD" ||
+        form.type === "RD";
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
     const loadAccounts = async () => {
 
         try {
 
             setLoadingAccounts(true);
 
+            setError("");
+
             const response =
                 await getAccounts();
 
-            if (response.success) {
+            console.log(
+                "Account API Response:",
+                response
+            );
 
-                const rows =
-                    Array.isArray(response.data)
-                        ? response.data
-                        : response.data?.rows || [];
 
-                setAccounts(rows);
+            /*
+            |--------------------------------------------------------------------------
+            | SUPPORT BOTH RESPONSE FORMATS
+            |--------------------------------------------------------------------------
+            |
+            | Format 1:
+            |
+            | {
+            |   success: true,
+            |   data: {
+            |      rows: []
+            |   }
+            | }
+            |
+            | Format 2:
+            |
+            | {
+            |   total: 3,
+            |   rows: []
+            | }
+            |
+            */
 
-            } else {
+            const result =
+                response?.data?.rows !== undefined
+                    ? response.data
+                    : response;
 
-                setAccounts([]);
 
-                alert(
-                    response.message ||
-                    "Unable to load accounts."
-                );
+            const rows =
+                Array.isArray(result?.rows)
+                    ? result.rows
 
-            }
+                    : Array.isArray(result)
+                        ? result
+
+                        : [];
+
+
+            console.log(
+                "Account Rows:",
+                rows
+            );
+
+
+            setAccounts(rows);
+
 
         } catch (error) {
 
@@ -121,8 +211,9 @@ const AddInvestment = () => {
 
             setAccounts([]);
 
-            alert(
-                error.response?.data?.message ||
+            setError(
+                error?.response?.data?.message ||
+                error?.message ||
                 "Unable to load accounts."
             );
 
@@ -135,12 +226,24 @@ const AddInvestment = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
+
     useEffect(() => {
 
         loadAccounts();
 
     }, []);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | HANDLE CHANGE
+    |--------------------------------------------------------------------------
+    */
 
     const handleChange = (e) => {
 
@@ -150,25 +253,88 @@ const AddInvestment = () => {
         } = e.target;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | TYPE CHANGE
+        |--------------------------------------------------------------------------
+        */
+
+        if (name === "type") {
+
+            setForm(prev => ({
+
+                ...prev,
+
+                type: value,
+
+                /*
+                 * Clear maturity date for non FD/RD
+                 */
+                maturityDate:
+                    value === "FD" ||
+                        value === "RD"
+                        ? prev.maturityDate
+                        : ""
+
+            }));
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if (name === "status") {
+
+            setForm(prev => ({
+
+                ...prev,
+
+                status:
+                    value === "true"
+
+            }));
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMAL FIELD
+        |--------------------------------------------------------------------------
+        */
+
         setForm(prev => ({
 
             ...prev,
 
-            [name]:
-                name === "status"
-                    ? value === "true"
-                    : value
+            [name]: value
 
         }));
 
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
     const formatAmount = (amount) => {
 
-        return Number(
-            amount || 0
-        ).toLocaleString(
+        const number =
+            Number(amount || 0);
+
+
+        return number.toLocaleString(
             "en-IN",
             {
                 style: "currency",
@@ -179,6 +345,12 @@ const AddInvestment = () => {
 
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | CALCULATED VALUES
+    |--------------------------------------------------------------------------
+    */
 
     const invested =
         Number(
@@ -195,7 +367,8 @@ const AddInvestment = () => {
 
 
     const profitLoss =
-        currentValue - invested;
+        currentValue -
+        invested;
 
 
     const returnPercentage =
@@ -203,47 +376,149 @@ const AddInvestment = () => {
             ? (
                 profitLoss /
                 invested
-            ) * 100
+            ) *
+            100
+
             : 0;
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE DATE
+    |--------------------------------------------------------------------------
+    */
+
+    const validateDates = () => {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Non FD/RD
+        |--------------------------------------------------------------------------
+        */
+
+        if (!requiresMaturityDate) {
+
+            return true;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FD/RD MATURITY REQUIRED
+        |--------------------------------------------------------------------------
+        */
+
+        if (!form.maturityDate) {
+
+            alert(
+                "Please select maturity date for FD/RD."
+            );
+
+            return false;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INVESTMENT DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!form.date) {
+
+            alert(
+                "Please select investment date."
+            );
+
+            return false;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | COMPARE DATE STRINGS
+        |--------------------------------------------------------------------------
+        |
+        | YYYY-MM-DD strings can safely be compared.
+        |
+        */
+
+        if (
+            form.maturityDate <
+            form.date
+        ) {
+
+            alert(
+                "Maturity date cannot be before investment date."
+            );
+
+            return false;
+
+        }
+
+
+        return true;
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
 
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
+        if (saving) {
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAME
+        |--------------------------------------------------------------------------
+        */
 
         if (!form.name.trim()) {
 
-            alert(
-                "Please enter investment name."
-            );
+            alert("Please enter investment name.");
 
             return;
-
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACCOUNT
+        |--------------------------------------------------------------------------
+        */
 
         if (!form.account) {
 
-            alert(
-                "Please select account."
-            );
+            alert("Please select account.");
 
             return;
-
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | INVESTED AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
         const investedAmount =
-            Number(
-                form.investedAmount
-            );
+            Number(form.investedAmount);
 
 
         if (
-            !Number.isFinite(
-                investedAmount
-            ) ||
+            !Number.isFinite(investedAmount) ||
             investedAmount <= 0
         ) {
 
@@ -252,21 +527,24 @@ const AddInvestment = () => {
             );
 
             return;
-
         }
 
 
-        const current =
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT VALUE
+        |--------------------------------------------------------------------------
+        */
+
+        const currentValue =
             form.currentValue === ""
                 ? investedAmount
-                : Number(
-                    form.currentValue
-                );
+                : Number(form.currentValue);
 
 
         if (
-            !Number.isFinite(current) ||
-            current < 0
+            !Number.isFinite(currentValue) ||
+            currentValue < 0
         ) {
 
             alert(
@@ -274,8 +552,119 @@ const AddInvestment = () => {
             );
 
             return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INVESTMENT DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!form.date) {
+
+            alert(
+                "Please select investment date."
+            );
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MATURITY DATE
+        |--------------------------------------------------------------------------
+        */
+
+        const requiresMaturityDate =
+            form.type === "FD" ||
+            form.type === "RD";
+
+
+        if (requiresMaturityDate) {
+
+            if (!form.maturityDate) {
+
+                alert(
+                    "Please select maturity date for FD/RD."
+                );
+
+                return;
+            }
+
+
+            if (
+                form.maturityDate <
+                form.date
+            ) {
+
+                alert(
+                    "Maturity date cannot be before investment date."
+                );
+
+                return;
+            }
 
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYLOAD
+        |--------------------------------------------------------------------------
+        */
+
+        const payload = {
+
+            name:
+                form.name.trim(),
+
+            type:
+                form.type,
+
+            account:
+                form.account,
+
+            investedAmount:
+                investedAmount,
+
+            currentValue:
+                currentValue,
+
+            date:
+                form.date,
+
+            status:
+                Boolean(form.status),
+
+            note:
+                form.note.trim()
+
+        };
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ONLY FD/RD SEND MATURITY DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            requiresMaturityDate &&
+            form.maturityDate
+        ) {
+
+            payload.maturityDate =
+                form.maturityDate;
+
+        }
+
+
+        console.log(
+            "Create Investment Payload:",
+            payload
+        );
 
 
         try {
@@ -283,37 +672,11 @@ const AddInvestment = () => {
             setSaving(true);
 
 
-            const payload = {
-
-                name:
-                    form.name.trim(),
-
-                type:
-                    form.type,
-
-                account:
-                    form.account,
-
-                investedAmount,
-
-                currentValue:
-                    current,
-
-                date:
-                    form.date,
-
-                maturityDate:
-                    form.maturityDate ||
-                    undefined,
-
-                status:
-                    form.status,
-
-                note:
-                    form.note.trim()
-
-            };
-
+            /*
+            |--------------------------------------------------------------------------
+            | CREATE
+            |--------------------------------------------------------------------------
+            */
 
             const response =
                 await createInvestment(
@@ -321,24 +684,132 @@ const AddInvestment = () => {
                 );
 
 
-            if (response.success) {
+            console.log(
+                "Create Investment Response:",
+                response
+            );
 
-                alert(
-                    "Investment created successfully."
+
+            /*
+            |--------------------------------------------------------------------------
+            | HANDLE ALL POSSIBLE API RESPONSE FORMATS
+            |--------------------------------------------------------------------------
+            |
+            | FORMAT 1
+            |
+            | {
+            |   success: true,
+            |   message: "...",
+            |   data: {...}
+            | }
+            |
+            | FORMAT 2
+            |
+            | {
+            |   data: {
+            |      success: true,
+            |      message: "...",
+            |      data: {...}
+            |   }
+            | }
+            |
+            | FORMAT 3
+            |
+            | {
+            |   _id: "...",
+            |   name: "FD",
+            |   type: "FD",
+            |   investedAmount: 2343
+            | }
+            |
+            | YOUR CURRENT API IS RETURNING FORMAT 3.
+            |
+            */
+
+
+            const isSuccess =
+
+                response?.success === true ||
+
+                response?.data?.success === true ||
+
+                /*
+                 * Created investment object
+                 */
+                Boolean(
+                    response?._id &&
+                    response?.name &&
+                    response?.type
                 );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUCCESS
+            |--------------------------------------------------------------------------
+            */
+
+            if (isSuccess) {
+
+                const message =
+
+                    response?.message ||
+
+                    response?.data?.message ||
+
+                    "Investment created successfully.";
+
+
+                console.log(
+                    "Investment Created Successfully:",
+                    response
+                );
+
+
+                alert(message);
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | GO BACK TO LIST
+                |--------------------------------------------------------------------------
+                */
 
                 navigate(
-                    "/investments"
+                    "/investments",
+                    {
+                        replace: true
+                    }
                 );
 
-            } else {
 
-                alert(
-                    response.message ||
-                    "Unable to create investment."
-                );
-
+                return;
             }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ERROR
+            |--------------------------------------------------------------------------
+            */
+
+            const errorMessage =
+
+                response?.message ||
+
+                response?.data?.message ||
+
+                "Unable to create investment.";
+
+
+            console.error(
+                "Create Investment Failed:",
+                response
+            );
+
+
+            alert(errorMessage);
+
 
         } catch (error) {
 
@@ -347,10 +818,30 @@ const AddInvestment = () => {
                 error
             );
 
-            alert(
-                error.response?.data?.message ||
-                "Unable to create investment."
-            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | AXIOS ERROR
+            |--------------------------------------------------------------------------
+            */
+
+            const errorResponse =
+                error?.response?.data;
+
+
+            const errorMessage =
+
+                errorResponse?.message ||
+
+                errorResponse?.error ||
+
+                error?.message ||
+
+                "Unable to create investment.";
+
+
+            alert(errorMessage);
+
 
         } finally {
 
@@ -361,20 +852,44 @@ const AddInvestment = () => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="container-fluid">
 
-            <div className="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+
+            {/* ================================================================
+                HEADER
+            ================================================================= */}
+
+            <div className="
+                d-flex
+                flex-wrap
+                justify-content-between
+                align-items-center
+                mb-4
+                gap-2
+            ">
 
                 <div>
 
                     <h3 className="mb-1">
+
                         Add Investment
+
                     </h3>
 
+
                     <small className="text-muted">
-                        Add FD, RD, SIP, Stock, Mutual Fund, Gold or Other
+
+                        Add FD, RD, SIP, Stock,
+                        Mutual Fund, Gold or Other
+
                     </small>
 
                 </div>
@@ -384,11 +899,32 @@ const AddInvestment = () => {
                     to="/investments"
                     className="btn btn-outline-secondary"
                 >
+
                     Back
+
                 </Link>
 
             </div>
 
+
+            {/* ================================================================
+                ERROR
+            ================================================================= */}
+
+            {error && (
+
+                <div className="alert alert-danger">
+
+                    {error}
+
+                </div>
+
+            )}
+
+
+            {/* ================================================================
+                FORM
+            ================================================================= */}
 
             <div className="row justify-content-center">
 
@@ -396,67 +932,105 @@ const AddInvestment = () => {
 
                     <div className="card shadow-sm">
 
+
+                        {/* HEADER */}
+
                         <div className="card-header bg-white">
 
                             <h5 className="mb-0">
+
                                 Investment Details
+
                             </h5>
 
                         </div>
 
 
+                        {/* BODY */}
+
                         <div className="card-body">
 
-                            <form onSubmit={handleSubmit}>
+                            <form
+                                onSubmit={
+                                    handleSubmit
+                                }
+                            >
+
 
                                 <div className="row">
 
 
-                                    {/* Name */}
+                                    {/* =================================================
+                                        NAME
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
                                             Investment Name
+
                                             <span className="text-danger">
                                                 {" "}*
                                             </span>
 
                                         </label>
+
 
                                         <input
                                             type="text"
                                             className="form-control"
                                             name="name"
                                             placeholder="e.g. ICICI SIP"
-                                            value={form.name}
-                                            onChange={handleChange}
-                                            disabled={saving}
+                                            value={
+                                                form.name
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving
+                                            }
                                         />
 
                                     </div>
 
 
-                                    {/* Type */}
+                                    {/* =================================================
+                                        TYPE
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
                                             Investment Type
+
                                             <span className="text-danger">
                                                 {" "}*
                                             </span>
 
                                         </label>
 
+
                                         <select
                                             className="form-select"
                                             name="type"
-                                            value={form.type}
-                                            onChange={handleChange}
-                                            disabled={saving}
+                                            value={
+                                                form.type
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving
+                                            }
                                         >
 
                                             {
@@ -464,14 +1038,20 @@ const AddInvestment = () => {
                                                     item => (
 
                                                         <option
-                                                            key={item}
-                                                            value={item}
+                                                            key={
+                                                                item
+                                                            }
+                                                            value={
+                                                                item
+                                                            }
                                                         >
+
                                                             {
                                                                 getTypeLabel(
                                                                     item
                                                                 )
                                                             }
+
                                                         </option>
 
                                                     )
@@ -483,24 +1063,35 @@ const AddInvestment = () => {
                                     </div>
 
 
-                                    {/* Account */}
+                                    {/* =================================================
+                                        ACCOUNT
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
                                             Account
+
                                             <span className="text-danger">
                                                 {" "}*
                                             </span>
 
                                         </label>
 
+
                                         <select
                                             className="form-select"
                                             name="account"
-                                            value={form.account}
-                                            onChange={handleChange}
+                                            value={
+                                                form.account
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
                                             disabled={
                                                 loadingAccounts ||
                                                 saving
@@ -552,46 +1143,72 @@ const AddInvestment = () => {
                                     </div>
 
 
-                                    {/* Date */}
+                                    {/* =================================================
+                                        DATE
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
                                             Investment Date
 
-                                        </label>
-
-                                        <input
-                                            type="date"
-                                            className="form-control"
-                                            name="date"
-                                            value={form.date}
-                                            onChange={handleChange}
-                                            disabled={saving}
-                                        />
-
-                                    </div>
-
-
-                                    {/* Invested Amount */}
-
-                                    <div className="col-md-6 mb-3">
-
-                                        <label className="form-label">
-
-                                            Invested Amount
                                             <span className="text-danger">
                                                 {" "}*
                                             </span>
 
                                         </label>
 
+
+                                        <input
+                                            type="date"
+                                            className="form-control"
+                                            name="date"
+                                            value={
+                                                form.date
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving
+                                            }
+                                        />
+
+                                    </div>
+
+
+                                    {/* =================================================
+                                        INVESTED
+                                    ================================================== */}
+
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
+
+                                        <label className="form-label">
+
+                                            Invested Amount
+
+                                            <span className="text-danger">
+                                                {" "}*
+                                            </span>
+
+                                        </label>
+
+
                                         <div className="input-group">
 
                                             <span className="input-group-text">
+
                                                 ₹
+
                                             </span>
+
 
                                             <input
                                                 type="number"
@@ -603,8 +1220,12 @@ const AddInvestment = () => {
                                                 value={
                                                     form.investedAmount
                                                 }
-                                                onChange={handleChange}
-                                                disabled={saving}
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                disabled={
+                                                    saving
+                                                }
                                             />
 
                                         </div>
@@ -612,9 +1233,14 @@ const AddInvestment = () => {
                                     </div>
 
 
-                                    {/* Current Value */}
+                                    {/* =================================================
+                                        CURRENT VALUE
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
@@ -622,11 +1248,15 @@ const AddInvestment = () => {
 
                                         </label>
 
+
                                         <div className="input-group">
 
                                             <span className="input-group-text">
+
                                                 ₹
+
                                             </span>
+
 
                                             <input
                                                 type="number"
@@ -638,8 +1268,12 @@ const AddInvestment = () => {
                                                 value={
                                                     form.currentValue
                                                 }
-                                                onChange={handleChange}
-                                                disabled={saving}
+                                                onChange={
+                                                    handleChange
+                                                }
+                                                disabled={
+                                                    saving
+                                                }
                                             />
 
                                         </div>
@@ -647,28 +1281,29 @@ const AddInvestment = () => {
                                     </div>
 
 
-                                    {/* Maturity Date */}
+                                    {/* =================================================
+                                        MATURITY
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
 
                                             Maturity Date
 
-                                            {
-                                                (
-                                                    form.type === "FD" ||
-                                                    form.type === "RD"
-                                                ) && (
+                                            {requiresMaturityDate && (
 
-                                                    <span className="text-danger">
-                                                        {" "}*
-                                                    </span>
+                                                <span className="text-danger">
+                                                    {" "}*
+                                                </span>
 
-                                                )
-                                            }
+                                            )}
 
                                         </label>
+
 
                                         <input
                                             type="date"
@@ -677,26 +1312,49 @@ const AddInvestment = () => {
                                             value={
                                                 form.maturityDate
                                             }
-                                            onChange={handleChange}
-                                            disabled={saving}
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving ||
+                                                !requiresMaturityDate
+                                            }
+                                            min={
+                                                form.date || undefined
+                                            }
                                         />
+
 
                                         <small className="text-muted">
 
-                                            Mainly useful for FD/RD.
+                                            {
+                                                requiresMaturityDate
+
+                                                    ? "Required for FD/RD."
+
+                                                    : "Not required for this investment type."
+                                            }
 
                                         </small>
 
                                     </div>
 
 
-                                    {/* Status */}
+                                    {/* =================================================
+                                        STATUS
+                                    ================================================== */}
 
-                                    <div className="col-md-6 mb-3">
+                                    <div className="
+                                        col-md-6
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
+
                                             Status
+
                                         </label>
+
 
                                         <select
                                             className="form-select"
@@ -706,16 +1364,25 @@ const AddInvestment = () => {
                                                     form.status
                                                 )
                                             }
-                                            onChange={handleChange}
-                                            disabled={saving}
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving
+                                            }
                                         >
 
                                             <option value="true">
+
                                                 Active
+
                                             </option>
 
+
                                             <option value="false">
+
                                                 Inactive
+
                                             </option>
 
                                         </select>
@@ -723,13 +1390,21 @@ const AddInvestment = () => {
                                     </div>
 
 
-                                    {/* Note */}
+                                    {/* =================================================
+                                        NOTE
+                                    ================================================== */}
 
-                                    <div className="col-12 mb-3">
+                                    <div className="
+                                        col-12
+                                        mb-3
+                                    ">
 
                                         <label className="form-label">
+
                                             Note
+
                                         </label>
+
 
                                         <textarea
                                             className="form-control"
@@ -737,36 +1412,63 @@ const AddInvestment = () => {
                                             rows="3"
                                             maxLength="1000"
                                             placeholder="Optional note"
-                                            value={form.note}
-                                            onChange={handleChange}
-                                            disabled={saving}
+                                            value={
+                                                form.note
+                                            }
+                                            onChange={
+                                                handleChange
+                                            }
+                                            disabled={
+                                                saving
+                                            }
                                         />
 
                                     </div>
 
 
-                                    {/* Preview */}
+                                    {/* =================================================
+                                        PREVIEW
+                                    ================================================== */}
 
                                     {
                                         invested > 0 && (
 
-                                            <div className="col-12 mb-4">
+                                            <div className="
+                                                col-12
+                                                mb-4
+                                            ">
 
-                                                <div className="card border bg-light">
+                                                <div className="
+                                                    card
+                                                    border
+                                                    bg-light
+                                                ">
 
                                                     <div className="card-body">
 
                                                         <h6 className="mb-3">
+
                                                             Investment Preview
+
                                                         </h6>
+
 
                                                         <div className="row g-3">
 
+
+                                                            {/* INVESTED */}
+
                                                             <div className="col-md-3">
 
-                                                                <small className="text-muted d-block">
+                                                                <small className="
+                                                                    text-muted
+                                                                    d-block
+                                                                ">
+
                                                                     Invested
+
                                                                 </small>
+
 
                                                                 <strong className="fs-5">
 
@@ -781,13 +1483,24 @@ const AddInvestment = () => {
                                                             </div>
 
 
+                                                            {/* CURRENT */}
+
                                                             <div className="col-md-3">
 
-                                                                <small className="text-muted d-block">
+                                                                <small className="
+                                                                    text-muted
+                                                                    d-block
+                                                                ">
+
                                                                     Current Value
+
                                                                 </small>
 
-                                                                <strong className="fs-5 text-primary">
+
+                                                                <strong className="
+                                                                    fs-5
+                                                                    text-primary
+                                                                ">
 
                                                                     {
                                                                         formatAmount(
@@ -800,11 +1513,19 @@ const AddInvestment = () => {
                                                             </div>
 
 
+                                                            {/* PROFIT */}
+
                                                             <div className="col-md-3">
 
-                                                                <small className="text-muted d-block">
+                                                                <small className="
+                                                                    text-muted
+                                                                    d-block
+                                                                ">
+
                                                                     Profit / Loss
+
                                                                 </small>
+
 
                                                                 <strong
                                                                     className={
@@ -820,6 +1541,7 @@ const AddInvestment = () => {
                                                                             : ""
                                                                     }
 
+
                                                                     {
                                                                         formatAmount(
                                                                             profitLoss
@@ -831,11 +1553,19 @@ const AddInvestment = () => {
                                                             </div>
 
 
+                                                            {/* RETURN */}
+
                                                             <div className="col-md-3">
 
-                                                                <small className="text-muted d-block">
+                                                                <small className="
+                                                                    text-muted
+                                                                    d-block
+                                                                ">
+
                                                                     Return
+
                                                                 </small>
+
 
                                                                 <strong
                                                                     className={
@@ -850,6 +1580,7 @@ const AddInvestment = () => {
                                                                             ? "+"
                                                                             : ""
                                                                     }
+
 
                                                                     {
                                                                         returnPercentage.toFixed(
@@ -875,7 +1606,14 @@ const AddInvestment = () => {
                                 </div>
 
 
-                                <div className="d-flex gap-2">
+                                {/* =================================================
+                                    BUTTONS
+                                ================================================== */}
+
+                                <div className="
+                                    d-flex
+                                    gap-2
+                                ">
 
                                     <button
                                         type="submit"
@@ -888,12 +1626,23 @@ const AddInvestment = () => {
 
                                         {
                                             saving
+
                                                 ? (
+
                                                     <>
-                                                        <span className="spinner-border spinner-border-sm me-2" />
+
+                                                        <span className="
+                                                            spinner-border
+                                                            spinner-border-sm
+                                                            me-2
+                                                        " />
+
                                                         Saving...
+
                                                     </>
+
                                                 )
+
                                                 : "Save Investment"
                                         }
 
@@ -904,7 +1653,9 @@ const AddInvestment = () => {
                                         to="/investments"
                                         className="btn btn-secondary"
                                     >
+
                                         Cancel
+
                                     </Link>
 
                                 </div>
@@ -924,5 +1675,6 @@ const AddInvestment = () => {
     );
 
 };
+
 
 export default AddInvestment;
