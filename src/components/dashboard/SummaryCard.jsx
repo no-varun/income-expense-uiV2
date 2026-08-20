@@ -1,67 +1,169 @@
 const SummaryCard = ({
     title,
     value,
-    bg = "bg-primary",
-    subtitle,
-    icon
+    bg = "bg-primary"
 }) => {
 
-    const formatAmount = (amount) => {
+    /*
+    |--------------------------------------------------------------------------
+    | SAFE VALUE
+    |--------------------------------------------------------------------------
+    */
 
-        const value =
-            Number(amount || 0);
+    const getNumericValue = (input) => {
 
-        return value.toLocaleString("en-IN", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
+        if (
+            input === null ||
+            input === undefined ||
+            input === ""
+        ) {
+            return 0;
+        }
+
+        /*
+         * If value is already a number
+         */
+        if (typeof input === "number") {
+
+            return Number.isFinite(input)
+                ? input
+                : 0;
+
+        }
+
+        /*
+         * Convert string safely
+         *
+         * Supports:
+         *
+         * "58141.55"
+         * "58,141.55"
+         * "₹58,141.55"
+         * "-₹54,560.78"
+         */
+
+        if (typeof input === "string") {
+
+            const cleaned =
+                input
+                    .replace(/₹/g, "")
+                    .replace(/,/g, "")
+                    .replace(/\s/g, "")
+                    .trim();
+
+
+            const negative =
+                cleaned.startsWith("-");
+
+
+            const numericString =
+                cleaned.replace(
+                    /[^0-9.]/g,
+                    ""
+                );
+
+
+            const number =
+                Number(
+                    numericString
+                );
+
+
+            if (
+                !Number.isFinite(number)
+            ) {
+
+                return 0;
+
+            }
+
+
+            return negative
+                ? -number
+                : number;
+
+        }
+
+
+        /*
+         * Anything else
+         */
+
+        const number =
+            Number(input);
+
+
+        return Number.isFinite(number)
+            ? number
+            : 0;
 
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT
+    |--------------------------------------------------------------------------
+    */
+
+    const numericValue =
+        getNumericValue(
+            value
+        );
+
+
+    const formattedValue =
+        numericValue.toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
-        <div className="col-12 col-sm-6 col-xl-3">
+        <div className="col-12 col-sm-6 col-lg-3">
 
             <div
-                className={`card border-0 shadow-sm h-100 ${bg}`}
+                className={`
+                    ${bg}
+                    text-white
+                    rounded
+                    shadow-sm
+                    h-100
+                    p-3
+                `}
             >
 
-                <div className="card-body">
+                <div
+                    className="
+                        small
+                        opacity-75
+                        mb-2
+                    "
+                >
 
-                    <div className="d-flex justify-content-between align-items-start">
+                    {title}
 
-                        <div>
-
-                            <div className="small opacity-75 mb-2">
-                                {title}
-                            </div>
-
-                            <h3 className="fw-bold mb-1">
-                                ₹ {formatAmount(value)}
-                            </h3>
-
-                            {subtitle && (
-                                <small className="opacity-75">
-                                    {subtitle}
-                                </small>
-                            )}
-
-                        </div>
+                </div>
 
 
-                        {icon && (
-                            <div
-                                className="fs-3 opacity-75"
-                                style={{
-                                    lineHeight: 1
-                                }}
-                            >
-                                {icon}
-                            </div>
-                        )}
+                <div
+                    className="
+                        fw-bold
+                        fs-5
+                    "
+                >
 
-                    </div>
+                    ₹{formattedValue}
 
                 </div>
 
@@ -72,5 +174,6 @@ const SummaryCard = ({
     );
 
 };
+
 
 export default SummaryCard;

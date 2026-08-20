@@ -4,411 +4,1077 @@ import SummaryCard from "../../components/dashboard/SummaryCard";
 import RecentTransaction from "../../components/dashboard/RecentTransaction";
 
 import {
-  getSummary,
-  getRecentTransactions,
+    getSummary,
+    getRecentTransactions
 } from "../../api/dashboardApi";
 
+
 const Dashboard = () => {
-  const [summary, setSummary] = useState({});
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const loadDashboard = async () => {
-    try {
-      const [summaryRes, transactionRes] = await Promise.all([
-        getSummary(),
-        getRecentTransactions(),
-      ]);
+    const [summary, setSummary] = useState({});
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-      setSummary(summaryRes.data || {});
-      setTransactions(transactionRes.data || []);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
+    const formatAmount = (value) => {
+
+        return Number(value || 0).toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT BANK
+    |--------------------------------------------------------------------------
+    */
+
+    const formatBankName = (bank) => {
+
+        if (!bank) {
+            return "-";
+        }
+
+        return (
+            bank.charAt(0).toUpperCase() +
+            bank.slice(1)
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DASHBOARD
+    |--------------------------------------------------------------------------
+    */
+
+    const loadDashboard = async () => {
+
+        try {
+
+            setLoading(true);
+            setError("");
+
+
+            const [
+                summaryResponse,
+                transactionResponse
+            ] = await Promise.all([
+
+                getSummary(),
+
+                getRecentTransactions()
+
+            ]);
+
+
+            console.log(
+                "Dashboard Summary Response:",
+                summaryResponse
+            );
+
+
+            console.log(
+                "Recent Transactions Response:",
+                transactionResponse
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SUMMARY
+            |--------------------------------------------------------------------------
+            |
+            | getSummary() is already returning:
+            |
+            | {
+            |     todayIncome: 15,
+            |     todayExpense: 889,
+            |     ...
+            | }
+            |
+            |--------------------------------------------------------------------------
+            */
+
+            let summaryData = {};
+
+
+            if (
+                summaryResponse &&
+                typeof summaryResponse === "object" &&
+                !Array.isArray(summaryResponse)
+            ) {
+
+                /*
+                | If API function returns:
+                |
+                | {
+                |     success: true,
+                |     data: {...}
+                | }
+                */
+
+                if (
+                    summaryResponse.data &&
+                    typeof summaryResponse.data === "object" &&
+                    !Array.isArray(summaryResponse.data)
+                ) {
+
+                    summaryData =
+                        summaryResponse.data;
+
+                }
+
+                /*
+                | If API function returns:
+                |
+                | {
+                |     todayIncome: 15,
+                |     todayExpense: 889,
+                |     ...
+                | }
+                */
+
+                else if (
+                    summaryResponse.todayIncome !== undefined ||
+                    summaryResponse.todayExpense !== undefined ||
+                    summaryResponse.monthIncome !== undefined ||
+                    summaryResponse.totalIncome !== undefined
+                ) {
+
+                    summaryData =
+                        summaryResponse;
+
+                }
+
+            }
+
+
+            console.log(
+                "Dashboard Parsed Summary:",
+                summaryData
+            );
+
+
+            setSummary(
+                summaryData
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | RECENT TRANSACTIONS
+            |--------------------------------------------------------------------------
+            */
+
+            let transactionData = [];
+
+
+            if (
+                Array.isArray(
+                    transactionResponse
+                )
+            ) {
+
+                transactionData =
+                    transactionResponse;
+
+            }
+
+            else if (
+                Array.isArray(
+                    transactionResponse?.data
+                )
+            ) {
+
+                transactionData =
+                    transactionResponse.data;
+
+            }
+
+            else if (
+                Array.isArray(
+                    transactionResponse?.data?.data
+                )
+            ) {
+
+                transactionData =
+                    transactionResponse.data.data;
+
+            }
+
+
+            setTransactions(
+                transactionData
+            );
+
+
+        } catch (err) {
+
+            console.error(
+                "Dashboard Load Error:",
+                err
+            );
+
+
+            setError(
+
+                err?.response?.data?.message ||
+                err?.message ||
+                "Unable to load dashboard."
+
+            );
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        loadDashboard();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BANK WISE
+    |--------------------------------------------------------------------------
+    */
+
+    const bankWise =
+        Array.isArray(summary?.bankWise)
+            ? summary.bankWise
+            : [];
+
+
+    const bankTotalBalance =
+        bankWise.reduce(
+            (total, item) => {
+
+                return (
+                    total +
+                    Number(
+                        item?.balance || 0
+                    )
+                );
+
+            },
+            0
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
+
+    if (loading) {
+
+        return (
+
+            <div className="container-fluid py-5">
+
+                <div className="text-center">
+
+                    <div
+                        className="spinner-border text-primary"
+                        role="status"
+                    />
+
+                    <div className="mt-3 text-muted">
+
+                        Loading dashboard...
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        );
+
     }
-  };
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
 
-  // Format amount to 2 decimal places
-  const formatAmount = (value) => {
-    return Number(value || 0).toFixed(2);
-  };
+    /*
+    |--------------------------------------------------------------------------
+    | ERROR
+    |--------------------------------------------------------------------------
+    */
 
-  // Bank name formatting
-  const formatBankName = (bank) => {
-    if (!bank) return "-";
+    if (error) {
 
-    return bank.charAt(0).toUpperCase() + bank.slice(1);
-  };
+        return (
 
-  // Bank wise data
-  const bankWise = summary.bankWise || [];
-  console.log("bankWise",bankWise)
-  // Calculate bank totals
-  const bankTotalIncome = bankWise.reduce(
-    (total, item) => total + Number(item.income || 0),
-    0
-  );
+            <div className="container-fluid py-4">
 
-  const bankTotalExpense = bankWise.reduce(
-    (total, item) => total + Number(item.expense || 0),
-    0
-  );
+                <div className="alert alert-danger">
 
-  const bankTotalSaving = bankWise.reduce(
-    (total, item) => total + Number(item.saving || 0),
-    0
-  );
+                    <strong>
+                        Unable to load dashboard
+                    </strong>
 
-  const bankTotalBalance = bankWise.reduce(
-    (total, item) => total + Number(item.balance || 0),
-    0
-  );
+                    <div className="mt-1">
+                        {error}
+                    </div>
 
-  if (loading) {
+                </div>
+
+
+                <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={loadDashboard}
+                >
+
+                    Retry
+
+                </button>
+
+            </div>
+
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD
+    |--------------------------------------------------------------------------
+    */
+
     return (
-      <div className="text-center py-5">
-        <h5>Loading...</h5>
-      </div>
-    );
-  }
 
-  return (
-    <div className="container-fluid py-3">
+        <div
+            className="container-fluid py-3"
+            style={{
+                width: "100%",
+                maxWidth: "100%",
+                minWidth: 0
+            }}
+        >
 
-      <h2 className="mb-4 fw-bold">Dashboard</h2>
+            {/* =========================================================
+                HEADER
+            ========================================================= */}
 
-      {/* ================= OVERALL ================= */}
+            <div
+                className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    mb-4
+                "
+            >
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
+                <div>
 
-          <h4 className="mb-4">Overall Summary</h4>
+                    <h2 className="mb-1 fw-bold">
+                        Dashboard
+                    </h2>
 
-          <div className="row g-3">
+                    <div className="text-muted">
+                        Financial overview and account summary
+                    </div>
 
-            <SummaryCard
-              title="Current Balance"
-              value={formatAmount(summary.currentBalance)}
-              bg="bg-success"
-            />
+                </div>
 
-            <SummaryCard
-              title="Total Debt"
-              value={formatAmount(summary.totalDebt)}
-              bg="bg-danger"
-            />
 
-            <SummaryCard
-              title="Pending Debt"
-              value={formatAmount(summary.totalPendingDebt)}
-              bg="bg-info"
-            />
+                <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={loadDashboard}
+                >
 
-          </div>
+                    Refresh
 
-        </div>
-      </div>
+                </button>
 
+            </div>
 
-      {/* ================= TODAY ================= */}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
+            {/* =========================================================
+                OVERALL SUMMARY
+            ========================================================= */}
 
-          <h4 className="mb-4">Today's Summary</h4>
+            <div className="card shadow-sm border-0 mb-4">
 
-          <div className="row g-3">
+                <div className="card-body">
 
-            <SummaryCard
-              title="Today's Income"
-              value={formatAmount(summary.todayIncome)}
-              bg="bg-success"
-            />
+                    <h4 className="mb-4">
+                        Overall Summary
+                    </h4>
 
-            <SummaryCard
-              title="Today's Expense"
-              value={formatAmount(summary.todayExpense)}
-              bg="bg-danger"
-            />
 
-          </div>
+                    <div className="row g-3">
 
-        </div>
-      </div>
+                        <SummaryCard
+                            title="Current Balance"
+                            value={formatAmount(
+                                summary.currentBalance
+                            )}
+                            bg="bg-success"
+                        />
 
 
-      {/* ================= MONTH ================= */}
+                        <SummaryCard
+                            title="Calculated Balance"
+                            value={formatAmount(
+                                summary.calculatedBalance
+                            )}
+                            bg="bg-primary"
+                        />
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
 
-          <h4 className="mb-4">Monthly Summary</h4>
+                        <SummaryCard
+                            title="Total Account Balance"
+                            value={formatAmount(
+                                summary.totalAccountBalance
+                            )}
+                            bg="bg-dark"
+                        />
 
-          <div className="row g-3">
 
-            <SummaryCard
-              title="Monthly Income"
-              value={formatAmount(summary.monthIncome)}
-              bg="bg-success"
-            />
+                        <SummaryCard
+                            title="Total Debt"
+                            value={formatAmount(
+                                summary.totalDebt
+                            )}
+                            bg="bg-danger"
+                        />
 
-            <SummaryCard
-              title="Monthly Expense"
-              value={formatAmount(summary.monthExpense)}
-              bg="bg-danger"
-            />
 
-            <SummaryCard
-              title="Monthly Saving"
-              value={formatAmount(summary.monthSaving)}
-              bg="bg-info"
-            />
+                        <SummaryCard
+                            title="Pending Debt"
+                            value={formatAmount(
+                                summary.totalPendingDebt
+                            )}
+                            bg="bg-info"
+                        />
 
-            <SummaryCard
-              title="Monthly Profit"
-              value={formatAmount(summary.monthProfit)}
-              bg="bg-warning"
-            />
+                    </div>
 
-          </div>
+                </div>
 
-        </div>
-      </div>
+            </div>
 
 
-      {/* ================= YEAR ================= */}
+            {/* =========================================================
+                TODAY
+            ========================================================= */}
 
-      <div className="card shadow-sm border-0 mb-4">
-        <div className="card-body">
+            <div className="card shadow-sm border-0 mb-4">
 
-          <h4 className="mb-4">Yearly Summary</h4>
+                <div className="card-body">
 
-          <div className="row g-3">
+                    <h4 className="mb-4">
+                        Today's Summary
+                    </h4>
 
-            <SummaryCard
-              title="Yearly Income"
-              value={formatAmount(summary.yearIncome)}
-              bg="bg-success"
-            />
 
-            <SummaryCard
-              title="Yearly Expense"
-              value={formatAmount(summary.yearExpense)}
-              bg="bg-danger"
-            />
+                    <div className="row g-3">
 
-            <SummaryCard
-              title="Yearly Saving"
-              value={formatAmount(summary.yearSaving)}
-              bg="bg-info"
-            />
+                        <SummaryCard
+                            title="Today's Income"
+                            value={formatAmount(
+                                summary.todayIncome
+                            )}
+                            bg="bg-success"
+                        />
 
-            <SummaryCard
-              title="Total Saving"
-              value={formatAmount(summary.totalSaving)}
-              bg="bg-warning"
-            />
 
-          </div>
+                        <SummaryCard
+                            title="Today's Expense"
+                            value={formatAmount(
+                                summary.todayExpense
+                            )}
+                            bg="bg-danger"
+                        />
+
+
+                        <SummaryCard
+                            title="Today's Saving"
+                            value={formatAmount(
+                                summary.todaySaving
+                            )}
+                            bg="bg-info"
+                        />
 
-        </div>
-      </div>
 
+                        <SummaryCard
+                            title="Today's Net"
+                            value={formatAmount(
+                                summary.todayNet
+                            )}
+                            bg={
+                                Number(
+                                    summary.todayNet || 0
+                                ) >= 0
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }
+                        />
 
-      {/* ================= BANK WISE ================= */}
+                    </div>
 
-      <div className="card shadow-sm border-0 mb-4">
+                </div>
 
-        <div className="card-body">
+            </div>
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
 
-            <h4 className="mb-0">
-              Bank Wise Summary
-            </h4>
+            {/* =========================================================
+                MONTHLY
+            ========================================================= */}
 
-            <span className="badge bg-primary">
-              {bankWise.length} Banks
-            </span>
+            <div className="card shadow-sm border-0 mb-4">
 
-          </div>
+                <div className="card-body">
 
-          <div className="table-responsive">
+                    <h4 className="mb-4">
+                        Monthly Summary
+                    </h4>
 
-            <table className="table table-bordered table-hover align-middle mb-0">
 
-              <thead className="table-light">
+                    <div className="row g-3">
 
-                <tr>
-                  <th className="text-center">
-                    #
-                  </th>
+                        <SummaryCard
+                            title="Monthly Income"
+                            value={formatAmount(
+                                summary.monthIncome
+                            )}
+                            bg="bg-success"
+                        />
 
-                  <th>
-                    Bank
-                  </th>
 
-                  <th className="text-end text-success">
-                    Income
-                  </th>
+                        <SummaryCard
+                            title="Monthly Expense"
+                            value={formatAmount(
+                                summary.monthExpense
+                            )}
+                            bg="bg-danger"
+                        />
 
-                  <th className="text-end text-danger">
-                    Expense
-                  </th>
 
-                  <th className="text-end text-info">
-                    Saving
-                  </th>
+                        <SummaryCard
+                            title="Monthly Saving"
+                            value={formatAmount(
+                                summary.monthSaving
+                            )}
+                            bg="bg-info"
+                        />
 
-                  <th className="text-end">
-                    Balance
-                  </th>
-                </tr>
 
-              </thead>
+                        <SummaryCard
+                            title="Monthly Net"
+                            value={formatAmount(
+                                summary.monthNet
+                            )}
+                            bg={
+                                Number(
+                                    summary.monthNet || 0
+                                ) >= 0
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }
+                        />
 
-              <tbody>
 
-                {bankWise.length > 0 ? (
+                        <SummaryCard
+                            title="Monthly Profit"
+                            value={formatAmount(
+                                summary.monthProfit
+                            )}
+                            bg={
+                                Number(
+                                    summary.monthProfit || 0
+                                ) >= 0
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }
+                        />
 
-                  bankWise.map((item, index) => {
+                    </div>
 
-                    const balance = Number(item.balance || 0);
+                </div>
 
-                    return (
-                      <tr key={`${item.bank}-${index}`}>
+            </div>
 
-                        <td className="text-center">
-                          {index + 1}
-                        </td>
 
-                        <td>
-                          <strong>
-                            {formatBankName(item.bank)}
-                          </strong>
-                        </td>
+            {/* =========================================================
+                YEARLY
+            ========================================================= */}
 
-                        <td className="text-end text-success">
-                          ₹ {formatAmount(item.income)}
-                        </td>
+            <div className="card shadow-sm border-0 mb-4">
 
-                        <td className="text-end text-danger">
-                          ₹ {formatAmount(item.expense)}
-                        </td>
+                <div className="card-body">
 
-                        <td className="text-end text-info">
-                          ₹ {formatAmount(item.saving)}
-                        </td>
+                    <h4 className="mb-4">
+                        Yearly Summary
+                    </h4>
 
-                        <td
-                          className={`text-end fw-bold ${
-                            balance >= 0
-                              ? "text-success"
-                              : "text-danger"
-                          }`}
+
+                    <div className="row g-3">
+
+                        <SummaryCard
+                            title="Yearly Income"
+                            value={formatAmount(
+                                summary.yearIncome
+                            )}
+                            bg="bg-success"
+                        />
+
+
+                        <SummaryCard
+                            title="Yearly Expense"
+                            value={formatAmount(
+                                summary.yearExpense
+                            )}
+                            bg="bg-danger"
+                        />
+
+
+                        <SummaryCard
+                            title="Yearly Saving"
+                            value={formatAmount(
+                                summary.yearSaving
+                            )}
+                            bg="bg-info"
+                        />
+
+
+                        <SummaryCard
+                            title="Yearly Net"
+                            value={formatAmount(
+                                summary.yearNet
+                            )}
+                            bg={
+                                Number(
+                                    summary.yearNet || 0
+                                ) >= 0
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }
+                        />
+
+
+                        <SummaryCard
+                            title="Yearly Profit"
+                            value={formatAmount(
+                                summary.yearProfit
+                            )}
+                            bg={
+                                Number(
+                                    summary.yearProfit || 0
+                                ) >= 0
+                                    ? "bg-success"
+                                    : "bg-danger"
+                            }
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================================================
+                LIFETIME
+            ========================================================= */}
+
+            <div className="card shadow-sm border-0 mb-4">
+
+                <div className="card-body">
+
+                    <h4 className="mb-4">
+                        Lifetime Summary
+                    </h4>
+
+
+                    <div className="row g-3">
+
+                        <SummaryCard
+                            title="Total Income"
+                            value={formatAmount(
+                                summary.totalIncome
+                            )}
+                            bg="bg-success"
+                        />
+
+
+                        <SummaryCard
+                            title="Total Expense"
+                            value={formatAmount(
+                                summary.totalExpense
+                            )}
+                            bg="bg-danger"
+                        />
+
+
+                        <SummaryCard
+                            title="Total Saving"
+                            value={formatAmount(
+                                summary.totalSaving
+                            )}
+                            bg="bg-info"
+                        />
+
+
+                        <SummaryCard
+                            title="Total Debt"
+                            value={formatAmount(
+                                summary.totalDebt
+                            )}
+                            bg="bg-warning"
+                        />
+
+
+                        <SummaryCard
+                            title="Pending Debt"
+                            value={formatAmount(
+                                summary.totalPendingDebt
+                            )}
+                            bg="bg-primary"
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================================================
+                ACCOUNT SUMMARY
+            ========================================================= */}
+
+            <div className="card shadow-sm border-0 mb-4">
+
+                <div className="card-body">
+
+                    <div
+                        className="
+                            d-flex
+                            justify-content-between
+                            align-items-center
+                            mb-4
+                        "
+                    >
+
+                        <h4 className="mb-0">
+                            Account Summary
+                        </h4>
+
+
+                        <span className="badge bg-primary">
+
+                            {Number(
+                                summary.accountCount || 0
+                            )} Accounts
+
+                        </span>
+
+                    </div>
+
+
+                    <div className="row g-3">
+
+                        <SummaryCard
+                            title="Total Account Balance"
+                            value={formatAmount(
+                                summary.totalAccountBalance
+                            )}
+                            bg="bg-success"
+                        />
+
+
+                        <SummaryCard
+                            title="Account Count"
+                            value={Number(
+                                summary.accountCount || 0
+                            )}
+                            bg="bg-primary"
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================================================
+                BANK WISE
+            ========================================================= */}
+
+            <div className="card shadow-sm border-0 mb-4">
+
+                <div className="card-body">
+
+                    <div
+                        className="
+                            d-flex
+                            justify-content-between
+                            align-items-center
+                            mb-4
+                        "
+                    >
+
+                        <h4 className="mb-0">
+                            Bank Wise Summary
+                        </h4>
+
+
+                        <span className="badge bg-primary">
+
+                            {bankWise.length} Banks
+
+                        </span>
+
+                    </div>
+
+
+                    <div className="table-responsive">
+
+                        <table
+                            className="
+                                table
+                                table-bordered
+                                table-hover
+                                align-middle
+                                mb-0
+                            "
                         >
-                          ₹ {formatAmount(balance)}
-                        </td>
 
-                      </tr>
-                    );
-                  })
+                            <thead className="table-light">
 
-                ) : (
+                                <tr>
 
-                  <tr>
+                                    <th className="text-center">
+                                        #
+                                    </th>
 
-                    <td
-                      colSpan="6"
-                      className="text-center py-4 text-muted"
-                    >
-                      No bank wise data available
-                    </td>
+                                    <th>
+                                        Bank
+                                    </th>
 
-                  </tr>
+                                    <th className="text-center">
+                                        Accounts
+                                    </th>
 
-                )}
+                                    <th className="text-end">
+                                        Balance
+                                    </th>
 
-              </tbody>
+                                </tr>
+
+                            </thead>
 
 
-              {/* ================= BANK TOTAL ================= */}
+                            <tbody>
 
-              {bankWise.length > 0 && (
+                                {bankWise.length > 0 ? (
 
-                <tfoot className="table-light">
+                                    bankWise.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => {
 
-                  <tr>
+                                            const balance =
+                                                Number(
+                                                    item?.balance || 0
+                                                );
 
-                    <th
-                      colSpan="2"
-                      className="text-end"
-                    >
-                      Total
-                    </th>
 
-                    <th className="text-end text-success">
-                      ₹ {formatAmount(bankTotalIncome)}
-                    </th>
+                                            return (
 
-                    <th className="text-end text-danger">
-                      ₹ {formatAmount(bankTotalExpense)}
-                    </th>
+                                                <tr
+                                                    key={
+                                                        `${item?.bank}-${index}`
+                                                    }
+                                                >
 
-                    <th className="text-end text-info">
-                      ₹ {formatAmount(bankTotalSaving)}
-                    </th>
+                                                    <td className="text-center">
+                                                        {index + 1}
+                                                    </td>
 
-                    <th
-                      className={`text-end ${
-                        bankTotalBalance >= 0
-                          ? "text-success"
-                          : "text-danger"
-                      }`}
-                    >
-                      ₹ {formatAmount(bankTotalBalance)}
-                    </th>
 
-                  </tr>
+                                                    <td>
 
-                </tfoot>
+                                                        <strong>
+                                                            {
+                                                                formatBankName(
+                                                                    item?.bank
+                                                                )
+                                                            }
+                                                        </strong>
 
-              )}
+                                                    </td>
 
-            </table>
 
-          </div>
+                                                    <td className="text-center">
+
+                                                        {
+                                                            Number(
+                                                                item?.accountCount ||
+                                                                0
+                                                            )
+                                                        }
+
+                                                    </td>
+
+
+                                                    <td
+                                                        className={`
+                                                            text-end
+                                                            fw-bold
+                                                            ${
+                                                                balance >= 0
+                                                                    ? "text-success"
+                                                                    : "text-danger"
+                                                            }
+                                                        `}
+                                                    >
+
+                                                        ₹{" "}
+                                                        {
+                                                            formatAmount(
+                                                                balance
+                                                            )
+                                                        }
+
+                                                    </td>
+
+                                                </tr>
+
+                                            );
+
+                                        }
+                                    )
+
+                                ) : (
+
+                                    <tr>
+
+                                        <td
+                                            colSpan="4"
+                                            className="
+                                                text-center
+                                                py-4
+                                                text-muted
+                                            "
+                                        >
+
+                                            No bank wise data available
+
+                                        </td>
+
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+
+                            {bankWise.length > 0 && (
+
+                                <tfoot className="table-light">
+
+                                    <tr>
+
+                                        <th
+                                            colSpan="3"
+                                            className="text-end"
+                                        >
+
+                                            Total
+
+                                        </th>
+
+
+                                        <th className="text-end">
+
+                                            ₹{" "}
+                                            {
+                                                formatAmount(
+                                                    bankTotalBalance
+                                                )
+                                            }
+
+                                        </th>
+
+                                    </tr>
+
+                                </tfoot>
+
+                            )}
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================================================
+                RECENT TRANSACTIONS
+            ========================================================= */}
+
+            <div className="card shadow-sm border-0">
+
+                <div className="card-body">
+
+                    <h4 className="mb-4">
+                        Recent Transactions
+                    </h4>
+
+
+                    <RecentTransaction
+                        transactions={
+                            transactions
+                        }
+                    />
+
+                </div>
+
+            </div>
 
         </div>
 
-      </div>
+    );
 
-
-      {/* ================= RECENT TRANSACTIONS ================= */}
-
-      <div className="card shadow-sm border-0">
-
-        <div className="card-body">
-
-          <h4 className="mb-4">
-            Recent Transactions
-          </h4>
-
-          <RecentTransaction
-            transactions={transactions}
-          />
-
-        </div>
-
-      </div>
-
-    </div>
-  );
 };
+
 
 export default Dashboard;
