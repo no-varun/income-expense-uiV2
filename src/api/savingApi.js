@@ -1,48 +1,112 @@
 import axios from "./axios";
 
-/**
- * Get All Income
- */
-export const getSavings = async (params = {}) => {
 
-    return await axios.get("/saving", {
-        params
-    });
+/*
+|--------------------------------------------------------------------------
+| GET SAVINGS
+|--------------------------------------------------------------------------
+*/
 
-};
+export const getSavings = async (
+    params = {}
+) => {
 
-/**
- * Get Single Income
- */
-export const getSaving = async (id) => {
+    const response =
+        await axios.get(
+            "/saving",
+            {
+                params
+            }
+        );
 
-    return await axios.get(`/saving/${id}`);
 
-};
-
-/**
- * Create Income
- */
-export const createSaving = async (data) => {
-
-    return await axios.post("/saving", data);
+    return response.data;
 
 };
 
-/**
- * Update Income
- */
-export const updateSaving = async (id, data) => {
 
-    return await axios.put(`/saving/${id}`, data);
+/*
+|--------------------------------------------------------------------------
+| GET SAVING BY ID
+|--------------------------------------------------------------------------
+*/
+
+export const getSaving = async (
+    id
+) => {
+
+    const response =
+        await axios.get(
+            `/saving/${id}`
+        );
+
+
+    return response.data;
 
 };
 
-/**
- * Delete Income
- */
-export const deleteSaving = async (id) => {
 
-    return await axios.delete(`/saving/${id}`);
+/*
+|--------------------------------------------------------------------------
+| CREATE SAVING
+|--------------------------------------------------------------------------
+*/
+
+export const createSaving = async (
+    data
+) => {
+
+    const response =
+        await axios.post(
+            "/saving",
+            data
+        );
+
+
+    return response.data;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| UPDATE SAVING
+|--------------------------------------------------------------------------
+*/
+
+export const updateSaving = async (
+    id,
+    data
+) => {
+
+    const response =
+        await axios.put(
+            `/saving/${id}`,
+            data
+        );
+
+
+    return response.data;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DELETE SAVING
+|--------------------------------------------------------------------------
+*/
+
+export const deleteSaving = async (
+    id
+) => {
+
+    const response =
+        await axios.delete(
+            `/saving/${id}`
+        );
+
+
+    return response.data;
 
 };

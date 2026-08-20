@@ -1,126 +1,103 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
+import {
+    Link
+} from "react-router-dom";
 
 import {
     getSavings,
     deleteSaving
 } from "../../api/savingApi";
 
-import { getCategories } from "../../api/categoryApi";
+import {
+    getCategories
+} from "../../api/categoryApi";
 
-import Pagination from "../../components/common/Pagination";
+import {
+    getAccounts
+} from "../../api/accountApi";
+
+import Pagination
+    from "../../components/common/Pagination";
 
 import {
     getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
 
 
-/*
- * =====================================================
- * BANK IMAGES
- * =====================================================
- */
-
-const bankImages = {
-    Pnb: "/images/banks/pnb.png",
-    Rbl: "/images/banks/rbl.png",
-    icici: "/images/banks/icici.png",
-    Cash: "/images/banks/cash.png",
-    Other: "/images/banks/card.png"
-};
-
-
-/*
- * =====================================================
- * PAYMENT MODE IMAGES
- * =====================================================
- */
-
-const paymentModeImages = {
-    Bhim: "/images/payment/Bhim.png",
-
-    "AmazonPay":
-        "/images/payment/amazonpay.png",
-
-    "BankTransfer":
-        "/images/payment/BankTransfer.png",
-
-    GPay:
-        "/images/payment/GPay.png",
-
-    PhonePe:
-        "/images/payment/phonepe.png",
-
-    Paytm:
-        "/images/payment/paytm.png",
-
-    Cash:
-        "/images/payment/cash.png",
-
-    Other:
-        "/images/payment/card.png"
-};
-
-
 const SavingList = () => {
 
     /*
-     * =====================================================
-     * DATA
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | DATA
+    |--------------------------------------------------------------------------
+    */
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] =
+        useState(true);
 
-    const [savings, setSavings] = useState([]);
+    const [savings, setSavings] =
+        useState([]);
 
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] =
+        useState([]);
 
-
-    /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
-
-    const [page, setPage] = useState(1);
-
-    const [limit, setLimit] = useState(10);
-
-    const [total, setTotal] = useState(0);
+    const [accounts, setAccounts] =
+        useState([]);
 
 
     /*
-     * =====================================================
-     * DATE FILTERS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
-    const [fromDateInput, setFromDateInput] = useState("");
+    const [page, setPage] =
+        useState(1);
 
-    const [toDateInput, setToDateInput] = useState("");
+    const [limit, setLimit] =
+        useState(10);
 
-    const [fromDate, setFromDate] = useState("");
-
-    const [toDate, setToDate] = useState("");
-
-
-    /*
-     * =====================================================
-     * CATEGORY FILTER
-     * =====================================================
-     */
-
-    const [categoryInput, setCategoryInput] = useState("");
-
-    const [category, setCategory] = useState("");
+    const [total, setTotal] =
+        useState(0);
 
 
     /*
-     * =====================================================
-     * PAYMENT MODE FILTER
-     * =====================================================
- */
+    |--------------------------------------------------------------------------
+    | FILTERS
+    |--------------------------------------------------------------------------
+    */
+
+    const [fromDateInput, setFromDateInput] =
+        useState("");
+
+    const [toDateInput, setToDateInput] =
+        useState("");
+
+    const [fromDate, setFromDate] =
+        useState("");
+
+    const [toDate, setToDate] =
+        useState("");
+
+
+    const [categoryInput, setCategoryInput] =
+        useState("");
+
+    const [category, setCategory] =
+        useState("");
+
+
+    const [accountInput, setAccountInput] =
+        useState("");
+
+    const [account, setAccount] =
+        useState("");
+
 
     const [paymentModeInput, setPaymentModeInput] =
         useState("");
@@ -130,21 +107,10 @@ const SavingList = () => {
 
 
     /*
-     * =====================================================
-     * BANK FILTER
-     * =====================================================
-     */
-
-    const [bankInput, setBankInput] = useState("");
-
-    const [bank, setBank] = useState("");
-
-
-    /*
-     * =====================================================
-     * PAYMENT MODES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAYMENT MODES
+    |--------------------------------------------------------------------------
+    */
 
     const paymentModes = [
         "Cash",
@@ -152,447 +118,706 @@ const SavingList = () => {
         "PhonePe",
         "GPay",
         "Bhim",
-        "Amazon Pay",
+        "AmazonPay",
         "BankTransfer",
         "Other"
     ];
 
 
     /*
-     * =====================================================
-     * BANKS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD CATEGORIES
+    |--------------------------------------------------------------------------
+    */
 
-    const banks = [
-        "Pnb",
-        "Rbl",
-        "icici",
-        "Cash",
-        "Other"
-    ];
+    const loadCategories = useCallback(
+        async () => {
 
+            try {
 
-    /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
-
-    const loadCategories = useCallback(async () => {
-
-        try {
-
-            const response = await getCategories({
-                limit: 100,
-                type: "SAVING"
-            });
+                const response =
+                    await getCategories({
+                        limit: 100,
+                        type: "SAVING"
+                    });
 
 
-            if (response.success) {
+                console.log(
+                    "Saving Category Response:",
+                    response
+                );
 
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
+
+                const payload =
+                    response?.data ||
+                    response;
+
+
+                let rows = [];
+
+
+                if (
+                    Array.isArray(payload)
+                ) {
+
+                    rows = payload;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.rows;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.data.rows;
+
+                }
 
 
                 setCategories(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
+                    rows
                 );
 
-            } else {
+
+            } catch (error) {
+
+                console.error(
+                    "Saving category error:",
+                    error
+                );
 
                 setCategories([]);
 
             }
 
-        } catch (error) {
-
-            console.log(
-                "Category fetch error:",
-                error
-            );
-
-            setCategories([]);
-
-        }
-
-    }, []);
+        },
+        []
+    );
 
 
     /*
-     * =====================================================
-     * LOAD SAVINGS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
 
-    const loadSaving = useCallback(async () => {
+    const loadAccounts = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
-
-
-            const response = await getSavings({
-
-                page,
-
-                limit,
-
-                from: fromDate,
-
-                to: toDate,
-
-                category,
-
-                paymentMode,
-
-                bank
-
-            });
+                const response =
+                    await getAccounts({
+                        page: 1,
+                        limit: 100
+                    });
 
 
-            if (response.success) {
-
-                const rows =
-                    response.data?.data ||
-                    response.data?.rows ||
-                    response.data ||
-                    [];
+                console.log(
+                    "Saving Account Response:",
+                    response
+                );
 
 
-                const savingRows =
-                    Array.isArray(rows)
-                        ? rows
-                        : [];
+                const payload =
+                    response?.data ||
+                    response;
+
+
+                let rows = [];
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Your account API may return:
+                |
+                | {
+                |     total: 0,
+                |     page: 1,
+                |     limit: 100,
+                |     rows: []
+                | }
+                |
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    Array.isArray(payload)
+                ) {
+
+                    rows =
+                        payload;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.rows;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.data.rows;
+
+                }
+
+
+                setAccounts(
+                    rows
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Saving account error:",
+                    error
+                );
+
+                setAccounts([]);
+
+            }
+
+        },
+        []
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD SAVINGS
+    |--------------------------------------------------------------------------
+    */
+
+    const loadSavings = useCallback(
+        async () => {
+
+            try {
+
+                setLoading(true);
+
+
+                const params = {
+
+                    page,
+
+                    limit,
+
+                    from: fromDate,
+
+                    to: toDate,
+
+                    category,
+
+                    account,
+
+                    paymentMode
+
+                };
+
+
+                console.log(
+                    "================================"
+                );
+
+                console.log(
+                    "SAVING REQUEST"
+                );
+
+                console.log(
+                    params
+                );
+
+
+                const response =
+                    await getSavings(
+                        params
+                    );
+
+
+                console.log(
+                    "SAVING API RESPONSE"
+                );
+
+                console.log(
+                    response
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT
+                |
+                | savingApi.js already returns response.data
+                |
+                | So response is:
+                |
+                | {
+                |    total: 20,
+                |    page: 1,
+                |    limit: 10,
+                |    totalPages: 2,
+                |    data: [...]
+                | }
+                |--------------------------------------------------------------------------
+                */
+
+                const payload =
+                    response;
+
+
+                let rows = [];
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CASE 1
+                |
+                | API:
+                |
+                | {
+                |    data: [...]
+                | }
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CASE 2
+                |
+                | API:
+                |
+                | {
+                |    rows: [...]
+                | }
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    Array.isArray(
+                        payload?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.rows;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CASE 3
+                |
+                | API directly returns array
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    Array.isArray(
+                        payload
+                    )
+                ) {
+
+                    rows =
+                        payload;
+
+                }
+
+
+                console.log(
+                    "SAVING ROWS",
+                    rows
+                );
 
 
                 setSavings(
-                    savingRows
+                    rows
                 );
 
 
                 setTotal(
-                    response.data?.total ??
-                    savingRows.length
+                    Number(
+                        payload?.total ??
+                        rows.length
+                    )
                 );
 
-            } else {
+
+            } catch (error) {
+
+                console.error(
+                    "Saving load error:",
+                    error
+                );
+
+
+                console.error(
+                    "Saving error response:",
+                    error?.response?.data
+                );
+
 
                 setSavings([]);
 
                 setTotal(0);
 
+            } finally {
+
+                setLoading(false);
+
             }
 
-        } catch (error) {
-
-            console.log(
-                "Saving load error:",
-                error
-            );
-
-            setSavings([]);
-
-            setTotal(0);
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    }, [
-        page,
-        limit,
-        fromDate,
-        toDate,
-        category,
-        paymentMode,
-        bank
-    ]);
+        },
+        [
+            page,
+            limit,
+            fromDate,
+            toDate,
+            category,
+            account,
+            paymentMode
+        ]
+    );
 
 
     /*
-     * =====================================================
-     * INITIAL LOAD
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
         loadCategories();
 
+        loadAccounts();
+
     }, [
-        loadCategories
+        loadCategories,
+        loadAccounts
     ]);
 
 
     /*
-     * =====================================================
-     * LOAD SAVINGS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD SAVINGS
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
-        loadSaving();
+        loadSavings();
 
     }, [
-        loadSaving
+        loadSavings
     ]);
 
 
     /*
-     * =====================================================
-     * DELETE SAVING
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
 
-    const handleDelete = async (id) => {
+    const handleDelete =
+        async (
+            id
+        ) => {
 
-        if (
-            !window.confirm(
-                "Delete this saving?"
-            )
-        ) {
+            if (
+                !window.confirm(
+                    "Delete this saving?"
+                )
+            ) {
 
-            return;
+                return;
 
-        }
-
-
-        try {
-
-            const response =
-                await deleteSaving(id);
+            }
 
 
-            if (response.success) {
+            try {
 
-                alert(
-                    response.message ||
-                    "Saving deleted successfully."
-                );
+                const response =
+                    await deleteSaving(
+                        id
+                    );
 
 
                 if (
-                    savings.length === 1 &&
-                    page > 1
+                    response?.success
                 ) {
 
-                    setPage(page - 1);
+                    alert(
+                        response.message ||
+                        "Saving deleted successfully."
+                    );
+
+
+                    if (
+                        savings.length === 1 &&
+                        page > 1
+                    ) {
+
+                        setPage(
+                            page - 1
+                        );
+
+                    } else {
+
+                        loadSavings();
+
+                    }
 
                 } else {
 
-                    loadSaving();
+                    alert(
+                        response?.message ||
+                        "Unable to delete saving."
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Delete saving error:",
+                    error
+                );
+
+
+                alert(
+                    error?.response?.data?.message ||
+                    "Failed to delete saving."
+                );
+
+            }
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER
+    |--------------------------------------------------------------------------
+    */
+
+    const handleFilter =
+        (event) => {
+
+            event.preventDefault();
+
+
+            setFromDate(
+                fromDateInput
+            );
+
+            setToDate(
+                toDateInput
+            );
+
+            setCategory(
+                categoryInput
+            );
+
+            setAccount(
+                accountInput
+            );
+
+            setPaymentMode(
+                paymentModeInput
+            );
+
+
+            setPage(1);
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CLEAR
+    |--------------------------------------------------------------------------
+    */
+
+    const handleClearFilter =
+        () => {
+
+            setFromDateInput("");
+
+            setToDateInput("");
+
+            setCategoryInput("");
+
+            setAccountInput("");
+
+            setPaymentModeInput("");
+
+
+            setFromDate("");
+
+            setToDate("");
+
+            setCategory("");
+
+            setAccount("");
+
+            setPaymentMode("");
+
+
+            setPage(1);
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCOUNT NAME
+    |--------------------------------------------------------------------------
+    */
+
+    const getAccountName =
+        (item) => {
+
+            /*
+            | Backend populated account
+            */
+
+            if (
+                item?.account?.name
+            ) {
+
+                return item.account.name;
+
+            }
+
+
+            if (
+                item?.account?.accountName
+            ) {
+
+                return item.account.accountName;
+
+            }
+
+
+            /*
+            | Backend returns account ID
+            */
+
+            if (
+                typeof item?.account ===
+                "string"
+            ) {
+
+                const found =
+                    accounts.find(
+                        accountItem =>
+                            String(
+                                accountItem?._id
+                            ) ===
+                            String(
+                                item.account
+                            )
+                    );
+
+
+                if (found) {
+
+                    return (
+                        found.name ||
+                        found.accountName ||
+                        found.title ||
+                        "-"
+                    );
 
                 }
 
             }
 
-        } catch (error) {
 
-            alert(
-                error.response?.data?.message ||
-                "Failed to delete saving"
-            );
+            return "-";
 
-        }
-
-    };
+        };
 
 
     /*
-     * =====================================================
-     * APPLY FILTER
-     * =====================================================
-     */
-
-    const handleFilter = (event) => {
-
-        event.preventDefault();
-
-
-        setFromDate(
-            fromDateInput
-        );
-
-        setToDate(
-            toDateInput
-        );
-
-        setCategory(
-            categoryInput
-        );
-
-        setPaymentMode(
-            paymentModeInput
-        );
-
-        setBank(
-            bankInput
-        );
-
-
-        setPage(1);
-
-    };
-
-
-    /*
-     * =====================================================
-     * CLEAR FILTER
-     * =====================================================
-     */
-
-    const handleClearFilter = () => {
-
-        setFromDateInput("");
-
-        setToDateInput("");
-
-        setCategoryInput("");
-
-        setPaymentModeInput("");
-
-        setBankInput("");
-
-
-        setFromDate("");
-
-        setToDate("");
-
-        setCategory("");
-
-        setPaymentMode("");
-
-        setBank("");
-
-
-        setPage(1);
-
-    };
-
-
-    /*
-     * =====================================================
-     * GET BANK IMAGE
-     * =====================================================
-     */
-
-    const getBankImage = (bankName) => {
-
-        if (!bankName) {
-
-            return null;
-
-        }
-
-
-        /*
-         * Exact match
-         */
-
-        if (bankImages[bankName]) {
-
-            return bankImages[bankName];
-
-        }
-
-
-        /*
-         * Case-insensitive match
-         */
-
-        const matchedBank =
-            Object.keys(bankImages).find(
-                key =>
-                    key.toLowerCase() ===
-                    String(bankName).toLowerCase()
-            );
-
-
-        /*
-         * Return matching image
-         * or Other image
-         */
-
-        return matchedBank
-            ? bankImages[matchedBank]
-            : bankImages.Other;
-
-    };
-
-
-    /*
-     * =====================================================
-     * GET PAYMENT MODE IMAGE
-     * =====================================================
-     */
-
-    const getPaymentModeImage = (paymentModeName) => {
-
-        if (!paymentModeName) {
-
-            return null;
-
-        }
-
-
-        /*
-         * Exact match
-         */
-
-        if (paymentModeImages[paymentModeName]) {
-
-            return paymentModeImages[paymentModeName];
-
-        }
-
-
-        /*
-         * Case-insensitive match
-         */
-
-        const matchedPaymentMode =
-            Object.keys(paymentModeImages).find(
-                key =>
-                    key.toLowerCase() ===
-                    String(paymentModeName).toLowerCase()
-            );
-
-
-        /*
-         * Return matching image
-         * or Other image
-         */
-
-        return matchedPaymentMode
-            ? paymentModeImages[matchedPaymentMode]
-            : paymentModeImages.Other;
-
-    };
-
-
-    /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
     const totalPages =
-        Math.ceil(total / limit) || 1;
+        Math.ceil(
+            total / limit
+        ) || 1;
 
 
     const startRecord =
         total === 0
             ? 0
-            : ((page - 1) * limit) + 1;
+            : (
+                (page - 1) *
+                limit
+            ) + 1;
 
 
     const endRecord =
@@ -603,55 +828,75 @@ const SavingList = () => {
 
 
     /*
-     * =====================================================
-     * RENDER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="container-fluid">
+        <div className="container-fluid px-4 py-3">
 
+            {/* HEADER */}
 
-            {/* =================================================
-                HEADER
-            ================================================= */}
+            <div className="d-flex justify-content-between align-items-center mb-3">
 
-            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
 
-                <h3 className="mb-0">
-                    Saving List
-                </h3>
+                    <h3 className="mb-0">
+                        Saving List
+                    </h3>
+
+                    <div className="text-muted small mt-1">
+
+                        Total Savings: ₹
+                        {savings.reduce(
+                            (
+                                sum,
+                                item
+                            ) =>
+                                sum +
+                                Number(
+                                    item.amount || 0
+                                ),
+                            0
+                        ).toLocaleString(
+                            "en-IN",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}
+
+                    </div>
+
+                </div>
 
 
                 <Link
                     to="/saving/add"
                     className="btn btn-primary"
                 >
+
                     Add Saving
+
                 </Link>
 
             </div>
 
 
-            {/* =================================================
-                CARD
-            ================================================= */}
+            {/* FILTER */}
 
-            <div className="card">
+            <div className="card border-0 shadow-sm mb-3">
 
                 <div className="card-body">
 
-
-                    {/* =================================================
-                        FILTER
-                    ================================================= */}
-
                     <form
-                        className="row g-2 align-items-end mb-3"
-                        onSubmit={handleFilter}
+                        className="row g-3 align-items-end"
+                        onSubmit={
+                            handleFilter
+                        }
                     >
-
 
                         {/* FROM */}
 
@@ -661,17 +906,17 @@ const SavingList = () => {
                                 From
                             </label>
 
-
                             <input
                                 type="date"
                                 className="form-control"
                                 value={
                                     fromDateInput
                                 }
-                                onChange={(event) =>
-                                    setFromDateInput(
-                                        event.target.value
-                                    )
+                                onChange={
+                                    event =>
+                                        setFromDateInput(
+                                            event.target.value
+                                        )
                                 }
                             />
 
@@ -686,17 +931,17 @@ const SavingList = () => {
                                 To
                             </label>
 
-
                             <input
                                 type="date"
                                 className="form-control"
                                 value={
                                     toDateInput
                                 }
-                                onChange={(event) =>
-                                    setToDateInput(
-                                        event.target.value
-                                    )
+                                onChange={
+                                    event =>
+                                        setToDateInput(
+                                            event.target.value
+                                        )
                                 }
                             />
 
@@ -711,16 +956,16 @@ const SavingList = () => {
                                 Category
                             </label>
 
-
                             <select
                                 className="form-select"
                                 value={
                                     categoryInput
                                 }
-                                onChange={(event) =>
-                                    setCategoryInput(
-                                        event.target.value
-                                    )
+                                onChange={
+                                    event =>
+                                        setCategoryInput(
+                                            event.target.value
+                                        )
                                 }
                             >
 
@@ -730,19 +975,76 @@ const SavingList = () => {
 
 
                                 {categories.map(
-                                    (categoryItem) => (
+                                    item => (
 
                                         <option
                                             key={
-                                                categoryItem._id
+                                                item._id
                                             }
                                             value={
-                                                categoryItem._id
+                                                item._id
                                             }
                                         >
+
                                             {
-                                                categoryItem.name
+                                                item.name
                                             }
+
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* ACCOUNT */}
+
+                        <div className="col-12 col-md-2">
+
+                            <label className="form-label">
+                                Account
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={
+                                    accountInput
+                                }
+                                onChange={
+                                    event =>
+                                        setAccountInput(
+                                            event.target.value
+                                        )
+                                }
+                            >
+
+                                <option value="">
+                                    All Accounts
+                                </option>
+
+
+                                {accounts.map(
+                                    item => (
+
+                                        <option
+                                            key={
+                                                item._id
+                                            }
+                                            value={
+                                                item._id
+                                            }
+                                        >
+
+                                            {
+                                                item.name ||
+                                                item.accountName ||
+                                                item.title ||
+                                                "Unnamed Account"
+                                            }
+
                                         </option>
 
                                     )
@@ -761,16 +1063,16 @@ const SavingList = () => {
                                 Payment Mode
                             </label>
 
-
                             <select
                                 className="form-select"
                                 value={
                                     paymentModeInput
                                 }
-                                onChange={(event) =>
-                                    setPaymentModeInput(
-                                        event.target.value
-                                    )
+                                onChange={
+                                    event =>
+                                        setPaymentModeInput(
+                                            event.target.value
+                                        )
                                 }
                             >
 
@@ -780,61 +1082,13 @@ const SavingList = () => {
 
 
                                 {paymentModes.map(
-                                    (mode) => (
+                                    mode => (
 
                                         <option
                                             key={mode}
                                             value={mode}
                                         >
                                             {mode}
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* BANK */}
-
-                        <div className="col-12 col-md-2">
-
-                            <label className="form-label">
-                                Bank
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={bankInput}
-                                onChange={(event) =>
-                                    setBankInput(
-                                        event.target.value
-                                    )
-                                }
-                            >
-
-                                <option value="">
-                                    All Banks
-                                </option>
-
-
-                                {banks.map(
-                                    (bankItem) => (
-
-                                        <option
-                                            key={
-                                                bankItem
-                                            }
-                                            value={
-                                                bankItem
-                                            }
-                                        >
-                                            {
-                                                bankItem
-                                            }
                                         </option>
 
                                     )
@@ -853,21 +1107,24 @@ const SavingList = () => {
                                 Per page
                             </label>
 
-
                             <select
                                 className="form-select"
-                                value={limit}
-                                onChange={(event) => {
+                                value={
+                                    limit
+                                }
+                                onChange={
+                                    event => {
 
-                                    setLimit(
-                                        Number(
-                                            event.target.value
-                                        )
-                                    );
+                                        setLimit(
+                                            Number(
+                                                event.target.value
+                                            )
+                                        );
 
-                                    setPage(1);
+                                        setPage(1);
 
-                                }}
+                                    }
+                                }
                             >
 
                                 <option value="10">
@@ -895,7 +1152,9 @@ const SavingList = () => {
                                 type="submit"
                                 className="btn btn-dark w-100"
                             >
+
                                 Filter
+
                             </button>
 
                         </div>
@@ -911,434 +1170,286 @@ const SavingList = () => {
                                 onClick={
                                     handleClearFilter
                                 }
-                                disabled={
-                                    !fromDateInput &&
-                                    !toDateInput &&
-                                    !categoryInput &&
-                                    !paymentModeInput &&
-                                    !bankInput &&
-                                    !fromDate &&
-                                    !toDate &&
-                                    !category &&
-                                    !paymentMode &&
-                                    !bank
-                                }
                             >
+
                                 Clear
+
                             </button>
 
                         </div>
 
                     </form>
 
+                </div>
 
-                    {/* =================================================
-                        TABLE
-                    ================================================= */}
+            </div>
 
-                    <div className="table-responsive">
 
-                        <table className="table table-bordered table-hover align-middle">
+            {/* TABLE */}
 
-                            <thead>
+            <div className="card border-0 shadow-sm">
+
+                <div className="table-responsive">
+
+                    <table className="table table-bordered table-hover align-middle mb-0">
+
+                        <thead className="table-light">
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Title
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Account
+                                </th>
+
+                                <th>
+                                    Payment Mode
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {loading ? (
 
                                 <tr>
 
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Title
-                                    </th>
-
-                                    <th>
-                                        Amount
-                                    </th>
-
-                                    <th>
-                                        Category
-                                    </th>
-
-                                    <th
-                                        className="text-center"
-                                        style={{
-                                            width: "110px",
-                                            minWidth: "110px"
-                                        }}
+                                    <td
+                                        colSpan="8"
+                                        className="text-center py-5"
                                     >
-                                        Payment Mode
-                                    </th>
 
-                                    <th
-                                        className="text-center"
-                                        style={{
-                                            width: "130px",
-                                            minWidth: "130px"
-                                        }}
-                                    >
-                                        Bank
-                                    </th>
+                                        <div
+                                            className="spinner-border spinner-border-sm me-2"
+                                        />
 
-                                    <th>
-                                        Date
-                                    </th>
+                                        Loading...
 
-                                    <th
-                                        style={{
-                                            minWidth: "170px"
-                                        }}
-                                    >
-                                        Action
-                                    </th>
+                                    </td>
 
                                 </tr>
 
-                            </thead>
+                            ) : savings.length === 0 ? (
 
+                                <tr>
 
-                            <tbody>
+                                    <td
+                                        colSpan="8"
+                                        className="text-center text-muted py-5"
+                                    >
 
-                                {loading ? (
+                                        No Record Found
 
-                                    <tr>
+                                    </td>
 
-                                        <td
-                                            colSpan="8"
-                                            className="text-center py-4"
+                                </tr>
+
+                            ) : (
+
+                                savings.map(
+                                    (
+                                        item,
+                                        index
+                                    ) => (
+
+                                        <tr
+                                            key={
+                                                item._id
+                                            }
                                         >
 
-                                            <div
-                                                className="spinner-border spinner-border-sm me-2"
-                                                role="status"
-                                            />
+                                            {/* # */}
 
-                                            Loading...
+                                            <td>
 
-                                        </td>
+                                                {
+                                                    (
+                                                        (
+                                                            page -
+                                                            1
+                                                        ) *
+                                                        limit
+                                                    ) +
+                                                    index +
+                                                    1
+                                                }
 
-                                    </tr>
-
-                                ) : savings.length === 0 ? (
-
-                                    <tr>
-
-                                        <td
-                                            colSpan="8"
-                                            className="text-center text-muted py-4"
-                                        >
-                                            No Record Found
-                                        </td>
-
-                                    </tr>
-
-                                ) : (
-
-                                    savings.map(
-                                        (item, index) => {
-
-                                            const bankName =
-                                                item.bank || "";
+                                            </td>
 
 
-                                            const paymentModeName =
-                                                item.paymentMode || "";
+                                            {/* TITLE */}
+
+                                            <td>
+
+                                                {
+                                                    item.title ||
+                                                    "-"
+                                                }
+
+                                            </td>
 
 
-                                            const bankImage =
-                                                getBankImage(
-                                                    bankName
-                                                );
+                                            {/* AMOUNT */}
+
+                                            <td className="fw-semibold text-danger">
+
+                                                ₹{" "}
+
+                                                {Number(
+                                                    item.amount ||
+                                                    0
+                                                ).toLocaleString(
+                                                    "en-IN",
+                                                    {
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }
+                                                )}
+
+                                            </td>
 
 
-                                            const paymentModeImage =
-                                                getPaymentModeImage(
-                                                    paymentModeName
-                                                );
+                                            {/* CATEGORY */}
 
+                                            <td>
 
-                                            return (
-
-                                                <tr
-                                                    key={
-                                                        item._id
+                                                <span
+                                                    className="badge"
+                                                    style={
+                                                        getCategoryBadgeStyle(
+                                                            item.category
+                                                        )
                                                     }
                                                 >
 
+                                                    {
+                                                        item.category?.name ||
+                                                        item.categoryName ||
+                                                        "-"
+                                                    }
 
-                                                    {/* NUMBER */}
+                                                </span>
 
-                                                    <td>
-
-                                                        {
-                                                            (
-                                                                (
-                                                                    page -
-                                                                    1
-                                                                ) *
-                                                                limit
-                                                            ) +
-                                                            index +
-                                                            1
-                                                        }
-
-                                                    </td>
+                                            </td>
 
 
-                                                    {/* TITLE */}
+                                            {/* ACCOUNT */}
 
-                                                    <td>
+                                            <td>
 
-                                                        {
-                                                            item.title ||
-                                                            "-"
-                                                        }
+                                                {
+                                                    getAccountName(
+                                                        item
+                                                    )
+                                                }
 
-                                                    </td>
-
-
-                                                    {/* AMOUNT */}
-
-                                                    <td>
-
-                                                        ₹{" "}
-
-                                                        {
-                                                            Number(
-                                                                item.amount ||
-                                                                0
-                                                            ).toLocaleString(
-                                                                "en-IN",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2
-                                                                }
-                                                            )
-                                                        }
-
-                                                    </td>
+                                            </td>
 
 
-                                                    {/* CATEGORY */}
+                                            {/* PAYMENT */}
 
-                                                    <td>
+                                            <td>
 
-                                                        <span
-                                                            className="badge"
-                                                            style={
-                                                                getCategoryBadgeStyle(
-                                                                    item.category
-                                                                )
-                                                            }
-                                                        >
+                                                {
+                                                    item.paymentMode ||
+                                                    "-"
+                                                }
 
-                                                            {
-                                                                item.category?.name ||
-                                                                item.categoryName ||
-                                                                "-"
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
+                                            </td>
 
 
-                                                    {/* =================================================
-                                                        PAYMENT MODE IMAGE ONLY
-                                                    ================================================= */}
+                                            {/* DATE */}
 
-                                                    <td
-                                                        className="text-center"
-                                                        style={{
-                                                            width: "110px",
-                                                            minWidth: "110px"
-                                                        }}
-                                                    >
+                                            <td>
 
-                                                        {paymentModeImage ? (
-
-                                                            <div
-                                                                className="d-flex justify-content-center align-items-center"
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "55px"
-                                                                }}
-                                                            >
-
-                                                                <img
-                                                                    src={
-                                                                        paymentModeImage
-                                                                    }
-                                                                    alt={
-                                                                        paymentModeName ||
-                                                                        "Payment Mode"
-                                                                    }
-                                                                    title={
-                                                                        paymentModeName ||
-                                                                        "Payment Mode"
-                                                                    }
-                                                                    style={{
-                                                                        width: "50px",
-                                                                        height: "45px",
-                                                                        objectFit: "contain",
-                                                                        display: "block"
-                                                                    }}
-                                                                    onError={(
-                                                                        event
-                                                                    ) => {
-
-                                                                        event.currentTarget.style.display =
-                                                                            "none";
-
-                                                                    }}
-                                                                />
-
-                                                            </div>
-
-                                                        ) : (
-
-                                                            <span className="text-muted">
-                                                                -
-                                                            </span>
-
-                                                        )}
-
-                                                    </td>
-
-
-                                                    {/* =================================================
-                                                        BANK IMAGE ONLY
-                                                    ================================================= */}
-
-                                                    <td
-                                                        className="text-center"
-                                                        style={{
-                                                            width: "130px",
-                                                            minWidth: "130px"
-                                                        }}
-                                                    >
-
-                                                        {bankImage ? (
-
-                                                            <div
-                                                                className="d-flex justify-content-center align-items-center"
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "55px"
-                                                                }}
-                                                            >
-
-                                                                <img
-                                                                    src={
-                                                                        bankImage
-                                                                    }
-                                                                    alt={
-                                                                        bankName ||
-                                                                        "Bank"
-                                                                    }
-                                                                    title={
-                                                                        bankName ||
-                                                                        "Bank"
-                                                                    }
-                                                                    style={{
-                                                                        width: "75px",
-                                                                        height: "45px",
-                                                                        objectFit: "contain",
-                                                                        display: "block"
-                                                                    }}
-                                                                    onError={(
-                                                                        event
-                                                                    ) => {
-
-                                                                        event.currentTarget.style.display =
-                                                                            "none";
-
-                                                                    }}
-                                                                />
-
-                                                            </div>
-
-                                                        ) : (
-
-                                                            <span className="text-muted">
-                                                                -
-                                                            </span>
-
-                                                        )}
-
-                                                    </td>
-
-
-                                                    {/* DATE */}
-
-                                                    <td>
-
-                                                        {
+                                                {
+                                                    item.date
+                                                        ? new Date(
                                                             item.date
+                                                        ).toLocaleDateString(
+                                                            "en-IN"
+                                                        )
+                                                        : "-"
+                                                }
 
-                                                                ? new Date(
-                                                                    item.date
-                                                                ).toLocaleDateString(
-                                                                    "en-IN"
-                                                                )
-
-                                                                : "-"
-                                                        }
-
-                                                    </td>
+                                            </td>
 
 
-                                                    {/* ACTION */}
+                                            {/* ACTION */}
 
-                                                    <td>
+                                            <td className="text-nowrap">
 
-                                                        <Link
-                                                            className="btn btn-warning btn-sm me-2"
-                                                            to={
-                                                                `/saving/edit/${item._id}`
-                                                            }
-                                                        >
-                                                            Edit
-                                                        </Link>
+                                                <Link
+                                                    to={
+                                                        `/saving/edit/${item._id}`
+                                                    }
+                                                    className="btn btn-warning btn-sm me-2"
+                                                >
+
+                                                    Edit
+
+                                                </Link>
 
 
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-danger btn-sm"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    item._id
-                                                                )
-                                                            }
-                                                        >
-                                                            Delete
-                                                        </button>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() =>
+                                                        handleDelete(
+                                                            item._id
+                                                        )
+                                                    }
+                                                >
 
-                                                    </td>
+                                                    Delete
 
-                                                </tr>
+                                                </button>
 
-                                            );
+                                            </td>
 
-                                        }
+                                        </tr>
+
                                     )
+                                )
 
-                                )}
+                            )}
 
-                            </tbody>
+                        </tbody>
 
-                        </table>
-
-                    </div>
+                    </table>
 
                 </div>
 
 
-                {/* =================================================
-                    PAGINATION
-                ================================================= */}
+                {/* FOOTER */}
 
-                <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
+                <div className="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                     <small className="text-muted">
 
@@ -1360,11 +1471,17 @@ const SavingList = () => {
 
 
                     <Pagination
-                        page={page}
-                        limit={limit}
-                        total={total}
+                        page={
+                            page
+                        }
+                        limit={
+                            limit
+                        }
+                        total={
+                            total
+                        }
                         onPageChange={
-                            (nextPage) => {
+                            nextPage => {
 
                                 if (
                                     nextPage >= 1 &&

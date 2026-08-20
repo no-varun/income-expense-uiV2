@@ -2,62 +2,91 @@ import {
     Chart as ChartJS,
     ArcElement,
     Tooltip,
-    Legend,
+    Legend
 } from "chart.js";
 
 import { Pie } from "react-chartjs-2";
 
 import { getSliceColors } from "./chartColors";
 
+
 /*
- * ============================================================
- * CENTER TEXT PLUGIN
- * ============================================================
- */
+|--------------------------------------------------------------------------
+| CENTER TEXT PLUGIN
+|--------------------------------------------------------------------------
+*/
 
 const centerTextPlugin = {
+
     id: "centerText",
 
-    beforeDraw(chart, args, options) {
-        if (!options?.display) {
+    beforeDraw(
+        chart,
+        args,
+        options
+    ) {
+
+        if (
+            !options?.display
+        ) {
             return;
         }
 
-        const meta = chart.getDatasetMeta(0);
+        const meta =
+            chart.getDatasetMeta(0);
 
-        if (!meta.data.length) {
+        if (
+            !meta?.data?.length
+        ) {
             return;
         }
 
-        const { ctx } = chart;
+        const {
+            ctx
+        } = chart;
 
-        const x = meta.data[0].x;
-        const y = meta.data[0].y;
+        const x =
+            meta.data[0].x;
+
+        const y =
+            meta.data[0].y;
 
         ctx.save();
 
-        ctx.font = "bold 18px Arial";
-        ctx.fillStyle = "#212529";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.font =
+            "bold 18px Arial";
+
+        ctx.fillStyle =
+            "#212529";
+
+        ctx.textAlign =
+            "center";
+
+        ctx.textBaseline =
+            "middle";
 
         ctx.fillText(
-            `₹${Number(options.total || 0).toLocaleString("en-IN", {
-                maximumFractionDigits: 2,
-            })}`,
+
+            `₹${Number(
+                options.total || 0
+            ).toLocaleString(
+                "en-IN",
+                {
+                    maximumFractionDigits: 2
+                }
+            )}`,
+
             x,
             y
+
         );
 
         ctx.restore();
-    },
+
+    }
+
 };
 
-/*
- * ============================================================
- * REGISTER CHART
- * ============================================================
- */
 
 ChartJS.register(
     ArcElement,
@@ -66,37 +95,78 @@ ChartJS.register(
     centerTextPlugin
 );
 
-/*
- * ============================================================
- * CURRENCY FORMATTER
- * ============================================================
- */
 
-const formatCurrency = value => {
-    return `₹${Number(value || 0).toLocaleString("en-IN", {
-        maximumFractionDigits: 2,
-    })}`;
+/*
+|--------------------------------------------------------------------------
+| FORMAT CURRENCY
+|--------------------------------------------------------------------------
+*/
+
+const formatCurrency = (
+    value
+) => {
+
+    return `₹${Number(
+        value || 0
+    ).toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits: 2
+        }
+    )}`;
+
 };
 
-/*
- * ============================================================
- * PERCENTAGE
- * ============================================================
- */
 
-const getPercentage = (value, total) => {
-    if (!total) {
+/*
+|--------------------------------------------------------------------------
+| GET NUMBER
+|--------------------------------------------------------------------------
+*/
+
+const getNumber = (
+    value
+) => {
+
+    return Number(
+        value || 0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET PERCENTAGE
+|--------------------------------------------------------------------------
+*/
+
+const getPercentage = (
+    value,
+    total
+) => {
+
+    if (
+        !total
+    ) {
+
         return 0;
+
     }
 
-    return (Number(value) / Number(total)) * 100;
+    return (
+        getNumber(value) /
+        getNumber(total)
+    ) * 100;
+
 };
 
+
 /*
- * ============================================================
- * PIE CARD
- * ============================================================
- */
+|--------------------------------------------------------------------------
+| PIE CARD
+|--------------------------------------------------------------------------
+*/
 
 const PieCard = ({
     title,
@@ -106,202 +176,395 @@ const PieCard = ({
     pendingTotal = 0,
     recoveredTotal = 0,
     isDebt = false,
-    offset = 0,
+    offset = 0
 }) => {
+
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
+
+
     return (
-        <div className="col-12 col-md-6 col-xl-4">
+
+        <div
+            className="
+                col-12
+                col-md-6
+                col-xl-4
+            "
+        >
+
             <div
-                className="card shadow-sm h-100"
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
                 style={{
-                    overflow: "hidden",
                     minWidth: 0,
+                    overflow: "hidden"
                 }}
             >
-                {/* =================================================
-                    HEADER
-                ================================================= */}
 
-                <div className="card-header">
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h6
-                            className="mb-0 text-truncate"
-                            title={title}
-                        >
-                            {title}
-                        </h6>
-
-                        <span
-                            className={`badge ${badgeColor} fs-6`}
-                        >
-                            {formatCurrency(total)}
-                        </span>
-                    </div>
-
-                    {/* =================================================
-                        DEBT SUMMARY
-                    ================================================= */}
-
-                    {isDebt && (
-                        <div className="row mt-3 g-2">
-
-                            {/* ACTUAL */}
-
-                            <div className="col-4">
-                                <div className="border rounded p-2 text-center">
-                                    <div className="small text-muted">
-                                        Actual
-                                    </div>
-
-                                    <div className="fw-bold">
-                                        {formatCurrency(total)}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* PENDING */}
-
-                            <div className="col-4">
-                                <div className="border rounded p-2 text-center">
-                                    <div className="small text-muted">
-                                        Pending
-                                    </div>
-
-                                    <div className="fw-bold text-warning">
-                                        {formatCurrency(pendingTotal)}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* RECOVERED */}
-
-                            <div className="col-4">
-                                <div className="border rounded p-2 text-center">
-                                    <div className="small text-muted">
-                                        Recovered
-                                    </div>
-
-                                    <div className="fw-bold text-success">
-                                        {formatCurrency(recoveredTotal)}
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    )}
-                </div>
-
-                {/* =================================================
-                    CHART
-                ================================================= */}
+                {/* HEADER */}
 
                 <div
-                    className="card-body"
+                    className="
+                        card-header
+                    "
+                >
+
+                    <div
+                        className="
+                            d-flex
+                            justify-content-between
+                            align-items-center
+                            gap-2
+                        "
+                    >
+
+                        <h6
+                            className="
+                                mb-0
+                                text-truncate
+                            "
+                            title={title}
+                        >
+
+                            {title}
+
+                        </h6>
+
+
+                        <span
+                            className={`
+                                badge
+                                ${badgeColor}
+                                fs-6
+                            `}
+                            style={{
+                                whiteSpace:
+                                    "nowrap",
+                                flexShrink:
+                                    0
+                            }}
+                        >
+
+                            {
+                                formatCurrency(
+                                    total
+                                )
+                            }
+
+                        </span>
+
+                    </div>
+
+
+                    {/* DEBT SUMMARY */}
+
+                    {isDebt && (
+
+                        <div
+                            className="
+                                row
+                                g-2
+                                mt-3
+                            "
+                        >
+
+                            <DebtSummary
+                                title="Actual"
+                                value={total}
+                                className=""
+                            />
+
+
+                            <DebtSummary
+                                title="Pending"
+                                value={pendingTotal}
+                                className="text-warning"
+                            />
+
+
+                            <DebtSummary
+                                title="Recovered"
+                                value={recoveredTotal}
+                                className="text-success"
+                            />
+
+                        </div>
+
+                    )}
+
+                </div>
+
+
+                {/* CHART */}
+
+                <div
+                    className="
+                        card-body
+                    "
                     style={{
                         height: 350,
                         position: "relative",
+                        minWidth: 0
                     }}
                 >
-                    {data.length > 0 ? (
+
+                    {rows.length > 0 ? (
+
                         <Pie
+
                             data={{
-                                labels: data.map(
-                                    item =>
-                                        item.label ||
-                                        item.title ||
-                                        "Unknown"
-                                ),
+
+                                labels:
+                                    rows.map(
+                                        item =>
+                                            item?.label ||
+                                            item?.title ||
+                                            "Unknown"
+                                    ),
 
                                 datasets: [
+
                                     {
-                                        data: data.map(
-                                            item =>
-                                                Number(item.amount) || 0
-                                        ),
+
+                                        data:
+                                            rows.map(
+                                                item =>
+                                                    getNumber(
+                                                        item?.amount
+                                                    )
+                                            ),
 
                                         backgroundColor:
                                             getSliceColors(
-                                                data.length,
+                                                rows.length,
                                                 offset
                                             ),
 
-                                        borderColor: "#fff",
+                                        borderColor:
+                                            "#fff",
 
-                                        borderWidth: 2,
-                                    },
-                                ],
+                                        borderWidth:
+                                            2
+
+                                    }
+
+                                ]
+
                             }}
-                            options={{
-                                responsive: true,
 
-                                maintainAspectRatio: false,
+
+                            options={{
+
+                                responsive:
+                                    true,
+
+                                maintainAspectRatio:
+                                    false,
+
 
                                 plugins: {
+
                                     legend: {
-                                        position: "bottom",
+
+                                        position:
+                                            "bottom",
 
                                         labels: {
-                                            boxWidth: 12,
-                                            padding: 10,
-                                            usePointStyle: true,
-                                        },
+
+                                            boxWidth:
+                                                12,
+
+                                            padding:
+                                                10,
+
+                                            usePointStyle:
+                                                true
+
+                                        }
+
                                     },
+
 
                                     tooltip: {
+
                                         callbacks: {
-                                            label: context => {
-                                                const value =
-                                                    Number(
-                                                        context.raw
-                                                    ) || 0;
 
-                                                const totalValue =
-                                                    context.dataset.data.reduce(
-                                                        (sum, item) =>
-                                                            sum +
-                                                            Number(item),
-                                                        0
+                                            label:
+                                                context => {
+
+                                                    const value =
+                                                        getNumber(
+                                                            context.raw
+                                                        );
+
+
+                                                    const totalValue =
+                                                        context
+                                                            .dataset
+                                                            .data
+                                                            .reduce(
+                                                                (
+                                                                    sum,
+                                                                    item
+                                                                ) =>
+                                                                    sum +
+                                                                    getNumber(
+                                                                        item
+                                                                    ),
+                                                                0
+                                                            );
+
+
+                                                    const percentage =
+                                                        getPercentage(
+                                                            value,
+                                                            totalValue
+                                                        );
+
+
+                                                    return (
+
+                                                        `${context.label}: ` +
+
+                                                        `${formatCurrency(
+                                                            value
+                                                        )} ` +
+
+                                                        `(${percentage.toFixed(
+                                                            2
+                                                        )}%)`
+
                                                     );
 
-                                                const percentage =
-                                                    getPercentage(
-                                                        value,
-                                                        totalValue
-                                                    );
+                                                }
 
-                                                return (
-                                                    `${context.label}: ` +
-                                                    `${formatCurrency(value)} ` +
-                                                    `(${percentage.toFixed(
-                                                        2
-                                                    )}%)`
-                                                );
-                                            },
-                                        },
+                                        }
+
                                     },
+
 
                                     centerText: {
-                                        display: true,
-                                        total,
-                                    },
-                                },
+
+                                        display:
+                                            true,
+
+                                        total:
+                                            total
+
+                                    }
+
+                                }
+
                             }}
+
                         />
+
                     ) : (
-                        <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+
+                        <div
+                            className="
+                                d-flex
+                                justify-content-center
+                                align-items-center
+                                h-100
+                                text-muted
+                            "
+                        >
+
                             No data available
+
                         </div>
+
                     )}
+
                 </div>
+
             </div>
+
         </div>
+
     );
+
 };
 
+
 /*
- * ============================================================
- * TITLE TABLE
- * ============================================================
- */
+|--------------------------------------------------------------------------
+| DEBT SUMMARY ITEM
+|--------------------------------------------------------------------------
+*/
+
+const DebtSummary = ({
+    title,
+    value,
+    className = ""
+}) => {
+
+    return (
+
+        <div
+            className="
+                col-4
+            "
+        >
+
+            <div
+                className="
+                    border
+                    rounded
+                    p-2
+                    text-center
+                    h-100
+                "
+            >
+
+                <div
+                    className="
+                        small
+                        text-muted
+                    "
+                >
+
+                    {title}
+
+                </div>
+
+
+                <div
+                    className={`
+                        fw-bold
+                        ${className}
+                    `}
+                >
+
+                    {
+                        formatCurrency(
+                            value
+                        )
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| TITLE TABLE
+|--------------------------------------------------------------------------
+*/
 
 const TitleTable = ({
     title,
@@ -309,87 +572,150 @@ const TitleTable = ({
     total = 0,
     pendingTotal = 0,
     recoveredTotal = 0,
-    isDebt = false,
+    isDebt = false
 }) => {
+
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
+
+
+    const totalCount =
+        rows.reduce(
+            (
+                sum,
+                item
+            ) =>
+                sum +
+                getNumber(
+                    item?.count
+                ),
+            0
+        );
+
+
     return (
-        <div className="col-12 mb-4">
-            <div className="card shadow-sm">
 
-                {/* =================================================
-                    HEADER
-                ================================================= */}
+        <div
+            className="
+                col-12
+            "
+        >
 
-                <div className="card-header">
-                    <div className="d-flex justify-content-between align-items-center">
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                {/* HEADER */}
+
+                <div
+                    className="
+                        card-header
+                    "
+                >
+
+                    <div
+                        className="
+                            d-flex
+                            justify-content-between
+                            align-items-center
+                            gap-2
+                        "
+                    >
+
                         <h6 className="mb-0">
+
                             {title}
+
                         </h6>
 
+
                         <strong>
-                            {formatCurrency(total)}
+
+                            {
+                                formatCurrency(
+                                    total
+                                )
+                            }
+
                         </strong>
+
                     </div>
 
-                    {/* =================================================
-                        DEBT HEADER SUMMARY
-                    ================================================= */}
 
                     {isDebt && (
-                        <div className="row mt-3 g-2">
 
-                            <div className="col-4">
-                                <div className="bg-light rounded p-2">
-                                    <div className="small text-muted">
-                                        Actual Debt
-                                    </div>
+                        <div
+                            className="
+                                row
+                                g-2
+                                mt-3
+                            "
+                        >
 
-                                    <div className="fw-bold">
-                                        {formatCurrency(total)}
-                                    </div>
-                                </div>
-                            </div>
+                            <DebtSummary
+                                title="Actual Debt"
+                                value={total}
+                            />
 
-                            <div className="col-4">
-                                <div className="bg-light rounded p-2">
-                                    <div className="small text-muted">
-                                        Pending Debt
-                                    </div>
 
-                                    <div className="fw-bold text-warning">
-                                        {formatCurrency(pendingTotal)}
-                                    </div>
-                                </div>
-                            </div>
+                            <DebtSummary
+                                title="Pending Debt"
+                                value={pendingTotal}
+                                className="text-warning"
+                            />
 
-                            <div className="col-4">
-                                <div className="bg-light rounded p-2">
-                                    <div className="small text-muted">
-                                        Recovered
-                                    </div>
 
-                                    <div className="fw-bold text-success">
-                                        {formatCurrency(recoveredTotal)}
-                                    </div>
-                                </div>
-                            </div>
+                            <DebtSummary
+                                title="Recovered"
+                                value={recoveredTotal}
+                                className="text-success"
+                            />
 
                         </div>
+
                     )}
+
                 </div>
 
-                {/* =================================================
-                    TABLE
-                ================================================= */}
 
-                <div className="card-body p-0">
+                {/* TABLE */}
 
-                    {data.length > 0 ? (
+                <div
+                    className="
+                        card-body
+                        p-0
+                    "
+                >
 
-                        <div className="table-responsive">
+                    {rows.length > 0 ? (
 
-                            <table className="table table-bordered table-hover align-middle mb-0">
+                        <div
+                            className="
+                                table-responsive
+                            "
+                        >
 
-                                <thead className="table-light">
+                            <table
+                                className="
+                                    table
+                                    table-bordered
+                                    table-hover
+                                    align-middle
+                                    mb-0
+                                "
+                            >
+
+                                <thead
+                                    className="
+                                        table-light
+                                    "
+                                >
 
                                     <tr>
 
@@ -397,43 +723,55 @@ const TitleTable = ({
                                             Title
                                         </th>
 
-                                        {/* EXISTS */}
-
                                         <th>
                                             Exists
                                         </th>
 
-                                        {/* ACTUAL */}
-
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Actual
                                         </th>
 
-                                        {/* PENDING */}
-
                                         {isDebt && (
-                                            <th className="text-end">
+
+                                            <th
+                                                className="
+                                                    text-end
+                                                "
+                                            >
                                                 Pending
                                             </th>
-                                        )}
 
-                                        {/* RECOVERED */}
+                                        )}
 
                                         {isDebt && (
-                                            <th className="text-end">
+
+                                            <th
+                                                className="
+                                                    text-end
+                                                "
+                                            >
                                                 Recovered
                                             </th>
+
                                         )}
 
-                                        {/* COUNT */}
-
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Count
                                         </th>
 
-                                        {/* PERCENT */}
-
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             %
                                         </th>
 
@@ -441,31 +779,40 @@ const TitleTable = ({
 
                                 </thead>
 
+
                                 <tbody>
 
-                                    {data.map(
-                                        (item, index) => {
+                                    {rows.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => {
 
                                             const actual =
-                                                Number(
-                                                    item.amount
-                                                ) || 0;
+                                                getNumber(
+                                                    item?.amount
+                                                );
+
 
                                             const pending =
                                                 isDebt
-                                                    ? Number(
-                                                        item.pendingAmount
-                                                    ) || 0
+                                                    ? getNumber(
+                                                        item?.pendingAmount
+                                                    )
                                                     : 0;
+
 
                                             const recovered =
                                                 isDebt
+
                                                     ? Math.max(
                                                         0,
                                                         actual -
                                                         pending
                                                     )
+
                                                     : 0;
+
 
                                             const percentage =
                                                 getPercentage(
@@ -473,33 +820,41 @@ const TitleTable = ({
                                                     total
                                                 );
 
+
                                             const label =
-                                                item.label ||
-                                                item.title ||
+                                                item?.label ||
+                                                item?.title ||
                                                 "Unknown";
+
 
                                             const exists =
                                                 String(
-                                                    item.exists || "no"
+                                                    item?.exists ||
+                                                    "no"
                                                 ).toLowerCase();
+
 
                                             return (
 
                                                 <tr
-                                                    key={`${label}-${index}`}
+                                                    key={
+                                                        `${label}-${index}`
+                                                    }
                                                 >
 
-                                                    {/* TITLE */}
-
                                                     <td>
+
                                                         <strong>
+
                                                             {label}
+
                                                         </strong>
+
                                                     </td>
 
-                                                    {/* EXISTS */}
 
                                                     <td>
+
                                                         <span
                                                             className={
                                                                 exists === "yes"
@@ -507,69 +862,119 @@ const TitleTable = ({
                                                                     : "badge bg-danger"
                                                             }
                                                         >
-                                                            {exists === "yes"
-                                                                ? "Yes"
-                                                                : "No"}
+
+                                                            {
+                                                                exists === "yes"
+                                                                    ? "Yes"
+                                                                    : "No"
+                                                            }
+
                                                         </span>
+
                                                     </td>
 
-                                                    {/* ACTUAL */}
 
-                                                    <td className="text-end">
-                                                        {formatCurrency(
-                                                            actual
-                                                        )}
+                                                    <td
+                                                        className="
+                                                            text-end
+                                                        "
+                                                    >
+
+                                                        {
+                                                            formatCurrency(
+                                                                actual
+                                                            )
+                                                        }
+
                                                     </td>
 
-                                                    {/* PENDING */}
 
                                                     {isDebt && (
-                                                        <td className="text-end text-warning">
-                                                            {formatCurrency(
-                                                                pending
-                                                            )}
+
+                                                        <td
+                                                            className="
+                                                                text-end
+                                                                text-warning
+                                                            "
+                                                        >
+
+                                                            {
+                                                                formatCurrency(
+                                                                    pending
+                                                                )
+                                                            }
+
                                                         </td>
+
                                                     )}
 
-                                                    {/* RECOVERED */}
 
                                                     {isDebt && (
-                                                        <td className="text-end text-success">
-                                                            {formatCurrency(
-                                                                recovered
-                                                            )}
+
+                                                        <td
+                                                            className="
+                                                                text-end
+                                                                text-success
+                                                            "
+                                                        >
+
+                                                            {
+                                                                formatCurrency(
+                                                                    recovered
+                                                                )
+                                                            }
+
                                                         </td>
+
                                                     )}
 
-                                                    {/* COUNT */}
 
-                                                    <td className="text-end">
-                                                        {Number(
-                                                            item.count
-                                                        ) || 0}
+                                                    <td
+                                                        className="
+                                                            text-end
+                                                        "
+                                                    >
+
+                                                        {
+                                                            getNumber(
+                                                                item?.count
+                                                            )
+                                                        }
+
                                                     </td>
 
-                                                    {/* PERCENT */}
 
-                                                    <td className="text-end">
-                                                        {percentage.toFixed(
-                                                            2
-                                                        )}
+                                                    <td
+                                                        className="
+                                                            text-end
+                                                        "
+                                                    >
+
+                                                        {
+                                                            percentage.toFixed(
+                                                                2
+                                                            )
+                                                        }
+
                                                         %
+
                                                     </td>
 
                                                 </tr>
+
                                             );
+
                                         }
                                     )}
 
                                 </tbody>
 
-                                {/* =================================================
-                                    FOOTER
-                                ================================================= */}
 
-                                <tfoot className="table-light">
+                                <tfoot
+                                    className="
+                                        table-light
+                                    "
+                                >
 
                                     <tr>
 
@@ -577,60 +982,84 @@ const TitleTable = ({
                                             Total
                                         </th>
 
-                                        {/* EXISTS EMPTY */}
-
                                         <th>
                                             -
                                         </th>
 
-                                        {/* ACTUAL TOTAL */}
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
 
-                                        <th className="text-end">
-                                            {formatCurrency(total)}
+                                            {
+                                                formatCurrency(
+                                                    total
+                                                )
+                                            }
+
                                         </th>
 
-                                        {/* PENDING TOTAL */}
 
                                         {isDebt && (
-                                            <th className="text-end text-warning">
-                                                {formatCurrency(
-                                                    pendingTotal
-                                                )}
+
+                                            <th
+                                                className="
+                                                    text-end
+                                                    text-warning
+                                                "
+                                            >
+
+                                                {
+                                                    formatCurrency(
+                                                        pendingTotal
+                                                    )
+                                                }
+
                                             </th>
+
                                         )}
 
-                                        {/* RECOVERED TOTAL */}
 
                                         {isDebt && (
-                                            <th className="text-end text-success">
-                                                {formatCurrency(
-                                                    recoveredTotal
-                                                )}
+
+                                            <th
+                                                className="
+                                                    text-end
+                                                    text-success
+                                                "
+                                            >
+
+                                                {
+                                                    formatCurrency(
+                                                        recoveredTotal
+                                                    )
+                                                }
+
                                             </th>
+
                                         )}
 
-                                        {/* COUNT */}
 
-                                        <th className="text-end">
-                                            {data.reduce(
-                                                (
-                                                    sum,
-                                                    item
-                                                ) =>
-                                                    sum +
-                                                    (
-                                                        Number(
-                                                            item.count
-                                                        ) || 0
-                                                    ),
-                                                0
-                                            )}
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+
+                                            {totalCount}
+
                                         </th>
 
-                                        {/* PERCENT */}
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+
                                             100%
+
                                         </th>
 
                                     </tr>
@@ -643,8 +1072,16 @@ const TitleTable = ({
 
                     ) : (
 
-                        <div className="p-3 text-muted">
+                        <div
+                            className="
+                                p-4
+                                text-center
+                                text-muted
+                            "
+                        >
+
                             No title data available
+
                         </div>
 
                     )}
@@ -652,40 +1089,54 @@ const TitleTable = ({
                 </div>
 
             </div>
+
         </div>
+
     );
+
 };
 
+
 /*
- * ============================================================
- * MAIN COMPONENT
- * ============================================================
- */
+|--------------------------------------------------------------------------
+| MAIN COMPONENT
+|--------------------------------------------------------------------------
+*/
 
 const TitleTypeChart = ({
-    data = {},
+    data = {}
 }) => {
 
     /*
-     * ========================================================
-     * API DATA
-     * ========================================================
-     */
+    |--------------------------------------------------------------------------
+    | API RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
-    const apiData = Array.isArray(data?.data)
-        ? data.data
-        : [];
+    const apiData =
+        Array.isArray(
+            data?.data
+        )
+            ? data.data
+            : [];
+
 
     const apiTotals =
-        data?.totals || {};
+        data?.totals &&
+        typeof data.totals === "object"
+            ? data.totals
+            : {};
+
 
     /*
-     * ========================================================
-     * GET TYPE DATA
-     * ========================================================
-     */
+    |--------------------------------------------------------------------------
+    | GET TYPE DATA
+    |--------------------------------------------------------------------------
+    */
 
-    const getTypeData = type => {
+    const getTypeData = (
+        type
+    ) => {
 
         return apiData
 
@@ -694,101 +1145,121 @@ const TitleTypeChart = ({
                     String(
                         item?.type || ""
                     ).toLowerCase() ===
-                    String(type).toLowerCase()
+                    String(
+                        type
+                    ).toLowerCase()
             )
 
-            .map(item => ({
+            .map(
+                item => ({
 
-                label:
-                    item?.title ||
-                    "Unknown",
+                    label:
+                        item?.title ||
+                        "Unknown",
 
-                amount:
-                    Number(
-                        item?.amount
-                    ) || 0,
+                    amount:
+                        getNumber(
+                            item?.amount
+                        ),
 
-                pendingAmount:
-                    Number(
-                        item?.pendingAmount
-                    ) || 0,
+                    pendingAmount:
+                        getNumber(
+                            item?.pendingAmount
+                        ),
 
-                count:
-                    Number(
-                        item?.count
-                    ) || 0,
+                    count:
+                        getNumber(
+                            item?.count
+                        ),
 
-                // EXISTS
-                exists:
-                    String(
-                        item?.exists || "no"
-                    ).toLowerCase(),
+                    exists:
+                        String(
+                            item?.exists ||
+                            "no"
+                        ).toLowerCase()
 
-            }));
+                })
+            );
 
     };
 
+
     /*
-     * ========================================================
-     * TOTAL ACTUAL
-     * ========================================================
-     */
+    |--------------------------------------------------------------------------
+    | TOTAL
+    |--------------------------------------------------------------------------
+    */
 
-    const getTypeTotal = type => {
+    const getTypeTotal = (
+        type
+    ) => {
 
-        return Number(
+        return getNumber(
             apiTotals?.[type]?.amount
-        ) || 0;
-
-    };
-
-    /*
-     * ========================================================
-     * TOTAL PENDING
-     * ========================================================
-     */
-
-    const getPendingTotal = type => {
-
-        return Number(
-            apiTotals?.[type]?.pendingAmount
-        ) || 0;
-
-    };
-
-    /*
-     * ========================================================
-     * RECOVERED
-     *
-     * Actual - Pending
-     * ========================================================
-     */
-
-    const getRecoveredTotal = type => {
-
-        const actual =
-            getTypeTotal(type);
-
-        const pending =
-            getPendingTotal(type);
-
-        return Math.max(
-            0,
-            actual - pending
         );
 
     };
 
+
     /*
-     * ========================================================
-     * CHART CONFIG
-     * ========================================================
-     */
+    |--------------------------------------------------------------------------
+    | PENDING
+    |--------------------------------------------------------------------------
+    */
+
+    const getPendingTotal = (
+        type
+    ) => {
+
+        return getNumber(
+            apiTotals?.[type]?.pendingAmount
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RECOVERED
+    |--------------------------------------------------------------------------
+    */
+
+    const getRecoveredTotal = (
+        type
+    ) => {
+
+        const actual =
+            getTypeTotal(
+                type
+            );
+
+        const pending =
+            getPendingTotal(
+                type
+            );
+
+
+        return Math.max(
+            0,
+            actual -
+            pending
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHART CONFIG
+    |--------------------------------------------------------------------------
+    */
 
     const charts = [
 
         {
-            title: "Income Title",
+
+            title:
+                "Income Title",
 
             badgeColor:
                 "bg-success",
@@ -803,17 +1274,25 @@ const TitleTypeChart = ({
                     "Income"
                 ),
 
-            pendingTotal: 0,
+            pendingTotal:
+                0,
 
-            recoveredTotal: 0,
+            recoveredTotal:
+                0,
 
-            isDebt: false,
+            isDebt:
+                false,
 
-            offset: 0,
+            offset:
+                0
+
         },
 
+
         {
-            title: "Expense Title",
+
+            title:
+                "Expense Title",
 
             badgeColor:
                 "bg-danger",
@@ -828,17 +1307,25 @@ const TitleTypeChart = ({
                     "Expense"
                 ),
 
-            pendingTotal: 0,
+            pendingTotal:
+                0,
 
-            recoveredTotal: 0,
+            recoveredTotal:
+                0,
 
-            isDebt: false,
+            isDebt:
+                false,
 
-            offset: 4,
+            offset:
+                4
+
         },
 
+
         {
-            title: "Saving Title",
+
+            title:
+                "Saving Title",
 
             badgeColor:
                 "bg-primary",
@@ -853,17 +1340,25 @@ const TitleTypeChart = ({
                     "Saving"
                 ),
 
-            pendingTotal: 0,
+            pendingTotal:
+                0,
 
-            recoveredTotal: 0,
+            recoveredTotal:
+                0,
 
-            isDebt: false,
+            isDebt:
+                false,
 
-            offset: 8,
+            offset:
+                8
+
         },
 
+
         {
-            title: "Debt Title",
+
+            title:
+                "Debt Title",
 
             badgeColor:
                 "bg-warning text-dark",
@@ -888,35 +1383,97 @@ const TitleTypeChart = ({
                     "Debt"
                 ),
 
-            isDebt: true,
+            isDebt:
+                true,
 
-            offset: 12,
-        },
+            offset:
+                12
+
+        }
 
     ];
 
+
     /*
-     * ========================================================
-     * RENDER
-     * ========================================================
-     */
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
         <div
-            className="container-fluid px-0"
+            className="
+                w-100
+            "
             style={{
                 width: "100%",
                 maxWidth: "100%",
-                overflow: "hidden",
+                minWidth: 0,
+                overflow: "hidden"
             }}
         >
 
-            {/* =================================================
-                PIE CHARTS
-            ================================================= */}
+            {/* =====================================================
+                SUMMARY CARDS
+            ===================================================== */}
 
-            <div className="row g-3 mx-0">
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                    mb-3
+                "
+            >
+
+                {charts.map(
+                    chart => (
+
+                        <SummaryCard
+                            key={
+                                `summary-${chart.title}`
+                            }
+
+                            title={
+                                chart.title
+                            }
+
+                            value={
+                                chart.total
+                            }
+
+                            className={
+                                chart.badgeColor
+                                    .replace(
+                                        "bg-",
+                                        "text-"
+                                    )
+                                    .replace(
+                                        " text-dark",
+                                        ""
+                                    )
+                            }
+
+                        />
+
+                    )
+                )}
+
+            </div>
+
+
+            {/* =====================================================
+                PIE CHARTS
+            ===================================================== */}
+
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                "
+            >
 
                 {charts.map(
                     chart => (
@@ -957,6 +1514,7 @@ const TitleTypeChart = ({
                             offset={
                                 chart.offset
                             }
+
                         />
 
                     )
@@ -964,11 +1522,19 @@ const TitleTypeChart = ({
 
             </div>
 
-            {/* =================================================
-                TABLES
-            ================================================= */}
 
-            <div className="row mt-3">
+            {/* =====================================================
+                TABLES
+            ===================================================== */}
+
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                    mt-1
+                "
+            >
 
                 {charts.map(
                     chart => (
@@ -1001,6 +1567,7 @@ const TitleTypeChart = ({
                             isDebt={
                                 chart.isDebt
                             }
+
                         />
 
                     )
@@ -1011,6 +1578,84 @@ const TitleTypeChart = ({
         </div>
 
     );
+
 };
+
+
+/*
+|--------------------------------------------------------------------------
+| SUMMARY CARD
+|--------------------------------------------------------------------------
+*/
+
+const SummaryCard = ({
+    title,
+    value,
+    className = ""
+}) => {
+
+    return (
+
+        <div
+            className="
+                col-12
+                col-sm-6
+                col-lg-3
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                <div
+                    className="
+                        card-body
+                    "
+                >
+
+                    <div
+                        className="
+                            small
+                            text-muted
+                            mb-1
+                        "
+                    >
+
+                        {title}
+
+                    </div>
+
+
+                    <div
+                        className={`
+                            fs-5
+                            fw-bold
+                            ${className}
+                        `}
+                    >
+
+                        {
+                            formatCurrency(
+                                value
+                            )
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
+};
+
 
 export default TitleTypeChart;

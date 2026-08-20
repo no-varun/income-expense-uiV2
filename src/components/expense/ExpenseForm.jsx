@@ -1,9 +1,28 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+    useEffect,
+    useState
+} from "react";
 
-import { getCategories } from "../../api/categoryApi";
-import { getItems } from "../../api/itemApi";
-import { getShops } from "../../api/shopApi";
+import {
+    useNavigate
+} from "react-router-dom";
+
+import {
+    getCategories
+} from "../../api/categoryApi";
+
+import {
+    getItems
+} from "../../api/itemApi";
+
+import {
+    getShops
+} from "../../api/shopApi";
+
+import {
+    getAccounts
+} from "../../api/accountApi";
+
 
 const ExpenseForm = ({
     initialValues = {},
@@ -13,28 +32,150 @@ const ExpenseForm = ({
 
     const navigate = useNavigate();
 
-    const [categories, setCategories] = useState([]);
-    const [items, setItems] = useState([]);
-    const [shops, setShops] = useState([]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const [categories, setCategories] =
+        useState([]);
+
+    const [items, setItems] =
+        useState([]);
+
+    const [shops, setShops] =
+        useState([]);
+
+    const [accounts, setAccounts] =
+        useState([]);
+
+
+    const [categoriesLoading, setCategoriesLoading] =
+        useState(false);
+
+    const [itemsLoading, setItemsLoading] =
+        useState(false);
+
+    const [shopsLoading, setShopsLoading] =
+        useState(false);
+
+    const [accountsLoading, setAccountsLoading] =
+        useState(false);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
 
     const [form, setForm] = useState({
+
         title: "",
+
         amount: "",
+
         category: "",
+
+        account: "",
+
         shopType: "",
+
         shop: "",
+
         paymentMode: "Cash",
-        bank: "icici",
-        date: new Date().toISOString().split("T")[0],
+
+        date:
+            new Date()
+                .toISOString()
+                .split("T")[0],
+
         note: ""
+
     });
 
 
     /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | GET ROWS
+    |--------------------------------------------------------------------------
+    */
+
+    const getRows = (
+        response
+    ) => {
+
+        const payload =
+            response?.data?.success !== undefined
+                ? response.data
+                : response;
+
+
+        if (
+            payload?.success === false
+        ) {
+
+            return [];
+
+        }
+
+
+        if (
+            Array.isArray(
+                payload?.data
+            )
+        ) {
+
+            return payload.data;
+
+        }
+
+
+        if (
+            Array.isArray(
+                payload?.data?.data
+            )
+        ) {
+
+            return payload.data.data;
+
+        }
+
+
+        if (
+            Array.isArray(
+                payload?.data?.rows
+            )
+        ) {
+
+            return payload.data.rows;
+
+        }
+
+
+        if (
+            Array.isArray(
+                payload?.rows
+            )
+        ) {
+
+            return payload.rows;
+
+        }
+
+
+        return [];
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD CATEGORIES
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -42,26 +183,19 @@ const ExpenseForm = ({
 
             try {
 
-                const response = await getCategories({
-                    limit: 100,
-                    type: "EXPENSE"
-                });
+                setCategoriesLoading(true);
 
-                if (response.success) {
 
-                    const rows =
-                        response.data?.rows ||
-                        response.data?.data ||
-                        response.data ||
-                        [];
+                const response =
+                    await getCategories({
+                        limit: 100,
+                        type: "EXPENSE"
+                    });
 
-                    setCategories(
-                        Array.isArray(rows)
-                            ? rows
-                            : []
-                    );
 
-                }
+                setCategories(
+                    getRows(response)
+                );
 
             } catch (error) {
 
@@ -72,9 +206,14 @@ const ExpenseForm = ({
 
                 setCategories([]);
 
+            } finally {
+
+                setCategoriesLoading(false);
+
             }
 
         };
+
 
         loadCategories();
 
@@ -82,10 +221,10 @@ const ExpenseForm = ({
 
 
     /*
-     * =====================================================
-     * LOAD SHOPS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD SHOPS
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -93,31 +232,19 @@ const ExpenseForm = ({
 
             try {
 
-                const response = await getShops({
-                    limit: 100,
-                    status: true
-                });
+                setShopsLoading(true);
 
-                if (response.success) {
 
-                    const rows =
-                        response.data?.rows ||
-                        response.data?.data?.rows ||
-                        response.data?.data ||
-                        response.data ||
-                        [];
+                const response =
+                    await getShops({
+                        limit: 100,
+                        status: true
+                    });
 
-                    setShops(
-                        Array.isArray(rows)
-                            ? rows
-                            : []
-                    );
 
-                } else {
-
-                    setShops([]);
-
-                }
+                setShops(
+                    getRows(response)
+                );
 
             } catch (error) {
 
@@ -128,9 +255,14 @@ const ExpenseForm = ({
 
                 setShops([]);
 
+            } finally {
+
+                setShopsLoading(false);
+
             }
 
         };
+
 
         loadShops();
 
@@ -138,56 +270,96 @@ const ExpenseForm = ({
 
 
     /*
-     * =====================================================
-     * LOAD ITEMS BY CATEGORY
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
 
-    const loadItems = async (categoryId) => {
+    useEffect(() => {
+
+        const loadAccounts = async () => {
+
+            try {
+
+                setAccountsLoading(true);
+
+
+                const response =
+                    await getAccounts({
+                        limit: 100,
+                        status: true
+                    });
+
+
+                console.log(
+                    "Account Response:",
+                    response
+                );
+
+
+                setAccounts(
+                    getRows(response)
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Account load error:",
+                    error
+                );
+
+                setAccounts([]);
+
+            } finally {
+
+                setAccountsLoading(false);
+
+            }
+
+        };
+
+
+        loadAccounts();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ITEMS
+    |--------------------------------------------------------------------------
+    */
+
+    const loadItems = async (
+        categoryId
+    ) => {
+
+        if (!categoryId) {
+
+            setItems([]);
+
+            return;
+
+        }
+
 
         try {
 
-            if (!categoryId) {
-
-                setItems([]);
-
-                return;
-
-            }
-
-            const response = await getItems({
-
-                limit: 100,
-
-                status: true,
-
-                category: categoryId,
-
-                type: "EXPENSE"
-
-            });
+            setItemsLoading(true);
 
 
-            if (response.success) {
+            const response =
+                await getItems({
+                    limit: 100,
+                    status: true,
+                    category: categoryId,
+                    type: "EXPENSE"
+                });
 
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
 
-                setItems(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
-                );
-
-            } else {
-
-                setItems([]);
-
-            }
+            setItems(
+                getRows(response)
+            );
 
         } catch (error) {
 
@@ -198,16 +370,20 @@ const ExpenseForm = ({
 
             setItems([]);
 
+        } finally {
+
+            setItemsLoading(false);
+
         }
 
     };
 
 
     /*
-     * =====================================================
-     * EDIT MODE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | EDIT DATA
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -227,25 +403,15 @@ const ExpenseForm = ({
             "";
 
 
-        const shopId =
-            initialValues.shop?._id ||
-            initialValues.shop ||
+        const accountId =
+            initialValues.account?._id ||
+            initialValues.account ||
             "";
 
 
-        /*
-         * shopType can come from:
-         *
-         * initialValues.shopType
-         *
-         * OR
-         *
-         * initialValues.shop.type
-         */
-
-        const shopType =
-            initialValues.shopType ||
-            initialValues.shop?.type ||
+        const shopId =
+            initialValues.shop?._id ||
+            initialValues.shop ||
             "";
 
 
@@ -255,41 +421,36 @@ const ExpenseForm = ({
                 initialValues.title ||
                 "",
 
-
             amount:
                 initialValues.amount ??
                 "",
 
-
             category:
                 categoryId,
 
+            account:
+                accountId,
 
             shopType:
-                shopType,
-
+                initialValues.shopType ||
+                "",
 
             shop:
                 shopId,
-
 
             paymentMode:
                 initialValues.paymentMode ||
                 "Cash",
 
-
-            bank:
-                initialValues.bank ||
-                "icici",
-
-
             date:
                 initialValues.date
-                    ? initialValues.date.substring(0, 10)
+                    ? initialValues.date.substring(
+                        0,
+                        10
+                    )
                     : new Date()
                         .toISOString()
                         .split("T")[0],
-
 
             note:
                 initialValues.note ||
@@ -300,7 +461,9 @@ const ExpenseForm = ({
 
         if (categoryId) {
 
-            loadItems(categoryId);
+            loadItems(
+                categoryId
+            );
 
         } else {
 
@@ -312,26 +475,24 @@ const ExpenseForm = ({
 
 
     /*
-     * =====================================================
-     * HANDLE CHANGE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | HANDLE CHANGE
+    |--------------------------------------------------------------------------
+    */
 
-    const handleChange = async (e) => {
+    const handleChange = async (
+        event
+    ) => {
 
         const {
             name,
             value
-        } = e.target;
+        } = event.target;
 
 
-        /*
-         * =================================================
-         * CATEGORY CHANGED
-         * =================================================
-         */
-
-        if (name === "category") {
+        if (
+            name === "category"
+        ) {
 
             setForm(prev => ({
 
@@ -344,20 +505,18 @@ const ExpenseForm = ({
             }));
 
 
-            await loadItems(value);
+            await loadItems(
+                value
+            );
 
             return;
 
         }
 
 
-        /*
-         * =================================================
-         * SHOP TYPE CHANGED
-         * =================================================
-         */
-
-        if (name === "shopType") {
+        if (
+            name === "shopType"
+        ) {
 
             setForm(prev => ({
 
@@ -365,7 +524,6 @@ const ExpenseForm = ({
 
                 shopType: value,
 
-                // Reset shop when type changes
                 shop: ""
 
             }));
@@ -374,12 +532,6 @@ const ExpenseForm = ({
 
         }
 
-
-        /*
-         * =================================================
-         * NORMAL FIELD
-         * =================================================
-         */
 
         setForm(prev => ({
 
@@ -393,42 +545,68 @@ const ExpenseForm = ({
 
 
     /*
-     * =====================================================
-     * FILTER SHOPS BY SHOP TYPE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | FILTER SHOPS
+    |--------------------------------------------------------------------------
+    */
 
-    const filteredShops = shops.filter(shop => {
+    const filteredShops =
+        shops.filter(
+            shop => {
 
-        if (!form.shopType) {
+                if (
+                    !form.shopType
+                ) {
 
-            return false;
+                    return false;
 
-        }
+                }
 
-        return (
-            String(shop.type).toUpperCase() ===
-            String(form.shopType).toUpperCase()
+
+                return (
+
+                    String(
+                        shop.type || ""
+                    ).toUpperCase() ===
+
+                    String(
+                        form.shopType
+                    ).toUpperCase()
+
+                );
+
+            }
         );
-
-    });
 
 
     /*
-     * =====================================================
-     * SUBMIT
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (
+        event
+    ) => {
 
-        e.preventDefault();
+        event.preventDefault();
 
 
         if (!form.category) {
 
             alert(
                 "Please select Category"
+            );
+
+            return;
+
+        }
+
+
+        if (!form.account) {
+
+            alert(
+                "Please select Account"
             );
 
             return;
@@ -475,7 +653,7 @@ const ExpenseForm = ({
         ) {
 
             alert(
-                "Amount must be greater than zero"
+                "Amount must be greater than 0"
             );
 
             return;
@@ -483,421 +661,668 @@ const ExpenseForm = ({
         }
 
 
-        onSubmit({
+        /*
+        |--------------------------------------------------------------------------
+        | ACCOUNT BASED PAYLOAD
+        |--------------------------------------------------------------------------
+        */
 
-            ...form,
+        const payload = {
 
-            amount: Number(form.amount)
+            title:
+                form.title,
 
-        });
+            amount:
+                Number(
+                    form.amount
+                ),
+
+            category:
+                form.category,
+
+            account:
+                form.account,
+
+            shopType:
+                form.shopType,
+
+            shop:
+                form.shop,
+
+            paymentMode:
+                form.paymentMode,
+
+            date:
+                form.date,
+
+            note:
+                form.note
+
+        };
+
+
+        console.log(
+            "Expense Payload:",
+            payload
+        );
+
+
+        onSubmit(
+            payload
+        );
 
     };
 
 
     return (
 
-        <div className="card shadow">
+        <div className="container-fluid px-0">
 
-            {/* =====================================================
-                HEADER
-            ===================================================== */}
+            <div className="card border-0 shadow-sm">
 
-            <div className="card-header d-flex justify-content-between align-items-center">
+                {/* HEADER */}
 
-                <h5 className="mb-0">
-                    Expense Details
-                </h5>
+                <div className="card-header bg-white border-bottom px-4 py-3">
 
+                    <div className="d-flex justify-content-between align-items-center">
 
-                <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() =>
-                        navigate("/expense")
-                    }
-                >
-                    Back
-                </button>
+                        <div>
 
-            </div>
+                            <h4 className="mb-1 fw-bold">
 
-
-            <div className="card-body">
-
-                <form onSubmit={handleSubmit}>
-
-
-                    {/* =================================================
-                        SHOP TYPE
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Shop Type
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="shopType"
-                            value={form.shopType}
-                            onChange={handleChange}
-                            required
-                        >
-
-                            <option value="">
-                                Select Shop Type
-                            </option>
-
-
-                            <option value="ONLINE">
-                                ONLINE
-                            </option>
-
-
-                            <option value="OFFLINE">
-                                OFFLINE
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* =================================================
-                        SHOP
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Shop
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="shop"
-                            value={form.shop}
-                            onChange={handleChange}
-                            required
-                            disabled={!form.shopType}
-                        >
-
-                            <option value="">
-
-                                {form.shopType
-                                    ? "Select Shop"
-                                    : "Select Shop Type First"
+                                {initialValues?._id
+                                    ? "Edit Expense"
+                                    : "Add Expense"
                                 }
 
-                            </option>
+                            </h4>
+
+                            <div className="text-muted small">
+
+                                Manage your expense details.
+
+                            </div>
+
+                        </div>
 
 
-                            {filteredShops.map(shop => (
-
-                                <option
-                                    key={shop._id}
-                                    value={shop._id}
-                                >
-
-                                    {shop.name}
-
-                                </option>
-
-                            ))}
-
-                        </select>
-
-
-                        {form.shopType &&
-                            filteredShops.length === 0 && (
-
-                                <small className="text-danger">
-                                    No {form.shopType} shops available
-                                </small>
-
-                            )}
-
-                    </div>
-
-
-                    {/* =================================================
-                        CATEGORY
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Category
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="category"
-                            value={form.category}
-                            onChange={handleChange}
-                            required
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={() =>
+                                navigate(
+                                    "/expense"
+                                )
+                            }
+                            disabled={loading}
                         >
 
-                            <option value="">
-                                Select Category
-                            </option>
+                            ← Back
 
-
-                            {categories.map(category => (
-
-                                <option
-                                    key={category._id}
-                                    value={category._id}
-                                >
-
-                                    {category.name}
-
-                                </option>
-
-                            ))}
-
-                        </select>
+                        </button>
 
                     </div>
 
+                </div>
 
-                    {/* =================================================
-                        ITEM
-                    ================================================= */}
 
-                    <div className="mb-3">
+                {/* BODY */}
 
-                        <label className="form-label">
-                            Item
-                        </label>
+                <div className="card-body p-4">
 
-
-                        <select
-                            className="form-select"
-                            name="title"
-                            value={form.title}
-                            onChange={handleChange}
-                            required
-                            disabled={!form.category}
-                        >
-
-                            <option value="">
-
-                                {form.category
-                                    ? "Select Item"
-                                    : "Select Category First"
-                                }
-
-                            </option>
-
-
-                            {items.map(item => (
-
-                                <option
-                                    key={item._id}
-                                    value={item.name}
-                                >
-
-                                    {item.name}
-
-                                </option>
-
-                            ))}
-
-                        </select>
-
-                    </div>
-
-
-                    {/* =================================================
-                        AMOUNT
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Amount
-                        </label>
-
-
-                        <input
-                            type="number"
-                            className="form-control"
-                            name="amount"
-                            value={form.amount}
-                            onChange={handleChange}
-                            min="0"
-                            step="0.01"
-                            required
-                        />
-
-                    </div>
-
-
-                    {/* =================================================
-                        PAYMENT MODE
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Payment Mode
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="paymentMode"
-                            value={form.paymentMode}
-                            onChange={handleChange}
-                        >
-
-                            <option value="Cash">
-                                Cash
-                            </option>
-
-                            <option value="Paytm">
-                                Paytm
-                            </option>
-
-                            <option value="PhonePe">
-                                PhonePe
-                            </option>
-
-                            <option value="GPay">
-                                GPay
-                            </option>
-
-                            <option value="Bhim">
-                                Bhim
-                            </option>
-
-                            <option value="AmazonPay">
-                                Amazon Pay
-                            </option>
-
-                            <option value="BankTransfer">
-                                Bank Transfer
-                            </option>
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* =================================================
-                        BANK
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Bank
-                        </label>
-
-
-                        <select
-                            className="form-select"
-                            name="bank"
-                            value={form.bank}
-                            onChange={handleChange}
-                        >
-
-                            <option value="Pnb">
-                                Pnb
-                            </option>
-
-                            <option value="Rbl">
-                                Rbl
-                            </option>
-
-                            <option value="icici">
-                                icici
-                            </option>
-
-                            <option value="Cash">
-                                Cash
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* =================================================
-                        DATE
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Date
-                        </label>
-
-
-                        <input
-                            type="date"
-                            className="form-control"
-                            name="date"
-                            value={form.date}
-                            onChange={handleChange}
-                        />
-
-                    </div>
-
-
-                    {/* =================================================
-                        NOTE
-                    ================================================= */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Note
-                        </label>
-
-
-                        <textarea
-                            className="form-control"
-                            rows="3"
-                            name="note"
-                            value={form.note}
-                            onChange={handleChange}
-                            placeholder="Enter note"
-                        />
-
-                    </div>
-
-
-                    {/* =================================================
-                        SUBMIT
-                    ================================================= */}
-
-                    <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={loading}
+                    <form
+                        onSubmit={
+                            handleSubmit
+                        }
                     >
 
-                        {loading
-                            ? "Please wait..."
-                            : "Save Expense"
-                        }
+                        <div className="row g-4">
 
-                    </button>
 
-                </form>
+                            {/* CATEGORY */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Category
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="category"
+                                    value={
+                                        form.category
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        categoriesLoading
+                                    }
+                                    required
+                                >
+
+                                    <option value="">
+
+                                        {categoriesLoading
+                                            ? "Loading categories..."
+                                            : "Select Category"
+                                        }
+
+                                    </option>
+
+
+                                    {categories.map(
+                                        category => (
+
+                                            <option
+                                                key={
+                                                    category._id
+                                                }
+                                                value={
+                                                    category._id
+                                                }
+                                            >
+
+                                                {
+                                                    category.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* ITEM */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Item
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="title"
+                                    value={
+                                        form.title
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        !form.category ||
+                                        itemsLoading
+                                    }
+                                    required
+                                >
+
+                                    <option value="">
+
+                                        {itemsLoading
+                                            ? "Loading items..."
+                                            : !form.category
+                                                ? "Select category first"
+                                                : "Select Item"
+                                        }
+
+                                    </option>
+
+
+                                    {items.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item.name
+                                                }
+                                            >
+
+                                                {
+                                                    item.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* ACCOUNT */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Account
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="account"
+                                    value={
+                                        form.account
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        accountsLoading
+                                    }
+                                    required
+                                >
+
+                                    <option value="">
+
+                                        {accountsLoading
+                                            ? "Loading accounts..."
+                                            : "Select Account"
+                                        }
+
+                                    </option>
+
+
+                                    {accounts.map(
+                                        account => (
+
+                                            <option
+                                                key={
+                                                    account._id
+                                                }
+                                                value={
+                                                    account._id
+                                                }
+                                            >
+
+                                                {
+                                                    account.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+
+                                {!accountsLoading &&
+                                    accounts.length === 0 && (
+
+                                        <div className="text-danger small mt-1">
+
+                                            No accounts found.
+
+                                        </div>
+
+                                    )}
+
+                            </div>
+
+
+                            {/* AMOUNT */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Amount
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <div className="input-group input-group-lg">
+
+                                    <span className="input-group-text">
+                                        ₹
+                                    </span>
+
+
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="amount"
+                                        value={
+                                            form.amount
+                                        }
+                                        onChange={
+                                            handleChange
+                                        }
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Enter amount"
+                                        required
+                                    />
+
+                                </div>
+
+                            </div>
+
+
+                            {/* SHOP TYPE */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Shop Type
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="shopType"
+                                    value={
+                                        form.shopType
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Shop Type
+                                    </option>
+
+                                    <option value="ONLINE">
+                                        ONLINE
+                                    </option>
+
+                                    <option value="OFFLINE">
+                                        OFFLINE
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* SHOP */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Shop
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="shop"
+                                    value={
+                                        form.shop
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        !form.shopType ||
+                                        shopsLoading
+                                    }
+                                    required
+                                >
+
+                                    <option value="">
+
+                                        {shopsLoading
+                                            ? "Loading shops..."
+                                            : !form.shopType
+                                                ? "Select shop type first"
+                                                : "Select Shop"
+                                        }
+
+                                    </option>
+
+
+                                    {filteredShops.map(
+                                        shop => (
+
+                                            <option
+                                                key={
+                                                    shop._id
+                                                }
+                                                value={
+                                                    shop._id
+                                                }
+                                            >
+
+                                                {
+                                                    shop.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* PAYMENT MODE */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Payment Mode
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="paymentMode"
+                                    value={
+                                        form.paymentMode
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                >
+
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
+
+                                    <option value="AmazonPay">
+                                        Amazon Pay
+                                    </option>
+
+                                    <option value="BankTransfer">
+                                        Bank Transfer
+                                    </option>
+
+                                    <option value="Bhim">
+                                        Bhim
+                                    </option>
+
+                                    <option value="GPay">
+                                        GPay
+                                    </option>
+
+                                    <option value="Paytm">
+                                        Paytm
+                                    </option>
+
+                                    <option value="PhonePe">
+                                        PhonePe
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* DATE */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Date
+
+                                    <span className="text-danger ms-1">
+                                        *
+                                    </span>
+
+                                </label>
+
+
+                                <input
+                                    type="date"
+                                    className="form-control form-control-lg"
+                                    name="date"
+                                    value={
+                                        form.date
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    required
+                                />
+
+                            </div>
+
+
+                            {/* NOTE */}
+
+                            <div className="col-12">
+
+                                <label className="form-label fw-semibold">
+
+                                    Note
+
+                                </label>
+
+
+                                <textarea
+                                    className="form-control"
+                                    name="note"
+                                    value={
+                                        form.note
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    rows="3"
+                                    placeholder="Optional note"
+                                />
+
+                            </div>
+
+                        </div>
+
+
+                        <hr className="my-4" />
+
+
+                        <div className="d-flex justify-content-end gap-2">
+
+                            <button
+                                type="button"
+                                className="btn btn-light border px-4"
+                                onClick={() =>
+                                    navigate(
+                                        "/expense"
+                                    )
+                                }
+                                disabled={loading}
+                            >
+
+                                Cancel
+
+                            </button>
+
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary px-4"
+                                disabled={
+                                    loading ||
+                                    accountsLoading
+                                }
+                            >
+
+                                {loading ? (
+
+                                    <>
+                                        <span
+                                            className="spinner-border spinner-border-sm me-2"
+                                        />
+
+                                        Saving...
+
+                                    </>
+
+                                ) : (
+
+                                    initialValues?._id
+                                        ? "Update Expense"
+                                        : "Save Expense"
+
+                                )}
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
 
             </div>
 
@@ -906,5 +1331,6 @@ const ExpenseForm = ({
     );
 
 };
+
 
 export default ExpenseForm;

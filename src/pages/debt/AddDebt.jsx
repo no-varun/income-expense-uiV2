@@ -1,36 +1,100 @@
-import { useState } from "react";
+import {
+    useState
+} from "react";
 
-import { useNavigate } from "react-router-dom";
+import {
+    useNavigate
+} from "react-router-dom";
 
-import SavingForm from "../../components/debt/DebtForm";
+import DebtForm
+    from "../../components/debt/DebtForm";
 
-import { createDebt  } from "../../api/debtApi";
+import {
+    createDebt
+} from "../../api/debtApi";
+
 
 const AddDebt = () => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
 
-    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (data) => {
+    const [
+        loading,
+        setLoading
+    ] = useState(false);
+
+
+    const handleSubmit = async (
+        data
+    ) => {
 
         try {
 
             setLoading(true);
 
-            const response = await createDebt(data);
 
-            if (response.success) {
+            console.log(
+                "Create Debt Payload:",
+                data
+            );
 
-                alert(response.message);
 
-                navigate("/debt");
+            const response =
+                await createDebt(
+                    data
+                );
+
+
+            console.log(
+                "Create Debt Response:",
+                response
+            );
+
+
+            if (
+                response?.success
+            ) {
+
+                alert(
+                    response.message ||
+                    "Debt created successfully."
+                );
+
+
+                navigate(
+                    "/debt"
+                );
+
+                return;
 
             }
 
+
+            alert(
+                response?.message ||
+                "Unable to create debt."
+            );
+
+
         } catch (error) {
 
-            alert(error.response?.data?.message);
+            console.error(
+                "Create Debt Error:",
+                error
+            );
+
+
+            alert(
+
+                error?.response?.data?.message ||
+
+                error?.message ||
+
+                "Unable to create debt."
+
+            );
 
         } finally {
 
@@ -40,18 +104,28 @@ const AddDebt = () => {
 
     };
 
+
     return (
 
-        <SavingForm
+        <div className="container-fluid px-0">
 
-            loading={loading}
+            <DebtForm
 
-            onSubmit={handleSubmit}
+                loading={
+                    loading
+                }
 
-        />
+                onSubmit={
+                    handleSubmit
+                }
+
+            />
+
+        </div>
 
     );
 
 };
+
 
 export default AddDebt;

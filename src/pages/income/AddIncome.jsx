@@ -1,36 +1,68 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import IncomeForm from "../../components/income/IncomeForm";
-
 import { createIncome } from "../../api/incomeApi";
+
 
 const AddIncome = () => {
 
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const handleSubmit = async (data) => {
+
+    const handleSubmit = async (formData) => {
 
         try {
 
             setLoading(true);
 
-            const response = await createIncome(data);
 
-            if (response.success) {
+            const response =
+                await createIncome(
+                    formData
+                );
 
-                alert(response.message);
+
+            if (response?.success) {
+
+                alert(
+                    response.message ||
+                    "Income created successfully."
+                );
+
 
                 navigate("/income");
 
+                return;
+
             }
+
+
+            alert(
+                response?.message ||
+                "Unable to create income."
+            );
 
         } catch (error) {
 
-            alert(error.response?.data?.message);
+            console.error(
+                "Create Income Error:",
+                error
+            );
+
+
+            alert(
+
+                error?.response?.data?.message ||
+
+                error?.message ||
+
+                "Unable to create income."
+
+            );
 
         } finally {
 
@@ -40,18 +72,33 @@ const AddIncome = () => {
 
     };
 
+
     return (
 
-        <IncomeForm
+        <div className="container-fluid px-4">
 
-            loading={loading}
+            <div className="row">
 
-            onSubmit={handleSubmit}
+                <div className="col-12">
 
-        />
+                    <IncomeForm
+                        onSubmit={
+                            handleSubmit
+                        }
+                        loading={
+                            loading
+                        }
+                    />
+
+                </div>
+
+            </div>
+
+        </div>
 
     );
 
 };
+
 
 export default AddIncome;

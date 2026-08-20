@@ -1,76 +1,143 @@
 import axios from "./axios";
 
-/**
- * Get All Expense
- */
+
+/*
+|--------------------------------------------------------------------------
+| GET EXPENSE LIST
+|--------------------------------------------------------------------------
+*/
+
 export const getExpenses = async (params = {}) => {
 
-    return await axios.get("/expense", {
-        params
-    });
+    const response = await axios.get(
+        "/expense",
+        {
+            params
+        }
+    );
 
+    return response.data.data;
 };
 
-/**
- * Get Single Expense
- */
+
+/*
+|--------------------------------------------------------------------------
+| GET EXPENSE BY ID
+|--------------------------------------------------------------------------
+*/
+
 export const getExpense = async (id) => {
 
-    return await axios.get(`/expense/${id}`);
+    const response = await axios.get(
+        `/expense/${id}`
+    );
 
+    return response.data;
 };
 
-/**
- * Create Expense
- */
+
+/*
+|--------------------------------------------------------------------------
+| CREATE EXPENSE
+|--------------------------------------------------------------------------
+*/
+
 export const createExpense = async (data) => {
 
-    return await axios.post("/expense", data);
+    const response = await axios.post(
+        "/expense",
+        data
+    );
 
+    return response.data;
 };
 
-/**
- * Update Expense
- */
-export const updateExpense = async (id, data) => {
 
-    return await axios.put(`/expense/${id}`, data);
+/*
+|--------------------------------------------------------------------------
+| UPDATE EXPENSE
+|--------------------------------------------------------------------------
+*/
 
+export const updateExpense = async (
+    id,
+    data
+) => {
+
+    const response = await axios.put(
+        `/expense/${id}`,
+        data
+    );
+
+    return response.data;
 };
 
-/**
- * Delete Expense
- */
+
+/*
+|--------------------------------------------------------------------------
+| DELETE EXPENSE
+|--------------------------------------------------------------------------
+*/
+
 export const deleteExpense = async (id) => {
 
-    return await axios.delete(`/expense/${id}`);
+    const response = await axios.delete(
+        `/expense/${id}`
+    );
 
+    return response.data;
 };
 
-/**
- * Export Expense Excel
- */
-export const exportExpensesExcel = async (params = {}) => {
 
-    return await axios.get("/expense/export/excel", {
-        params,
-        responseType: "blob"
-    });
+/*
+|--------------------------------------------------------------------------
+| EXPORT EXCEL
+|--------------------------------------------------------------------------
+*/
 
+export const exportExpensesExcel = async (
+    params = {}
+) => {
+
+    const response = await axios.get(
+        "/expense/export/excel",
+        {
+            params,
+            responseType: "blob"
+        }
+    );
+
+    return response.data;
 };
 
-/**
- * Import Expense Excel
- */
-export const importExpensesExcel = async (file) => {
+
+/*
+|--------------------------------------------------------------------------
+| IMPORT EXCEL
+|--------------------------------------------------------------------------
+*/
+
+export const importExpensesExcel = async (
+    file
+) => {
 
     const formData = new FormData();
-    formData.append("file", file);
 
-    return await axios.post("/expense/import/excel", formData, {
-        headers: {
-            "Content-Type": "multipart/form-data"
+    formData.append(
+        "file",
+        file
+    );
+
+    const response = await axios.post(
+        "/expense/import/excel",
+        formData,
+        {
+            headers: {
+                "Content-Type":
+                    "multipart/form-data"
+            }
         }
-    });
+    );
 
+    return response.data;
 };

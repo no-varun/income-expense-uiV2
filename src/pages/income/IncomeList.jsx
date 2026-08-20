@@ -13,6 +13,8 @@ import {
 
 import { getCategories } from "../../api/categoryApi";
 
+import { getAccounts } from "../../api/accountApi";
+
 import Pagination from "../../components/common/Pagination";
 
 import {
@@ -21,96 +23,55 @@ import {
 
 
 /*
- * =====================================================
- * BANK IMAGES
- * =====================================================
- */
-
-const bankImages = {
-
-    Pnb: "/images/banks/pnb.png",
-
-    Rbl: "/images/banks/rbl.png",
-
-    icici: "/images/banks/icici.png",
-
-    Cash: "/images/banks/cash.png",
-
-    Other: "/images/banks/card.png"
-
-};
-
-
-/*
- * =====================================================
- * PAYMENT MODE IMAGES
- * =====================================================
- */
+|--------------------------------------------------------------------------
+| Payment Mode Images
+|--------------------------------------------------------------------------
+*/
 
 const PaymentModeImages = {
 
-    Cash: "/images/payment/cash.png",
+    Cash:
+        "/images/payment/cash.png",
 
-    Paytm: "/images/payment/paytm.png",
+    Paytm:
+        "/images/payment/paytm.png",
 
-    PhonePe: "/images/payment/phonepe.png",
+    PhonePe:
+        "/images/payment/phonepe.png",
 
-    GPay: "/images/payment/GPay.png",
+    GPay:
+        "/images/payment/GPay.png",
 
-    Bhim: "/images/payment/Bhim.png",
+    Bhim:
+        "/images/payment/Bhim.png",
 
-    "AmazonPay": "/images/payment/amazonpay.png",
+    AmazonPay:
+        "/images/payment/amazonpay.png",
 
-    "BankTransfer": "/images/payment/BankTransfer.png",
+    BankTransfer:
+        "/images/payment/BankTransfer.png",
 
-    Other: "/images/payment/card.png"
+    Other:
+        "/images/payment/card.png"
 
 };
 
 
 /*
- * =====================================================
- * PAYMENT MODES
- * =====================================================
- */
+|--------------------------------------------------------------------------
+| Payment Modes
+|--------------------------------------------------------------------------
+*/
 
 const paymentModes = [
 
     "Cash",
-
     "Paytm",
-
     "PhonePe",
-
     "GPay",
-
     "Bhim",
-
     "AmazonPay",
-
     "BankTransfer",
-
-    "Other"
-
-];
-
-
-/*
- * =====================================================
- * BANKS
- * =====================================================
- */
-
-const banks = [
-
-    "Pnb",
-
-    "Rbl",
-
-    "icici",
-
-    "Cash",
-
     "Other"
 
 ];
@@ -120,10 +81,10 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * DATA STATES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Data
+    |--------------------------------------------------------------------------
+    */
 
     const [loading, setLoading] =
         useState(true);
@@ -134,15 +95,18 @@ const IncomeList = () => {
     const [categories, setCategories] =
         useState([]);
 
+    const [accounts, setAccounts] =
+        useState([]);
+
     const [totalAmount, setTotalAmount] =
         useState(0);
 
 
     /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
 
     const [page, setPage] =
         useState(1);
@@ -155,10 +119,10 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * SEARCH
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Search
+    |--------------------------------------------------------------------------
+    */
 
     const [searchInput, setSearchInput] =
         useState("");
@@ -168,10 +132,10 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * CATEGORY
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Category
+    |--------------------------------------------------------------------------
+    */
 
     const [categoryInput, setCategoryInput] =
         useState("");
@@ -181,10 +145,10 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * PAYMENT MODE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Payment Mode
+    |--------------------------------------------------------------------------
+    */
 
     const [paymentModeInput, setPaymentModeInput] =
         useState("");
@@ -194,23 +158,23 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * BANK
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Account
+    |--------------------------------------------------------------------------
+    */
 
-    const [bankInput, setBankInput] =
+    const [accountInput, setAccountInput] =
         useState("");
 
-    const [bank, setBank] =
+    const [account, setAccount] =
         useState("");
 
 
     /*
-     * =====================================================
-     * DATE FILTERS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Date
+    |--------------------------------------------------------------------------
+    */
 
     const [fromDateInput, setFromDateInput] =
         useState("");
@@ -226,10 +190,10 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Load Categories
+    |--------------------------------------------------------------------------
+    */
 
     const loadCategories = useCallback(
         async () => {
@@ -246,24 +210,55 @@ const IncomeList = () => {
                     });
 
 
-                if (response.success) {
+                /*
+                |--------------------------------------------------------------------------
+                | Support:
+                |
+                | response.data.rows
+                | response.data.data.rows
+                | response.data.data
+                | response.data
+                |--------------------------------------------------------------------------
+                */
+
+                const payload =
+                    response?.data?.success !== undefined
+                        ? response.data
+                        : response;
+
+
+                if (
+                    payload?.success
+                ) {
+
+                    const result =
+                        payload.data || {};
+
 
                     const rows =
-                        response.data?.rows ||
-                        response.data?.data?.rows ||
-                        response.data?.data ||
-                        response.data ||
-                        [];
+                        Array.isArray(
+                            result.rows
+                        )
+
+                            ? result.rows
+
+                            : Array.isArray(
+                                result.data
+                            )
+
+                                ? result.data
+
+                                : Array.isArray(
+                                    result
+                                )
+
+                                    ? result
+
+                                    : [];
 
 
                     setCategories(
-
-                        Array.isArray(rows)
-
-                            ? rows
-
-                            : []
-
+                        rows
                     );
 
                 } else {
@@ -289,200 +284,342 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * LOAD INCOME
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Load Accounts
+    |--------------------------------------------------------------------------
+    */
 
-    const loadIncome = useCallback(
+    const loadAccounts = useCallback(
         async () => {
 
             try {
 
-                setLoading(true);
-
-
                 const response =
-                    await getIncomes({
+                    await getAccounts({
 
-                        page,
+                        limit: 100,
 
-                        limit,
-
-                        search,
-
-                        category,
-
-                        paymentMode,
-
-                        bank,
-
-                        from: fromDate,
-
-                        to: toDate
+                        status: true
 
                     });
 
 
-                if (response.success) {
+                const payload =
+                    response?.data?.success !== undefined
+                        ? response.data
+                        : response;
+
+
+                if (
+                    payload?.success
+                ) {
+
+                    const result =
+                        payload.data || {};
+
 
                     const rows =
-                        response.data?.data ||
-                        response.data?.rows ||
-                        response.data ||
-                        [];
+                        Array.isArray(
+                            result.rows
+                        )
 
+                            ? result.rows
 
-                    const incomeRows =
-                        Array.isArray(rows)
-
-                            ? rows
-
-                            : [];
-
-
-                    setIncomes(
-                        incomeRows
-                    );
-
-
-                    setTotal(
-                        response.data?.total ??
-                        incomeRows.length
-                    );
-
-
-                    /*
-                     * =================================================
-                     * TOTAL AMOUNT
-                     * =================================================
-                     */
-
-                    if (
-                        response.data?.totalAmount !==
-                        undefined
-                    ) {
-
-                        setTotalAmount(
-
-                            Number(
-                                response.data.totalAmount ||
-                                0
+                            : Array.isArray(
+                                result.data
                             )
 
-                        );
+                                ? result.data
 
-                    } else {
+                                : Array.isArray(
+                                    result
+                                )
 
-                        const amount =
-                            incomeRows.reduce(
+                                    ? result
 
-                                (
-                                    sum,
-                                    item
-                                ) => {
-
-                                    return (
-
-                                        sum +
-
-                                        Number(
-                                            item.amount ||
-                                            0
-                                        )
-
-                                    );
-
-                                },
-
-                                0
-
-                            );
+                                    : [];
 
 
-                        setTotalAmount(
-                            amount
-                        );
-
-                    }
+                    setAccounts(
+                        rows
+                    );
 
                 } else {
 
-                    setIncomes([]);
-
-                    setTotal(0);
-
-                    setTotalAmount(0);
+                    setAccounts([]);
 
                 }
 
             } catch (error) {
 
                 console.error(
-                    "Income load error:",
+                    "Account load error:",
                     error
                 );
 
-
-                setIncomes([]);
-
-                setTotal(0);
-
-                setTotalAmount(0);
-
-            } finally {
-
-                setLoading(false);
+                setAccounts([]);
 
             }
 
         },
-
-        [
-
-            page,
-
-            limit,
-
-            search,
-
-            category,
-
-            paymentMode,
-
-            bank,
-
-            fromDate,
-
-            toDate
-
-        ]
-
+        []
     );
 
 
     /*
-     * =====================================================
-     * INITIAL LOAD
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Load Income
+    |--------------------------------------------------------------------------
+    */
+
+ const loadIncome = useCallback(
+    async () => {
+
+        try {
+
+            setLoading(true);
+
+
+            const response = await getIncomes({
+
+                page,
+
+                limit,
+
+                search,
+
+                category,
+
+                paymentMode,
+
+                account,
+
+                from: fromDate,
+
+                to: toDate
+
+            });
+
+
+            console.log(
+                "Income API Response:",
+                response
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Your incomeApi.js returns response.data directly.
+            |
+            | Therefore response is:
+            |
+            | {
+            |     total: 18,
+            |     page: 1,
+            |     limit: 10,
+            |     totalPages: 2,
+            |     data: [...]
+            | }
+            |--------------------------------------------------------------------------
+            */
+
+
+            const result =
+                response || {};
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Income Rows
+            |--------------------------------------------------------------------------
+            */
+
+            const incomeRows =
+                Array.isArray(
+                    result.data
+                )
+
+                    ? result.data
+
+                    : [];
+
+
+            console.log(
+                "Income Rows:",
+                incomeRows
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Set Income Data
+            |--------------------------------------------------------------------------
+            */
+
+            setIncomes(
+                incomeRows
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Total Records
+            |--------------------------------------------------------------------------
+            */
+
+            setTotal(
+
+                Number(
+                    result.total ||
+                    0
+                )
+
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Total Amount
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                result.totalAmount !==
+                undefined
+            ) {
+
+                setTotalAmount(
+
+                    Number(
+                        result.totalAmount ||
+                        0
+                    )
+
+                );
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Calculate amount from current page
+                |--------------------------------------------------------------------------
+                |
+                | NOTE:
+                | This is only current page total.
+                |
+                | If backend later provides totalAmount,
+                | we will use that instead.
+                |--------------------------------------------------------------------------
+                */
+
+                const calculatedAmount =
+                    incomeRows.reduce(
+
+                        (
+                            sum,
+                            item
+                        ) => {
+
+                            return (
+
+                                sum +
+
+                                Number(
+                                    item.amount ||
+                                    0
+                                )
+
+                            );
+
+                        },
+
+                        0
+
+                    );
+
+
+                setTotalAmount(
+                    calculatedAmount
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Income load error:",
+                error
+            );
+
+
+            console.error(
+                "Income API Error:",
+                error?.response?.data
+            );
+
+
+            setIncomes([]);
+
+            setTotal(0);
+
+            setTotalAmount(0);
+
+        } finally {
+
+            setLoading(false);
+
+        }
+
+    },
+
+    [
+
+        page,
+
+        limit,
+
+        search,
+
+        category,
+
+        paymentMode,
+
+        account,
+
+        fromDate,
+
+        toDate
+
+    ]
+
+);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Load
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
         loadCategories();
 
+        loadAccounts();
+
     }, [
 
-        loadCategories
+        loadCategories,
+
+        loadAccounts
 
     ]);
 
 
     /*
-     * =====================================================
-     * LOAD INCOME DATA
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Load Income
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -496,169 +633,205 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * DELETE INCOME
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Delete Income
+    |--------------------------------------------------------------------------
+    */
 
-    const handleDelete = async (id) => {
+    const handleDelete =
+        async (id) => {
 
-        if (
-            !window.confirm(
-                "Delete this income?"
-            )
-        ) {
+            if (
+                !window.confirm(
+                    "Delete this income?"
+                )
+            ) {
 
-            return;
-
-        }
-
-
-        try {
-
-            const response =
-                await deleteIncome(id);
-
-
-            if (response.success) {
-
-                alert(
-
-                    response.message ||
-                    "Income deleted successfully."
-
-                );
-
-
-                if (
-
-                    incomes.length === 1 &&
-
-                    page > 1
-
-                ) {
-
-                    setPage(
-                        page - 1
-                    );
-
-                } else {
-
-                    loadIncome();
-
-                }
+                return;
 
             }
 
-        } catch (error) {
 
-            alert(
+            try {
 
-                error.response?.data?.message ||
+                const response =
+                    await deleteIncome(
+                        id
+                    );
 
-                "Unable to delete income."
 
+                const payload =
+                    response?.data?.success !== undefined
+                        ? response.data
+                        : response;
+
+
+                if (
+                    payload?.success
+                ) {
+
+                    alert(
+
+                        payload.message ||
+                        "Income deleted successfully."
+
+                    );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | If last record on current page
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+
+                        incomes.length === 1 &&
+
+                        page > 1
+
+                    ) {
+
+                        setPage(
+                            page - 1
+                        );
+
+                    } else {
+
+                        loadIncome();
+
+                    }
+
+                } else {
+
+                    alert(
+
+                        payload?.message ||
+                        "Unable to delete income."
+
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Delete Income Error:",
+                    error
+                );
+
+
+                alert(
+
+                    error?.response?.data?.message ||
+
+                    error?.message ||
+
+                    "Unable to delete income."
+
+                );
+
+            }
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Apply Filter
+    |--------------------------------------------------------------------------
+    */
+
+    const handleFilter =
+        (event) => {
+
+            event.preventDefault();
+
+
+            setSearch(
+                searchInput.trim()
             );
 
-        }
 
-    };
-
-
-    /*
-     * =====================================================
-     * APPLY FILTER
-     * =====================================================
-     */
-
-    const handleFilter = (event) => {
-
-        event.preventDefault();
+            setCategory(
+                categoryInput
+            );
 
 
-        setSearch(
-            searchInput.trim()
-        );
+            setPaymentMode(
+                paymentModeInput
+            );
 
 
-        setCategory(
-            categoryInput
-        );
+            setAccount(
+                accountInput
+            );
 
 
-        setPaymentMode(
-            paymentModeInput
-        );
+            setFromDate(
+                fromDateInput
+            );
 
 
-        setBank(
-            bankInput
-        );
+            setToDate(
+                toDateInput
+            );
 
 
-        setFromDate(
-            fromDateInput
-        );
+            setPage(1);
 
-
-        setToDate(
-            toDateInput
-        );
-
-
-        setPage(1);
-
-    };
+        };
 
 
     /*
-     * =====================================================
-     * CLEAR FILTER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Clear Filter
+    |--------------------------------------------------------------------------
+    */
 
-    const handleClearFilter = () => {
+    const handleClearFilter =
+        () => {
 
-        setSearchInput("");
+            setSearchInput("");
 
-        setSearch("");
-
-
-        setCategoryInput("");
-
-        setCategory("");
+            setSearch("");
 
 
-        setPaymentModeInput("");
+            setCategoryInput("");
 
-        setPaymentMode("");
-
-
-        setBankInput("");
-
-        setBank("");
+            setCategory("");
 
 
-        setFromDateInput("");
+            setPaymentModeInput("");
 
-        setToDateInput("");
-
-
-        setFromDate("");
-
-        setToDate("");
+            setPaymentMode("");
 
 
-        setPage(1);
+            setAccountInput("");
 
-    };
+            setAccount("");
+
+
+            setFromDateInput("");
+
+            setToDateInput("");
+
+
+            setFromDate("");
+
+            setToDate("");
+
+
+            setPage(1);
+
+        };
 
 
     /*
-     * =====================================================
-     * TOTAL PAGES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
 
     const totalPages =
         Math.ceil(
@@ -666,18 +839,17 @@ const IncomeList = () => {
         ) || 1;
 
 
-    /*
-     * =====================================================
-     * RECORD RANGE
-     * =====================================================
-     */
-
     const startRecord =
         total === 0
 
             ? 0
 
-            : ((page - 1) * limit) + 1;
+            : (
+                (
+                    page - 1
+                ) *
+                limit
+            ) + 1;
 
 
     const endRecord =
@@ -691,152 +863,254 @@ const IncomeList = () => {
 
 
     /*
-     * =====================================================
-     * GET PAYMENT IMAGE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Payment Mode Image
+    |--------------------------------------------------------------------------
+    */
 
-    const getPaymentModeImage = (
-        paymentModeName
-    ) => {
+    const getPaymentModeImage =
+        (mode) => {
 
-        if (!paymentModeName) {
+            if (!mode) {
 
-            return null;
+                return null;
 
-        }
+            }
 
 
-        /*
-         * Exact match
-         */
+            if (
+                PaymentModeImages[mode]
+            ) {
 
-        if (
-            PaymentModeImages[
-            paymentModeName
-            ]
-        ) {
+                return (
+                    PaymentModeImages[mode]
+                );
+
+            }
+
+
+            const matchedMode =
+                Object.keys(
+                    PaymentModeImages
+                ).find(
+
+                    key =>
+                        key.toLowerCase() ===
+                        String(
+                            mode
+                        ).toLowerCase()
+
+                );
+
+
+            if (
+                matchedMode
+            ) {
+
+                return (
+                    PaymentModeImages[
+                        matchedMode
+                    ]
+                );
+
+            }
+
 
             return (
-                PaymentModeImages[
-                paymentModeName
-                ]
+                PaymentModeImages.Other
             );
 
-        }
-
-
-        /*
-         * Case-insensitive match
-         */
-
-        const matchedMode =
-            Object.keys(
-                PaymentModeImages
-            ).find(
-
-                key =>
-
-                    key.toLowerCase() ===
-                    String(
-                        paymentModeName
-                    ).toLowerCase()
-
-            );
-
-
-        return matchedMode
-
-            ? PaymentModeImages[
-            matchedMode
-            ]
-
-            : PaymentModeImages.Other;
-
-    };
+        };
 
 
     /*
-     * =====================================================
-     * GET BANK IMAGE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Get Account
+    |--------------------------------------------------------------------------
+    |
+    | New records:
+    | item.account = populated object
+    |
+    | Older records:
+    | item.account = ObjectId
+    |
+    | Very old records:
+    | item.bank = "icici"
+    |--------------------------------------------------------------------------
+    */
 
-    const getBankImage = (
-        bankName
-    ) => {
+    const getAccount =
+        (item) => {
 
-        if (!bankName) {
+            /*
+            |--------------------------------------------------------------------------
+            | Populated account
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                item.account &&
+                typeof item.account ===
+                "object"
+            ) {
+
+                return item.account;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Account ID
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                item.account
+            ) {
+
+                const found =
+                    accounts.find(
+
+                        accountItem =>
+
+                            String(
+                                accountItem._id
+                            ) ===
+                            String(
+                                item.account
+                            )
+
+                    );
+
+
+                if (
+                    found
+                ) {
+
+                    return found;
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | OLD BANK DATA
+            |--------------------------------------------------------------------------
+            |
+            | Existing income records contain:
+            |
+            | bank: "icici"
+            |
+            | We show the bank as fallback.
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                item.bank
+            ) {
+
+                return {
+
+                    name:
+                        `${item.bank} Bank`,
+
+                    bank:
+                        item.bank,
+
+                    isLegacy:
+                        true
+
+                };
+
+            }
+
 
             return null;
 
-        }
-
-
-        /*
-         * Exact match
-         */
-
-        if (
-            bankImages[bankName]
-        ) {
-
-            return bankImages[bankName];
-
-        }
-
-
-        /*
-         * Case-insensitive match
-         */
-
-        const matchedBank =
-            Object.keys(
-                bankImages
-            ).find(
-
-                key =>
-
-                    key.toLowerCase() ===
-                    String(
-                        bankName
-                    ).toLowerCase()
-
-            );
-
-
-        return matchedBank
-
-            ? bankImages[
-            matchedBank
-            ]
-
-            : bankImages.Other;
-
-    };
+        };
 
 
     /*
-     * =====================================================
-     * RENDER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | Format Date
+    |--------------------------------------------------------------------------
+    */
+
+    const formatDate =
+        (date) => {
+
+            if (!date) {
+
+                return "-";
+
+            }
+
+
+            const parsedDate =
+                new Date(
+                    date
+                );
+
+
+            if (
+                Number.isNaN(
+                    parsedDate.getTime()
+                )
+            ) {
+
+                return "-";
+
+            }
+
+
+            return parsedDate.toLocaleDateString(
+
+                "en-IN",
+
+                {
+
+                    day:
+                        "2-digit",
+
+                    month:
+                        "short",
+
+                    year:
+                        "numeric"
+
+                }
+
+            );
+
+        };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
         <div className="container-fluid">
 
 
-            {/* =================================================
+            {/* =====================================================
                 HEADER
-            ================================================= */}
+            ====================================================== */}
 
             <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
                 <div className="d-flex align-items-center gap-4">
 
                     <h3 className="mb-0">
+
                         Income List
+
                     </h3>
 
 
@@ -851,7 +1125,13 @@ const IncomeList = () => {
                             "en-IN",
 
                             {
-                                maximumFractionDigits: 2
+
+                                minimumFractionDigits:
+                                    0,
+
+                                maximumFractionDigits:
+                                    2
+
                             }
 
                         )}
@@ -873,9 +1153,9 @@ const IncomeList = () => {
             </div>
 
 
-            {/* =================================================
-                FILTER CARD
-            ================================================= */}
+            {/* =====================================================
+                FILTER
+            ====================================================== */}
 
             <div className="card mb-3">
 
@@ -894,7 +1174,9 @@ const IncomeList = () => {
                         <div className="col-12 col-lg-2">
 
                             <label className="form-label">
+
                                 Search
+
                             </label>
 
 
@@ -921,7 +1203,9 @@ const IncomeList = () => {
                         <div className="col-12 col-lg-2">
 
                             <label className="form-label">
+
                                 Category
+
                             </label>
 
 
@@ -939,7 +1223,9 @@ const IncomeList = () => {
                             >
 
                                 <option value="">
+
                                     All Categories
+
                                 </option>
 
 
@@ -969,12 +1255,14 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* PAYMENT MODE */}
+                        {/* PAYMENT */}
 
                         <div className="col-12 col-lg-2">
 
                             <label className="form-label">
+
                                 Payment Mode
+
                             </label>
 
 
@@ -992,7 +1280,9 @@ const IncomeList = () => {
                             >
 
                                 <option value="">
+
                                     All Payment Modes
+
                                 </option>
 
 
@@ -1000,11 +1290,17 @@ const IncomeList = () => {
                                     mode => (
 
                                         <option
-                                            key={mode}
-                                            value={mode}
+                                            key={
+                                                mode
+                                            }
+                                            value={
+                                                mode
+                                            }
                                         >
 
-                                            {mode}
+                                            {
+                                                mode
+                                            }
 
                                         </option>
 
@@ -1016,42 +1312,58 @@ const IncomeList = () => {
                         </div>
 
 
-                        {/* BANK */}
+                        {/* ACCOUNT */}
 
                         <div className="col-12 col-lg-2">
 
                             <label className="form-label">
-                                Bank
+
+                                Account
+
                             </label>
 
 
                             <select
                                 className="form-select"
                                 value={
-                                    bankInput
+                                    accountInput
                                 }
                                 onChange={
                                     event =>
-                                        setBankInput(
+                                        setAccountInput(
                                             event.target.value
                                         )
                                 }
                             >
 
                                 <option value="">
-                                    All Banks
+
+                                    All Accounts
+
                                 </option>
 
 
-                                {banks.map(
-                                    bankName => (
+                                {accounts.map(
+                                    accountItem => (
 
                                         <option
-                                            key={bankName}
-                                            value={bankName}
+                                            key={
+                                                accountItem._id
+                                            }
+                                            value={
+                                                accountItem._id
+                                            }
                                         >
 
-                                            {bankName}
+                                            {
+                                                accountItem.name
+                                            }
+
+                                            {" - "}
+
+                                            {
+                                                accountItem.bank
+                                            }
 
                                         </option>
 
@@ -1068,7 +1380,9 @@ const IncomeList = () => {
                         <div className="col-6 col-lg-1">
 
                             <label className="form-label">
+
                                 From
+
                             </label>
 
 
@@ -1094,7 +1408,9 @@ const IncomeList = () => {
                         <div className="col-6 col-lg-1">
 
                             <label className="form-label">
+
                                 To
+
                             </label>
 
 
@@ -1120,13 +1436,17 @@ const IncomeList = () => {
                         <div className="col-6 col-lg-1">
 
                             <label className="form-label">
+
                                 Per page
+
                             </label>
 
 
                             <select
                                 className="form-select"
-                                value={limit}
+                                value={
+                                    limit
+                                }
                                 onChange={
                                     event => {
 
@@ -1197,22 +1517,6 @@ const IncomeList = () => {
                                 onClick={
                                     handleClearFilter
                                 }
-                                disabled={
-
-                                    !searchInput &&
-                                    !search &&
-                                    !categoryInput &&
-                                    !category &&
-                                    !paymentModeInput &&
-                                    !paymentMode &&
-                                    !bankInput &&
-                                    !bank &&
-                                    !fromDateInput &&
-                                    !toDateInput &&
-                                    !fromDate &&
-                                    !toDate
-
-                                }
                             >
 
                                 Clear
@@ -1228,9 +1532,9 @@ const IncomeList = () => {
             </div>
 
 
-            {/* =================================================
-                INCOME TABLE
-            ================================================= */}
+            {/* =====================================================
+                TABLE
+            ====================================================== */}
 
             <div className="card">
 
@@ -1262,15 +1566,15 @@ const IncomeList = () => {
                                     Payment
                                 </th>
 
-                                <th className="text-center">
-                                    Bank
+                                <th>
+                                    Account
                                 </th>
 
                                 <th>
                                     Date
                                 </th>
 
-                                <th width="170">
+                                <th>
                                     Action
                                 </th>
 
@@ -1281,24 +1585,25 @@ const IncomeList = () => {
 
                         <tbody>
 
-
-                            {/* LOADING */}
-
                             {loading ? (
 
                                 <tr>
 
                                     <td
                                         colSpan="8"
-                                        className="text-center py-4"
+                                        className="text-center py-5"
                                     >
 
                                         <div
-                                            className="spinner-border spinner-border-sm me-2"
+                                            className="spinner-border text-primary"
                                             role="status"
                                         />
 
-                                        Loading...
+                                        <div className="mt-2 text-muted">
+
+                                            Loading income...
+
+                                        </div>
 
                                     </td>
 
@@ -1310,7 +1615,7 @@ const IncomeList = () => {
 
                                     <td
                                         colSpan="8"
-                                        className="text-center text-muted py-4"
+                                        className="text-center text-muted py-5"
                                     >
 
                                         No Record Found
@@ -1333,9 +1638,9 @@ const IncomeList = () => {
                                             );
 
 
-                                        const bankImage =
-                                            getBankImage(
-                                                item.bank
+                                        const selectedAccount =
+                                            getAccount(
+                                                item
                                             );
 
 
@@ -1348,13 +1653,16 @@ const IncomeList = () => {
                                             >
 
 
-                                                {/* # */}
+                                                {/* NUMBER */}
 
                                                 <td>
 
                                                     {
                                                         (
-                                                            (page - 1) *
+                                                            (
+                                                                page -
+                                                                1
+                                                            ) *
                                                             limit
                                                         ) +
                                                         index +
@@ -1368,10 +1676,27 @@ const IncomeList = () => {
 
                                                 <td>
 
-                                                    {
-                                                        item.title ||
-                                                        "-"
-                                                    }
+                                                    <div className="fw-semibold">
+
+                                                        {
+                                                            item.title ||
+                                                            "-"
+                                                        }
+
+                                                    </div>
+
+
+                                                    {item.note && (
+
+                                                        <small className="text-muted">
+
+                                                            {
+                                                                item.note
+                                                            }
+
+                                                        </small>
+
+                                                    )}
 
                                                 </td>
 
@@ -1380,21 +1705,30 @@ const IncomeList = () => {
 
                                                 <td>
 
-                                                    ₹{" "}
+                                                    <span className="fw-bold text-success">
 
-                                                    {Number(
-                                                        item.amount ||
-                                                        0
-                                                    ).toLocaleString(
+                                                        +₹{" "}
 
-                                                        "en-IN",
+                                                        {Number(
+                                                            item.amount ||
+                                                            0
+                                                        ).toLocaleString(
 
-                                                        {
-                                                            maximumFractionDigits:
-                                                                2
-                                                        }
+                                                            "en-IN",
 
-                                                    )}
+                                                            {
+
+                                                                minimumFractionDigits:
+                                                                    2,
+
+                                                                maximumFractionDigits:
+                                                                    2
+
+                                                            }
+
+                                                        )}
+
+                                                    </span>
 
                                                 </td>
 
@@ -1423,36 +1757,60 @@ const IncomeList = () => {
                                                 </td>
 
 
-                                                {/* ================PAYMENT MODE IMAGE========== */}
+                                                {/* PAYMENT */}
 
-                                                <td className="text-center">
+                                                <td>
 
                                                     {item.paymentMode ? (
 
                                                         paymentImage ? (
 
                                                             <img
-                                                                src={paymentImage}
-                                                                alt={item.paymentMode}
-                                                                title={item.paymentMode}
+                                                                src={
+                                                                    paymentImage
+                                                                }
+                                                                alt={
+                                                                    item.paymentMode
+                                                                }
+                                                                title={
+                                                                    item.paymentMode
+                                                                }
                                                                 style={{
-                                                                    width: "65px",
-                                                                    height: "55px",
-                                                                    objectFit: "contain",
-                                                                    display: "inline-block"
-                                                                }}
-                                                                onError={(event) => {
 
-                                                                    event.currentTarget.src =
-                                                                        PaymentModeImages.Other;
+                                                                    width:
+                                                                        "55px",
+
+                                                                    height:
+                                                                        "40px",
+
+                                                                    objectFit:
+                                                                        "contain",
+
+                                                                    display:
+                                                                        "inline-block"
 
                                                                 }}
+                                                                onError={
+                                                                    event => {
+
+                                                                        event.currentTarget.onerror =
+                                                                            null;
+
+                                                                        event.currentTarget.src =
+                                                                            PaymentModeImages.Other;
+
+                                                                    }
+                                                                }
                                                             />
 
                                                         ) : (
 
                                                             <span>
-                                                                {item.paymentMode}
+
+                                                                {
+                                                                    item.paymentMode
+                                                                }
+
                                                             </span>
 
                                                         )
@@ -1460,7 +1818,9 @@ const IncomeList = () => {
                                                     ) : (
 
                                                         <span className="text-muted">
+
                                                             -
+
                                                         </span>
 
                                                     )}
@@ -1468,63 +1828,85 @@ const IncomeList = () => {
                                                 </td>
 
 
-                                                {/* ======BANK IMAGE======================= */}
+                                                {/* ACCOUNT */}
 
-                                                <td className="text-center">
+                                                <td>
 
-                                                    {item.bank ? (
+                                                    {selectedAccount ? (
 
-                                                        bankImage ? (
+                                                        <div>
 
-                                                            <img
-                                                                src={bankImage}
-                                                                alt={item.bank}
-                                                                title={item.bank}
-                                                                style={{
-                                                                    width: "65px",
-                                                                    height: "55px",
-                                                                    objectFit: "contain",
-                                                                    display: "inline-block"
-                                                                }}
-                                                                onError={(event) => {
+                                                            <div className="fw-semibold">
 
-                                                                    event.currentTarget.src =
-                                                                        bankImages.Other;
+                                                                {
+                                                                    selectedAccount.name ||
+                                                                    "-"
+                                                                }
 
-                                                                }}
-                                                            />
+                                                            </div>
 
-                                                        ) : (
 
-                                                            <span>
-                                                                {item.bank}
-                                                            </span>
+                                                            <small className="text-muted">
 
-                                                        )
+                                                                {
+                                                                    selectedAccount.bank ||
+                                                                    ""
+                                                                }
+
+
+                                                                {selectedAccount.accountType && (
+
+                                                                    <>
+                                                                        {" · "}
+
+                                                                        {
+                                                                            selectedAccount.accountType
+                                                                        }
+
+                                                                    </>
+
+                                                                )}
+
+                                                            </small>
+
+
+                                                            {selectedAccount.isLegacy && (
+
+                                                                <div>
+
+                                                                    <small className="text-warning">
+
+                                                                        Legacy bank
+
+                                                                    </small>
+
+                                                                </div>
+
+                                                            )}
+
+                                                        </div>
 
                                                     ) : (
 
                                                         <span className="text-muted">
-                                                            -
+
+                                                            Not linked
+
                                                         </span>
 
                                                     )}
 
                                                 </td>
+
+
                                                 {/* DATE */}
 
                                                 <td>
 
                                                     {
-                                                        item.date
-
-                                                            ? new Date(
-                                                                item.date
-                                                            ).toLocaleDateString(
-                                                                "en-IN"
-                                                            )
-
-                                                            : "-"
+                                                        formatDate(
+                                                            item.date
+                                                        )
                                                     }
 
                                                 </td>
@@ -1534,31 +1916,35 @@ const IncomeList = () => {
 
                                                 <td>
 
-                                                    <Link
-                                                        className="btn btn-warning btn-sm me-2"
-                                                        to={
-                                                            `/income/edit/${item._id}`
-                                                        }
-                                                    >
+                                                    <div className="d-flex gap-2">
 
-                                                        Edit
+                                                        <Link
+                                                            to={
+                                                                `/income/edit/${item._id}`
+                                                            }
+                                                            className="btn btn-warning btn-sm"
+                                                        >
 
-                                                    </Link>
+                                                            Edit
+
+                                                        </Link>
 
 
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item._id
-                                                            )
-                                                        }
-                                                    >
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    item._id
+                                                                )
+                                                            }
+                                                        >
 
-                                                        Delete
+                                                            Delete
 
-                                                    </button>
+                                                        </button>
+
+                                                    </div>
 
                                                 </td>
 
@@ -1567,6 +1953,7 @@ const IncomeList = () => {
                                         );
 
                                     }
+
                                 )
 
                             )}
@@ -1578,11 +1965,11 @@ const IncomeList = () => {
                 </div>
 
 
-                {/* =================================================
-                    FOOTER / PAGINATION
-                ================================================= */}
+                {/* =====================================================
+                    FOOTER
+                ====================================================== */}
 
-                <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
+                <div className="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
 
                     <small className="text-muted">
 
@@ -1603,31 +1990,35 @@ const IncomeList = () => {
                     </small>
 
 
-                    <Pagination
-                        page={page}
-                        limit={limit}
-                        total={total}
-                        onPageChange={
-                            nextPage => {
+                    {total > 0 && (
 
-                                if (
+                        <Pagination
+                            page={page}
+                            limit={limit}
+                            total={total}
+                            onPageChange={
+                                nextPage => {
 
-                                    nextPage >= 1 &&
+                                    if (
 
-                                    nextPage <=
-                                    totalPages
+                                        nextPage >= 1 &&
 
-                                ) {
+                                        nextPage <=
+                                        totalPages
 
-                                    setPage(
-                                        nextPage
-                                    );
+                                    ) {
+
+                                        setPage(
+                                            nextPage
+                                        );
+
+                                    }
 
                                 }
-
                             }
-                        }
-                    />
+                        />
+
+                    )}
 
                 </div>
 

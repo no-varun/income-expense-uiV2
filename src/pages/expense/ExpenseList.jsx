@@ -5,7 +5,9 @@ import {
     useState
 } from "react";
 
-import { Link } from "react-router-dom";
+import {
+    Link
+} from "react-router-dom";
 
 import {
     deleteExpense,
@@ -14,69 +16,20 @@ import {
     importExpensesExcel
 } from "../../api/expenseApi";
 
-import { getCategories } from "../../api/categoryApi";
-import { getShops } from "../../api/shopApi";
-
-import Pagination from "../../components/common/Pagination";
+import {
+    getCategories
+} from "../../api/categoryApi";
 
 import {
-    getCategoryBadgeStyle
-} from "../../utils/badgeStyles";
+    getShops
+} from "../../api/shopApi";
 
+import {
+    getAccounts
+} from "../../api/accountApi";
 
-/*
- * =====================================================
- * BANK IMAGES
- * =====================================================
- */
-
-const bankImages = {
-
-    Pnb: "/images/banks/pnb.png",
-
-    Rbl: "/images/banks/rbl.png",
-
-    icici: "/images/banks/icici.png",
-
-    Cash: "/images/banks/cash.png",
-
-    Other: "/images/banks/card.png"
-
-};
-
-
-/*
- * =====================================================
- * PAYMENT MODE IMAGES
- * =====================================================
- */
-
-const PaymentModeImages = {
-
-    Bhim: "/images/payment/Bhim.png",
-
-    "AmazonPay":
-        "/images/payment/amazonpay.png",
-
-    "BankTransfer":
-        "/images/payment/BankTransfer.png",
-
-    GPay:
-        "/images/payment/GPay.png",
-
-    PhonePe:
-        "/images/payment/phonepe.png",
-
-    Paytm:
-        "/images/payment/paytm.png",
-
-    Cash:
-        "/images/payment/cash.png",
-
-    Other:
-        "/images/payment/card.png"
-
-};
+import Pagination
+    from "../../components/common/Pagination";
 
 
 const ExpenseList = () => {
@@ -85,349 +38,227 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * DATA
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | DATA
+    |--------------------------------------------------------------------------
+    */
 
-    const [expenses, setExpenses] =
-        useState([]);
+    const [expenses, setExpenses] = useState([]);
 
-    const [categories, setCategories] =
-        useState([]);
+    const [categories, setCategories] = useState([]);
 
-    const [shops, setShops] =
-        useState([]);
+    const [shops, setShops] = useState([]);
 
-    const [total, setTotal] =
-        useState(0);
-
-    const [totalAmount, setTotalAmount] =
-        useState(0);
+    const [accounts, setAccounts] = useState([]);
 
 
     /*
-     * =====================================================
-     * LOADING
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
-    const [loading, setLoading] =
-        useState(true);
+    const [total, setTotal] = useState(0);
 
-    const [importing, setImporting] =
-        useState(false);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const [exporting, setExporting] =
-        useState(false);
+    const [page, setPage] = useState(1);
 
-    const [categoryLoading, setCategoryLoading] =
-        useState(false);
-
-    const [shopLoading, setShopLoading] =
-        useState(false);
+    const [limit, setLimit] = useState(10);
 
 
     /*
-     * =====================================================
-     * SEARCH
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | TOTAL EXPENSE
+    |--------------------------------------------------------------------------
+    */
 
-    const [searchInput, setSearchInput] =
-        useState("");
-
-    const [search, setSearch] =
-        useState("");
+    const [totalAmount, setTotalAmount] = useState(0);
 
 
     /*
-     * =====================================================
-     * CATEGORY
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
 
-    const [categoryInput, setCategoryInput] =
-        useState("");
+    const [loading, setLoading] = useState(true);
 
-    const [category, setCategory] =
-        useState("");
+    const [importing, setImporting] = useState(false);
 
-
-    /*
-     * =====================================================
-     * SHOP TYPE
-     * =====================================================
-     */
-
-    const [shopTypeInput, setShopTypeInput] =
-        useState("");
-
-    const [shopType, setShopType] =
-        useState("");
+    const [exporting, setExporting] = useState(false);
 
 
     /*
-     * =====================================================
-     * SHOP
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | FILTERS
+    |--------------------------------------------------------------------------
+    */
 
-    const [shopInput, setShopInput] =
-        useState("");
+    const [searchInput, setSearchInput] = useState("");
 
-    const [shop, setShop] =
-        useState("");
+    const [search, setSearch] = useState("");
 
 
-    /*
-     * =====================================================
-     * PAYMENT MODE
-     * =====================================================
-     */
+    const [categoryInput, setCategoryInput] = useState("");
 
-    const [paymentModeInput, setPaymentModeInput] =
-        useState("");
-
-    const [paymentMode, setPaymentMode] =
-        useState("");
+    const [category, setCategory] = useState("");
 
 
-    /*
-     * =====================================================
-     * BANK
-     * =====================================================
-     */
+    const [accountInput, setAccountInput] = useState("");
 
-    const [bankInput, setBankInput] =
-        useState("");
-
-    const [bank, setBank] =
-        useState("");
+    const [account, setAccount] = useState("");
 
 
-    /*
-     * =====================================================
-     * DATE
-     * =====================================================
-     */
+    const [shopTypeInput, setShopTypeInput] = useState("");
 
-    const [fromDateInput, setFromDateInput] =
-        useState("");
+    const [shopType, setShopType] = useState("");
 
-    const [toDateInput, setToDateInput] =
-        useState("");
 
-    const [fromDate, setFromDate] =
-        useState("");
+    const [shopInput, setShopInput] = useState("");
 
-    const [toDate, setToDate] =
-        useState("");
+    const [shop, setShop] = useState("");
+
+
+    const [paymentModeInput, setPaymentModeInput] = useState("");
+
+    const [paymentMode, setPaymentMode] = useState("");
+
+
+    const [fromDateInput, setFromDateInput] = useState("");
+
+    const [toDateInput, setToDateInput] = useState("");
+
+
+    const [fromDate, setFromDate] = useState("");
+
+    const [toDate, setToDate] = useState("");
 
 
     /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | NORMALIZE API RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
-    const [page, setPage] =
-        useState(1);
+    const normalizeResponse = (response) => {
 
-    const [limit, setLimit] =
-        useState(10);
-
-
-    /*
-     * =====================================================
-     * PAYMENT MODES
-     * =====================================================
-     */
-
-    const paymentModes = [
-
-        "Cash",
-
-        "Paytm",
-
-        "PhonePe",
-
-        "GPay",
-
-        "Bhim",
-
-        "Amazon Pay",
-
-        "Bank Transfer",
-
-        "Other"
-
-    ];
-
-
-    /*
-     * =====================================================
-     * BANKS
-     * =====================================================
-     */
-
-    const banks = [
-
-        "Pnb",
-
-        "Rbl",
-
-        "icici",
-
-        "Cash",
-
-        "Other"
-
-    ];
-
-
-    /*
-     * =====================================================
-     * SHOP TYPES
-     * =====================================================
-     */
-
-    const shopTypes = [
-
-        "ONLINE",
-
-        "OFFLINE"
-
-    ];
-
-
-    /*
-     * =====================================================
-     * GET PAYMENT MODE IMAGE
-     * =====================================================
-     */
-
-    const getPaymentModeImage = (
-        paymentModeName
-    ) => {
-
-        if (!paymentModeName) {
-
+        if (!response) {
             return null;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Axios response
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            response?.data?.success !== undefined
+        ) {
+
+            return response.data;
 
         }
 
 
-        return (
+        /*
+        |--------------------------------------------------------------------------
+        | Normal API response
+        |--------------------------------------------------------------------------
+        */
 
-            PaymentModeImages[
-                paymentModeName
-            ] ||
+        if (
+            response?.success !== undefined
+        ) {
 
-            PaymentModeImages.Other
+            return response;
 
-        );
+        }
+
+
+        return response;
 
     };
 
 
     /*
-     * =====================================================
-     * GET BANK IMAGE
-     * =====================================================
-     */
-
-    const getBankImage = (
-        bankName
-    ) => {
-
-        if (!bankName) {
-
-            return null;
-
-        }
-
-
-        return (
-
-            bankImages[
-                bankName
-            ] ||
-
-            bankImages.Other
-
-        );
-
-    };
-
-
-    /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD CATEGORIES
+    |--------------------------------------------------------------------------
+    */
 
     const loadCategories = useCallback(
         async () => {
 
             try {
 
-                setCategoryLoading(true);
-
-
                 const response =
                     await getCategories({
-
                         limit: 100,
-
                         type: "EXPENSE"
-
                     });
 
 
-                if (response.success) {
-
-                    const rows =
-
-                        response.data?.rows ||
-
-                        response.data?.data?.rows ||
-
-                        response.data?.data ||
-
-                        response.data ||
-
-                        [];
+                console.log(
+                    "Category Response:",
+                    response
+                );
 
 
-                    setCategories(
-
-                        Array.isArray(rows)
-
-                            ? rows
-
-                            : []
-
+                const payload =
+                    normalizeResponse(
+                        response
                     );
 
-                } else {
 
-                    setCategories([]);
+                let rows = [];
+
+
+                if (
+                    Array.isArray(payload)
+                ) {
+
+                    rows = payload;
 
                 }
+
+                else if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data.data;
+
+                }
+
+
+                setCategories(
+                    rows
+                );
 
             } catch (error) {
 
                 console.error(
-                    "Category fetch error:",
+                    "Category Error:",
                     error
                 );
 
                 setCategories([]);
-
-            } finally {
-
-                setCategoryLoading(false);
 
             }
 
@@ -437,72 +268,81 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * LOAD SHOPS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD SHOPS
+    |--------------------------------------------------------------------------
+    */
 
     const loadShops = useCallback(
         async () => {
 
             try {
 
-                setShopLoading(true);
-
-
                 const response =
                     await getShops({
-
                         limit: 100,
-
                         status: true
-
                     });
 
 
-                if (response.success) {
-
-                    const rows =
-
-                        response.data?.rows ||
-
-                        response.data?.data?.rows ||
-
-                        response.data?.data ||
-
-                        response.data ||
-
-                        [];
+                console.log(
+                    "Shop Response:",
+                    response
+                );
 
 
-                    setShops(
-
-                        Array.isArray(rows)
-
-                            ? rows
-
-                            : []
-
+                const payload =
+                    normalizeResponse(
+                        response
                     );
 
-                } else {
 
-                    setShops([]);
+                let rows = [];
+
+
+                if (
+                    Array.isArray(payload)
+                ) {
+
+                    rows = payload;
 
                 }
+
+                else if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data.data;
+
+                }
+
+
+                setShops(
+                    rows
+                );
 
             } catch (error) {
 
                 console.error(
-                    "Shop fetch error:",
+                    "Shop Error:",
                     error
                 );
 
                 setShops([]);
-
-            } finally {
-
-                setShopLoading(false);
 
             }
 
@@ -512,45 +352,138 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * FILTER SHOPS BY TYPE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
 
-    const filteredShops =
-        shops.filter(
-            item => {
+    const loadAccounts = useCallback(
+        async () => {
 
-                if (!shopTypeInput) {
+            try {
 
-                    return true;
+                const response =
+                    await getAccounts({
+                        limit: 100,
+                        status: true
+                    });
+
+
+                console.log(
+                    "Account Response:",
+                    response
+                );
+
+
+                const payload =
+                    normalizeResponse(
+                        response
+                    );
+
+
+                let rows = [];
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Account API can return:
+                |
+                | {
+                |    total: 3,
+                |    page: 1,
+                |    limit: 100,
+                |    rows: []
+                | }
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    Array.isArray(payload)
+                ) {
+
+                    rows =
+                        payload;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.rows;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.rows
+                    )
+                ) {
+
+                    rows =
+                        payload.data.rows;
+
+                }
+
+                else if (
+                    Array.isArray(
+                        payload?.data?.data
+                    )
+                ) {
+
+                    rows =
+                        payload.data.data;
 
                 }
 
 
-                return (
-
-                    String(
-                        item.type || ""
-                    ).toUpperCase() ===
-
-                    String(
-                        shopTypeInput || ""
-                    ).toUpperCase()
-
+                console.log(
+                    "Account Rows:",
+                    rows
                 );
 
+
+                setAccounts(
+                    rows
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Account Error:",
+                    error
+                );
+
+                setAccounts([]);
+
             }
-        );
+
+        },
+        []
+    );
 
 
     /*
-     * =====================================================
-     * LOAD EXPENSES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD EXPENSES
+    |--------------------------------------------------------------------------
+    */
 
-    const loadExpense = useCallback(
+    const loadExpenses = useCallback(
         async () => {
 
             try {
@@ -558,84 +491,329 @@ const ExpenseList = () => {
                 setLoading(true);
 
 
+                const params = {
+
+                    page,
+
+                    limit,
+
+                    search,
+
+                    category,
+
+                    account,
+
+                    shopType,
+
+                    shop,
+
+                    paymentMode,
+
+                    from: fromDate,
+
+                    to: toDate
+
+                };
+
+
+                console.log(
+                    "================================"
+                );
+
+                console.log(
+                    "EXPENSE REQUEST"
+                );
+
+                console.log(
+                    params
+                );
+
+
                 const response =
-                    await getExpenses({
-
-                        page,
-
-                        limit,
-
-                        search,
-
-                        category,
-
-                        shopType,
-
-                        shop,
-
-                        paymentMode,
-
-                        bank,
-
-                        from: fromDate,
-
-                        to: toDate
-
-                    });
-
-
-                if (response.success) {
-
-                    const rows =
-                        response.data?.data ||
-                        response.data?.rows ||
-                        response.data ||
-                        [];
-
-
-                    setExpenses(
-
-                        Array.isArray(rows)
-
-                            ? rows
-
-                            : []
-
+                    await getExpenses(
+                        params
                     );
 
 
-                    setTotal(
+                console.log(
+                    "================================"
+                );
 
-                        response.data?.total ??
-                        rows.length
+                console.log(
+                    "EXPENSE API RESPONSE"
+                );
 
-                    );
+                console.log(
+                    response
+                );
 
 
-                    setTotalAmount(
+                /*
+                |--------------------------------------------------------------------------
+                | VARIABLES
+                |--------------------------------------------------------------------------
+                */
 
-                        Number(
-                            response.data?.totalAmount ||
-                            0
-                        )
+                let rows = [];
 
-                    );
+                let totalRecords = 0;
 
-                } else {
+                let pages = 1;
 
-                    setExpenses([]);
 
-                    setTotal(0);
+                /*
+                |--------------------------------------------------------------------------
+                | CASE 1
+                |
+                | API returns array
+                |
+                | [
+                |   {...},
+                |   {...}
+                | ]
+                |--------------------------------------------------------------------------
+                */
 
-                    setTotalAmount(0);
+                if (
+                    Array.isArray(
+                        response
+                    )
+                ) {
+
+                    rows =
+                        response;
+
+                    totalRecords =
+                        rows.length;
+
+                    pages =
+                        Math.max(
+                            1,
+                            Math.ceil(
+                                totalRecords /
+                                limit
+                            )
+                        );
 
                 }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | CASE 2
+                |
+                | {
+                |   success: true,
+                |   data: [...]
+                | }
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    response &&
+                    typeof response ===
+                    "object"
+                ) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | data is array
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        Array.isArray(
+                            response.data
+                        )
+                    ) {
+
+                        rows =
+                            response.data;
+
+
+                        totalRecords =
+                            Number(
+                                response.total ||
+                                rows.length
+                            );
+
+
+                        pages =
+                            Number(
+                                response.totalPages ||
+                                Math.ceil(
+                                    totalRecords /
+                                    limit
+                                )
+                            );
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | data is object
+                    |
+                    | {
+                    |    data: {
+                    |       total: 428,
+                    |       page: 1,
+                    |       limit: 10,
+                    |       totalPages: 43,
+                    |       data: []
+                    |    }
+                    | }
+                    |--------------------------------------------------------------------------
+                    */
+
+                    else if (
+                        response.data &&
+                        typeof response.data ===
+                        "object"
+                    ) {
+
+                        const result =
+                            response.data;
+
+
+                        if (
+                            Array.isArray(
+                                result.data
+                            )
+                        ) {
+
+                            rows =
+                                result.data;
+
+
+                            totalRecords =
+                                Number(
+                                    result.total ||
+                                    rows.length
+                                );
+
+
+                            pages =
+                                Number(
+                                    result.totalPages ||
+                                    Math.ceil(
+                                        totalRecords /
+                                        (
+                                            result.limit ||
+                                            limit
+                                        )
+                                    )
+                                );
+
+                        }
+
+                    }
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | LOG RESULT
+                |--------------------------------------------------------------------------
+                */
+
+                console.log(
+                    "EXPENSE ROWS:",
+                    rows
+                );
+
+
+                console.log(
+                    "EXPENSE ROW COUNT:",
+                    rows.length
+                );
+
+
+                console.log(
+                    "TOTAL RECORDS:",
+                    totalRecords
+                );
+
+
+                console.log(
+                    "TOTAL PAGES:",
+                    pages
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SET STATE
+                |--------------------------------------------------------------------------
+                */
+
+                setExpenses(
+                    rows
+                );
+
+
+                setTotal(
+                    totalRecords
+                );
+
+
+                setTotalPages(
+                    pages
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL AMOUNT
+                |--------------------------------------------------------------------------
+                */
+
+                const amount =
+                    rows.reduce(
+                        (
+                            sum,
+                            item
+                        ) => {
+
+                            return (
+                                sum +
+                                Number(
+                                    item?.amount ||
+                                    0
+                                )
+                            );
+
+                        },
+                        0
+                    );
+
+
+                setTotalAmount(
+                    amount
+                );
+
 
             } catch (error) {
 
                 console.error(
-                    "Expense fetch error:",
+                    "================================"
+                );
+
+
+                console.error(
+                    "EXPENSE FETCH ERROR"
+                );
+
+
+                console.error(
                     error
+                );
+
+
+                console.error(
+                    "ERROR RESPONSE:",
+                    error?.response?.data
                 );
 
 
@@ -643,16 +821,9 @@ const ExpenseList = () => {
 
                 setTotal(0);
 
+                setTotalPages(1);
+
                 setTotalAmount(0);
-
-
-                alert(
-
-                    error.response?.data?.message ||
-
-                    "Unable to fetch expenses."
-
-                );
 
             } finally {
 
@@ -662,36 +833,25 @@ const ExpenseList = () => {
 
         },
         [
-
             page,
-
             limit,
-
             search,
-
             category,
-
+            account,
             shopType,
-
             shop,
-
             paymentMode,
-
-            bank,
-
             fromDate,
-
             toDate
-
         ]
     );
 
 
     /*
-     * =====================================================
-     * INITIAL LOAD
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -699,37 +859,39 @@ const ExpenseList = () => {
 
         loadShops();
 
+        loadAccounts();
+
     }, [
-
         loadCategories,
-
-        loadShops
-
+        loadShops,
+        loadAccounts
     ]);
 
 
     /*
-     * =====================================================
-     * LOAD EXPENSE DATA
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | EXPENSE LOAD
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | loadExpenses() not loadExpense()
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
-        loadExpense();
+        loadExpenses();
 
     }, [
-
-        loadExpense
-
+        loadExpenses
     ]);
 
 
     /*
-     * =====================================================
-     * APPLY FILTER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | FILTER
+    |--------------------------------------------------------------------------
+    */
 
     const handleFilter = (
         event
@@ -748,6 +910,11 @@ const ExpenseList = () => {
         );
 
 
+        setAccount(
+            accountInput
+        );
+
+
         setShopType(
             shopTypeInput
         );
@@ -760,11 +927,6 @@ const ExpenseList = () => {
 
         setPaymentMode(
             paymentModeInput
-        );
-
-
-        setBank(
-            bankInput
         );
 
 
@@ -784,47 +946,41 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * CLEAR FILTER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | CLEAR
+    |--------------------------------------------------------------------------
+    */
 
-    const handleClearFilter = () => {
+    const handleClear = () => {
 
         setSearchInput("");
 
-        setSearch("");
-
-
         setCategoryInput("");
 
-        setCategory("");
-
+        setAccountInput("");
 
         setShopTypeInput("");
 
-        setShopType("");
-
-
         setShopInput("");
 
-        setShop("");
-
-
         setPaymentModeInput("");
-
-        setPaymentMode("");
-
-
-        setBankInput("");
-
-        setBank("");
-
 
         setFromDateInput("");
 
         setToDateInput("");
 
+
+        setSearch("");
+
+        setCategory("");
+
+        setAccount("");
+
+        setShopType("");
+
+        setShop("");
+
+        setPaymentMode("");
 
         setFromDate("");
 
@@ -837,20 +993,22 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * DELETE
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
 
     const handleDelete = async (
         id
     ) => {
 
-        if (
-            !window.confirm(
-                "Delete this expense?"
-            )
-        ) {
+        const confirmed =
+            window.confirm(
+                "Are you sure you want to delete this expense?"
+            );
+
+
+        if (!confirmed) {
 
             return;
 
@@ -860,45 +1018,57 @@ const ExpenseList = () => {
         try {
 
             const response =
-                await deleteExpense(id);
-
-
-            if (response.success) {
-
-                alert(
-
-                    response.message ||
-
-                    "Expense deleted successfully."
-
+                await deleteExpense(
+                    id
                 );
 
 
-                if (
+            const payload =
+                normalizeResponse(
+                    response
+                );
 
-                    expenses.length === 1 &&
 
-                    page > 1
+            if (
+                payload?.success
+            ) {
 
-                ) {
+                alert(
+                    payload.message ||
+                    "Expense deleted successfully."
+                );
 
-                    setPage(
-                        page - 1
-                    );
 
-                } else {
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT
+                |--------------------------------------------------------------------------
+                */
 
-                    loadExpense();
+                loadExpenses();
 
-                }
+            } else {
+
+                alert(
+                    payload?.message ||
+                    "Delete failed."
+                );
 
             }
 
         } catch (error) {
 
+            console.error(
+                "Delete Expense Error:",
+                error
+            );
+
+
             alert(
 
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+
+                error?.message ||
 
                 "Delete failed."
 
@@ -910,23 +1080,29 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * IMPORT CLICK
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | IMPORT CLICK
+    |--------------------------------------------------------------------------
+    */
 
     const handleImportClick = () => {
 
-        fileInputRef.current?.click();
+        if (
+            fileInputRef.current
+        ) {
+
+            fileInputRef.current.click();
+
+        }
 
     };
 
 
     /*
-     * =====================================================
-     * IMPORT
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | IMPORT EXCEL
+    |--------------------------------------------------------------------------
+    */
 
     const handleImport = async (
         event
@@ -954,32 +1130,55 @@ const ExpenseList = () => {
                 );
 
 
-            if (response.success) {
-
-                alert(
-
-                    `${response.data.imported} expenses imported successfully.`
-
+            const payload =
+                normalizeResponse(
+                    response
                 );
 
 
-                if (page === 1) {
+            if (
+                payload?.success
+            ) {
 
-                    loadExpense();
+                alert(
+                    payload.message ||
+                    "Expenses imported successfully."
+                );
 
-                } else {
 
-                    setPage(1);
+                setPage(1);
 
-                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT
+                |--------------------------------------------------------------------------
+                */
+
+                loadExpenses();
+
+            } else {
+
+                alert(
+                    payload?.message ||
+                    "Import failed."
+                );
 
             }
 
         } catch (error) {
 
+            console.error(
+                "Import Error:",
+                error
+            );
+
+
             alert(
 
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+
+                error?.message ||
 
                 "Import failed."
 
@@ -989,6 +1188,7 @@ const ExpenseList = () => {
 
             setImporting(false);
 
+
             event.target.value = "";
 
         }
@@ -997,10 +1197,10 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * EXPORT
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | EXPORT EXCEL
+    |--------------------------------------------------------------------------
+    */
 
     const handleExport = async () => {
 
@@ -1016,13 +1216,13 @@ const ExpenseList = () => {
 
                     category,
 
+                    account,
+
                     shopType,
 
                     shop,
 
                     paymentMode,
-
-                    bank,
 
                     from: fromDate,
 
@@ -1043,7 +1243,8 @@ const ExpenseList = () => {
                 );
 
 
-            link.href = url;
+            link.href =
+                url;
 
 
             link.download =
@@ -1067,9 +1268,17 @@ const ExpenseList = () => {
 
         } catch (error) {
 
+            console.error(
+                "Export Error:",
+                error
+            );
+
+
             alert(
 
-                error.response?.data?.message ||
+                error?.response?.data?.message ||
+
+                error?.message ||
 
                 "Export failed."
 
@@ -1085,24 +1294,266 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | FILTERED SHOPS
+    |--------------------------------------------------------------------------
+    */
 
-    const totalPages =
-        Math.ceil(
-            total / limit
-        ) || 1;
+    const filteredShops =
+        shops.filter(
+            item => {
 
+                if (
+                    !shopTypeInput
+                ) {
+
+                    return true;
+
+                }
+
+
+                return (
+
+                    String(
+                        item.type || ""
+                    ).toUpperCase() ===
+
+                    String(
+                        shopTypeInput
+                    ).toUpperCase()
+
+                );
+
+            }
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCOUNT NAME
+    |--------------------------------------------------------------------------
+    */
+
+    const getAccountName = (
+        item
+    ) => {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Populated account
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            item?.account?.name
+        ) {
+
+            return item.account.name;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Account ID
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            typeof item?.account ===
+            "string"
+        ) {
+
+            const found =
+                accounts.find(
+                    accountItem =>
+                        String(
+                            accountItem?._id
+                        ) ===
+                        String(
+                            item.account
+                        )
+                );
+
+
+            if (found) {
+
+                return (
+                    found.name ||
+                    found.accountName ||
+                    "-"
+                );
+
+            }
+
+        }
+
+
+        return "-";
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHOP NAME
+    |--------------------------------------------------------------------------
+    */
+
+    const getShopName = (
+        item
+    ) => {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Populated shop
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            item?.shop?.name
+        ) {
+
+            return item.shop.name;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | shopName
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            item?.shopName
+        ) {
+
+            return item.shopName;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Shop ID
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            typeof item?.shop ===
+            "string"
+        ) {
+
+            const found =
+                shops.find(
+                    shopItem =>
+                        String(
+                            shopItem?._id
+                        ) ===
+                        String(
+                            item.shop
+                        )
+                );
+
+
+            if (found) {
+
+                return (
+                    found.name ||
+                    "-"
+                );
+
+            }
+
+        }
+
+
+        return "-";
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT AMOUNT
+    |--------------------------------------------------------------------------
+    */
+
+    const formatAmount = (
+        amount
+    ) => {
+
+        return Number(
+            amount || 0
+        ).toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            }
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT DATE
+    |--------------------------------------------------------------------------
+    */
+
+    const formatDate = (
+        date
+    ) => {
+
+        if (!date) {
+
+            return "-";
+
+        }
+
+
+        const parsedDate =
+            new Date(date);
+
+
+        if (
+            Number.isNaN(
+                parsedDate.getTime()
+            )
+        ) {
+
+            return "-";
+
+        }
+
+
+        return parsedDate.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION DISPLAY
+    |--------------------------------------------------------------------------
+    */
 
     const startRecord =
         total === 0
-
             ? 0
-
             : (
-                (page - 1) *
+                (
+                    page - 1
+                ) *
                 limit
             ) + 1;
 
@@ -1115,66 +1566,55 @@ const ExpenseList = () => {
 
 
     /*
-     * =====================================================
-     * RENDER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="container-fluid">
+        <div className="container-fluid px-4 py-3">
 
 
-            {/* =================================================
-                HEADER
-            ================================================= */}
+            {/* HEADER */}
 
-            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
 
-                <div className="d-flex align-items-center gap-4">
+                <div>
 
-                    <h3 className="mb-0">
+                    <h3 className="mb-1 fw-bold">
 
                         Expense List
 
                     </h3>
 
 
-                    <h5 className="mb-0 text-danger">
+                    <div className="text-danger fw-semibold fs-5">
 
-                        Total Expense: ₹{" "}
-
-                        {Number(
-                            totalAmount || 0
-                        ).toLocaleString(
-                            "en-IN",
-                            {
-                                maximumFractionDigits: 2
-                            }
+                        Total Expense: ₹
+                        {formatAmount(
+                            totalAmount
                         )}
 
-                    </h5>
+                    </div>
 
                 </div>
 
 
                 <div className="d-flex gap-2 flex-wrap">
 
-
-                    {/* FILE INPUT */}
-
                     <input
-                        ref={fileInputRef}
+                        ref={
+                            fileInputRef
+                        }
                         type="file"
-                        accept=".xlsx"
+                        accept=".xlsx,.xls"
                         className="d-none"
                         onChange={
                             handleImport
                         }
                     />
 
-
-                    {/* IMPORT */}
 
                     <button
                         type="button"
@@ -1188,17 +1628,12 @@ const ExpenseList = () => {
                     >
 
                         {importing
-
                             ? "Importing..."
-
                             : "Import Excel"
-
                         }
 
                     </button>
 
-
-                    {/* EXPORT */}
 
                     <button
                         type="button"
@@ -1212,24 +1647,19 @@ const ExpenseList = () => {
                     >
 
                         {exporting
-
                             ? "Exporting..."
-
                             : "Export Excel"
-
                         }
 
                     </button>
 
-
-                    {/* ADD */}
 
                     <Link
                         to="/expense/add"
                         className="btn btn-primary"
                     >
 
-                        Add Expense
+                        + Add Expense
 
                     </Link>
 
@@ -1238,478 +1668,442 @@ const ExpenseList = () => {
             </div>
 
 
-            {/* =================================================
-                FILTER CARD
-            ================================================= */}
+            {/* FILTER CARD */}
 
-            <div className="card mb-3">
+            <div className="card border-0 shadow-sm mb-3">
 
                 <div className="card-body">
 
                     <form
-                        className="row g-3 align-items-end"
                         onSubmit={
                             handleFilter
                         }
                     >
 
-
-                        {/* SEARCH */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Search
-
-                            </label>
+                        <div className="row g-3 align-items-end">
 
 
-                            <input
-                                type="search"
-                                className="form-control"
-                                value={
-                                    searchInput
-                                }
-                                onChange={
-                                    event =>
-                                        setSearchInput(
-                                            event.target.value
-                                        )
-                                }
-                                placeholder="Search title"
-                            />
+                            {/* SEARCH */}
 
-                        </div>
+                            <div className="col-12 col-md-6 col-lg-2">
 
+                                <label className="form-label">
+                                    Search
+                                </label>
 
-                        {/* CATEGORY */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Category
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={
-                                    categoryInput
-                                }
-                                onChange={
-                                    event =>
-                                        setCategoryInput(
-                                            event.target.value
-                                        )
-                                }
-                                disabled={
-                                    categoryLoading
-                                }
-                            >
-
-                                <option value="">
-
-                                    All Categories
-
-                                </option>
-
-
-                                {categories.map(
-                                    categoryItem => (
-
-                                        <option
-                                            key={
-                                                categoryItem._id
-                                            }
-                                            value={
-                                                categoryItem._id
-                                            }
-                                        >
-
-                                            {
-                                                categoryItem.name
-                                            }
-
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* SHOP TYPE */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Shop Type
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={
-                                    shopTypeInput
-                                }
-                                onChange={
-                                    event => {
-
-                                        setShopTypeInput(
-                                            event.target.value
-                                        );
-
-                                        setShopInput("");
-
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="Search title"
+                                    value={
+                                        searchInput
                                     }
-                                }
-                            >
-
-                                <option value="">
-
-                                    All Shop Types
-
-                                </option>
-
-
-                                {shopTypes.map(
-                                    type => (
-
-                                        <option
-                                            key={type}
-                                            value={type}
-                                        >
-
-                                            {type}
-
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* SHOP */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Shop
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={
-                                    shopInput
-                                }
-                                onChange={
-                                    event =>
-                                        setShopInput(
-                                            event.target.value
-                                        )
-                                }
-                                disabled={
-                                    shopLoading
-                                }
-                            >
-
-                                <option value="">
-
-                                    All Shops
-
-                                </option>
-
-
-                                {filteredShops.map(
-                                    shopItem => (
-
-                                        <option
-                                            key={
-                                                shopItem._id
-                                            }
-                                            value={
-                                                shopItem._id
-                                            }
-                                        >
-
-                                            {
-                                                shopItem.name
-                                            }
-
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* PAYMENT MODE */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Payment Mode
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={
-                                    paymentModeInput
-                                }
-                                onChange={
-                                    event =>
-                                        setPaymentModeInput(
-                                            event.target.value
-                                        )
-                                }
-                            >
-
-                                <option value="">
-
-                                    All Payment Modes
-
-                                </option>
-
-
-                                {paymentModes.map(
-                                    mode => (
-
-                                        <option
-                                            key={mode}
-                                            value={mode}
-                                        >
-
-                                            {mode}
-
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* BANK */}
-
-                        <div className="col-12 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                Bank
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={
-                                    bankInput
-                                }
-                                onChange={
-                                    event =>
-                                        setBankInput(
-                                            event.target.value
-                                        )
-                                }
-                            >
-
-                                <option value="">
-
-                                    All Banks
-
-                                </option>
-
-
-                                {banks.map(
-                                    bankItem => (
-
-                                        <option
-                                            key={
-                                                bankItem
-                                            }
-                                            value={
-                                                bankItem
-                                            }
-                                        >
-
-                                            {bankItem}
-
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* FROM */}
-
-                        <div className="col-6 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                From
-
-                            </label>
-
-
-                            <input
-                                type="date"
-                                className="form-control"
-                                value={
-                                    fromDateInput
-                                }
-                                onChange={
-                                    event =>
-                                        setFromDateInput(
-                                            event.target.value
-                                        )
-                                }
-                            />
-
-                        </div>
-
-
-                        {/* TO */}
-
-                        <div className="col-6 col-md-6 col-lg-2">
-
-                            <label className="form-label">
-
-                                To
-
-                            </label>
-
-
-                            <input
-                                type="date"
-                                className="form-control"
-                                value={
-                                    toDateInput
-                                }
-                                onChange={
-                                    event =>
-                                        setToDateInput(
-                                            event.target.value
-                                        )
-                                }
-                            />
-
-                        </div>
-
-
-                        {/* PER PAGE */}
-
-                        <div className="col-6 col-md-3 col-lg-1">
-
-                            <label className="form-label">
-
-                                Per Page
-
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={limit}
-                                onChange={
-                                    event => {
-
-                                        setLimit(
-                                            Number(
+                                    onChange={
+                                        event =>
+                                            setSearchInput(
                                                 event.target.value
                                             )
-                                        );
-
-                                        setPage(1);
-
                                     }
-                                }
-                            >
+                                />
 
-                                <option value="10">
-                                    10
-                                </option>
-
-                                <option value="25">
-                                    25
-                                </option>
-
-                                <option value="50">
-                                    50
-                                </option>
-
-                                <option value="75">
-                                    75
-                                </option>
-
-                                <option value="100">
-                                    100
-                                </option>
-
-                                <option value="150">
-                                    150
-                                </option>
-
-                            </select>
-
-                        </div>
+                            </div>
 
 
-                        {/* FILTER */}
+                            {/* CATEGORY */}
 
-                        <div className="col-6 col-md-3 col-lg-1">
+                            <div className="col-12 col-md-6 col-lg-2">
 
-                            <button
-                                type="submit"
-                                className="btn btn-dark w-100"
-                            >
+                                <label className="form-label">
+                                    Category
+                                </label>
 
-                                Filter
+                                <select
+                                    className="form-select"
+                                    value={
+                                        categoryInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setCategoryInput(
+                                                event.target.value
+                                            )
+                                    }
+                                >
 
-                            </button>
+                                    <option value="">
+                                        All Categories
+                                    </option>
 
-                        </div>
+
+                                    {categories.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
+
+                                                {
+                                                    item.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
 
 
-                        {/* CLEAR */}
+                            {/* ACCOUNT */}
 
-                        <div className="col-6 col-md-3 col-lg-1">
+                            <div className="col-12 col-md-6 col-lg-2">
 
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary w-100"
-                                onClick={
-                                    handleClearFilter
-                                }
-                            >
+                                <label className="form-label">
+                                    Account
+                                </label>
 
-                                Clear
+                                <select
+                                    className="form-select"
+                                    value={
+                                        accountInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setAccountInput(
+                                                event.target.value
+                                            )
+                                    }
+                                >
 
-                            </button>
+                                    <option value="">
+                                        All Accounts
+                                    </option>
+
+
+                                    {accounts.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
+
+                                                {
+                                                    item.name ||
+                                                    item.accountName ||
+                                                    "Unnamed Account"
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* SHOP TYPE */}
+
+                            <div className="col-12 col-md-6 col-lg-2">
+
+                                <label className="form-label">
+                                    Shop Type
+                                </label>
+
+                                <select
+                                    className="form-select"
+                                    value={
+                                        shopTypeInput
+                                    }
+                                    onChange={
+                                        event => {
+
+                                            setShopTypeInput(
+                                                event.target.value
+                                            );
+
+                                            setShopInput("");
+
+                                        }
+                                    }
+                                >
+
+                                    <option value="">
+                                        All Shop Types
+                                    </option>
+
+                                    <option value="ONLINE">
+                                        ONLINE
+                                    </option>
+
+                                    <option value="OFFLINE">
+                                        OFFLINE
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* SHOP */}
+
+                            <div className="col-12 col-md-6 col-lg-2">
+
+                                <label className="form-label">
+                                    Shop
+                                </label>
+
+                                <select
+                                    className="form-select"
+                                    value={
+                                        shopInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setShopInput(
+                                                event.target.value
+                                            )
+                                    }
+                                >
+
+                                    <option value="">
+                                        All Shops
+                                    </option>
+
+
+                                    {filteredShops.map(
+                                        item => (
+
+                                            <option
+                                                key={
+                                                    item._id
+                                                }
+                                                value={
+                                                    item._id
+                                                }
+                                            >
+
+                                                {
+                                                    item.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* PAYMENT */}
+
+                            <div className="col-12 col-md-6 col-lg-2">
+
+                                <label className="form-label">
+                                    Payment Mode
+                                </label>
+
+                                <select
+                                    className="form-select"
+                                    value={
+                                        paymentModeInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setPaymentModeInput(
+                                                event.target.value
+                                            )
+                                    }
+                                >
+
+                                    <option value="">
+                                        All Payment Modes
+                                    </option>
+
+                                    <option value="Cash">
+                                        Cash
+                                    </option>
+
+                                    <option value="AmazonPay">
+                                        Amazon Pay
+                                    </option>
+
+                                    <option value="BankTransfer">
+                                        Bank Transfer
+                                    </option>
+
+                                    <option value="Bhim">
+                                        Bhim
+                                    </option>
+
+                                    <option value="GPay">
+                                        GPay
+                                    </option>
+
+                                    <option value="Paytm">
+                                        Paytm
+                                    </option>
+
+                                    <option value="PhonePe">
+                                        PhonePe
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* FROM */}
+
+                            <div className="col-12 col-md-6 col-lg-2">
+
+                                <label className="form-label">
+                                    From
+                                </label>
+
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={
+                                        fromDateInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setFromDateInput(
+                                                event.target.value
+                                            )
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* TO */}
+
+                            <div className="col-12 col-md-6 col-lg-2">
+
+                                <label className="form-label">
+                                    To
+                                </label>
+
+                                <input
+                                    type="date"
+                                    className="form-control"
+                                    value={
+                                        toDateInput
+                                    }
+                                    onChange={
+                                        event =>
+                                            setToDateInput(
+                                                event.target.value
+                                            )
+                                    }
+                                />
+
+                            </div>
+
+
+                            {/* PER PAGE */}
+
+                            <div className="col-12 col-md-6 col-lg-1">
+
+                                <label className="form-label">
+                                    Per Page
+                                </label>
+
+                                <select
+                                    className="form-select"
+                                    value={
+                                        limit
+                                    }
+                                    onChange={
+                                        event => {
+
+                                            setLimit(
+                                                Number(
+                                                    event.target.value
+                                                )
+                                            );
+
+                                            setPage(1);
+
+                                        }
+                                    }
+                                >
+
+                                    <option value="10">
+                                        10
+                                    </option>
+
+                                    <option value="25">
+                                        25
+                                    </option>
+
+                                    <option value="50">
+                                        50
+                                    </option>
+
+                                    <option value="100">
+                                        100
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            {/* FILTER */}
+
+                            <div className="col-12 col-md-6 col-lg-1">
+
+                                <button
+                                    type="submit"
+                                    className="btn btn-dark w-100"
+                                >
+
+                                    Filter
+
+                                </button>
+
+                            </div>
+
+
+                            {/* CLEAR */}
+
+                            <div className="col-12 col-md-6 col-lg-1">
+
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary w-100"
+                                    onClick={
+                                        handleClear
+                                    }
+                                >
+
+                                    Clear
+
+                                </button>
+
+                            </div>
 
                         </div>
 
@@ -1720,17 +2114,15 @@ const ExpenseList = () => {
             </div>
 
 
-            {/* =================================================
-                TABLE
-            ================================================= */}
+            {/* TABLE */}
 
-            <div className="card">
+            <div className="card border-0 shadow-sm">
 
-                <div className="card-body table-responsive">
+                <div className="table-responsive">
 
-                    <table className="table table-bordered table-hover align-middle">
+                    <table className="table table-bordered table-hover align-middle mb-0">
 
-                        <thead>
+                        <thead className="table-light">
 
                             <tr>
 
@@ -1743,15 +2135,15 @@ const ExpenseList = () => {
                                 </th>
 
                                 <th>
-                                    Note
-                                </th>
-
-                                <th>
                                     Amount
                                 </th>
 
                                 <th>
                                     Category
+                                </th>
+
+                                <th>
+                                    Account
                                 </th>
 
                                 <th>
@@ -1762,19 +2154,19 @@ const ExpenseList = () => {
                                     Shop
                                 </th>
 
-                                <th className="text-center">
+                                <th>
                                     Payment Mode
-                                </th>
-
-                                <th className="text-center">
-                                    Bank
                                 </th>
 
                                 <th>
                                     Date
                                 </th>
 
-                                <th width="170">
+                                <th>
+                                    Note
+                                </th>
+
+                                <th>
                                     Action
                                 </th>
 
@@ -1791,15 +2183,18 @@ const ExpenseList = () => {
 
                                     <td
                                         colSpan="11"
-                                        className="text-center py-4"
+                                        className="text-center py-5"
                                     >
 
                                         <div
-                                            className="spinner-border spinner-border-sm me-2"
-                                            role="status"
+                                            className="spinner-border text-primary"
                                         />
 
-                                        Loading...
+                                        <div className="mt-2 text-muted">
+
+                                            Loading expenses...
+
+                                        </div>
 
                                     </td>
 
@@ -1811,10 +2206,14 @@ const ExpenseList = () => {
 
                                     <td
                                         colSpan="11"
-                                        className="text-center text-muted py-4"
+                                        className="text-center py-5"
                                     >
 
-                                        No Record Found
+                                        <div className="text-muted">
+
+                                            No Record Found
+
+                                        </div>
 
                                     </td>
 
@@ -1826,390 +2225,176 @@ const ExpenseList = () => {
                                     (
                                         item,
                                         index
-                                    ) => {
+                                    ) => (
 
-                                        /*
-                                         * =================================================
-                                         * IMAGE VARIABLES
-                                         * =================================================
-                                         */
+                                        <tr
+                                            key={
+                                                item._id
+                                            }
+                                        >
 
-                                        const paymentImage =
-                                            getPaymentModeImage(
-                                                item.paymentMode
-                                            );
+                                            <td>
 
-
-                                        const bankImage =
-                                            getBankImage(
-                                                item.bank
-                                            );
-
-
-                                        return (
-
-                                            <tr
-                                                key={
-                                                    item._id
-                                                }
-                                            >
-
-
-                                                {/* =================================================
-                                                    #
-                                                ================================================= */}
-
-                                                <td>
-
-                                                    {
+                                                {
+                                                    (
                                                         (
-                                                            (
-                                                                page -
-                                                                1
-                                                            ) *
-                                                            limit
-                                                        ) +
-                                                        index +
-                                                        1
-                                                    }
+                                                            page -
+                                                            1
+                                                        ) *
+                                                        limit
+                                                    ) +
+                                                    index +
+                                                    1
+                                                }
 
-                                                </td>
-
-
-                                                {/* =================================================
-                                                    TITLE
-                                                ================================================= */}
-
-                                                <td>
-
-                                                    {
-                                                        item.title ||
-                                                        "-"
-                                                    }
-
-                                                </td>
+                                            </td>
 
 
-                                                {/* =================================================
-                                                    NOTE
-                                                ================================================= */}
+                                            <td className="fw-semibold">
 
-                                                <td>
+                                                {
+                                                    item.title ||
+                                                    "-"
+                                                }
 
-                                                    {
-                                                        item.note ||
-                                                        "-"
-                                                    }
-
-                                                </td>
+                                            </td>
 
 
-                                                {/* =================================================
-                                                    AMOUNT
-                                                ================================================= */}
+                                            <td className="fw-semibold text-danger">
 
-                                                <td>
+                                                ₹
+                                                {formatAmount(
+                                                    item.amount
+                                                )}
 
-                                                    ₹{" "}
-
-                                                    {Number(
-                                                        item.amount ||
-                                                        0
-                                                    ).toLocaleString(
-                                                        "en-IN",
-                                                        {
-                                                            maximumFractionDigits:
-                                                                2
-                                                        }
-                                                    )}
-
-                                                </td>
+                                            </td>
 
 
-                                                {/* =================================================
-                                                    CATEGORY
-                                                ================================================= */}
+                                            <td>
 
-                                                <td>
+                                                {
+                                                    item.category?.name ||
+                                                    "-"
+                                                }
 
-                                                    <span
-                                                        className="badge"
-                                                        style={
-                                                            getCategoryBadgeStyle(
-                                                                item.category
-                                                            )
-                                                        }
-                                                    >
+                                            </td>
 
-                                                        {
-                                                            item.category?.name ||
-                                                            item.categoryName ||
-                                                            "-"
-                                                        }
+
+                                            <td>
+
+                                                {
+                                                    getAccountName(
+                                                        item
+                                                    )
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {item.shopType ===
+                                                "ONLINE" ? (
+
+                                                    <span className="badge bg-primary">
+
+                                                        ONLINE
 
                                                     </span>
 
-                                                </td>
+                                                ) : item.shopType ===
+                                                "OFFLINE" ? (
 
+                                                    <span className="badge bg-success">
 
-                                                {/* =================================================
-                                                    SHOP TYPE
-                                                ================================================= */}
+                                                        OFFLINE
 
-                                                <td>
+                                                    </span>
 
-                                                    {
-                                                        item.shopType ===
-                                                            "ONLINE"
+                                                ) : (
 
-                                                            ? (
+                                                    "-"
 
-                                                                <span className="badge bg-primary">
+                                                )}
 
-                                                                    ONLINE
+                                            </td>
 
-                                                                </span>
 
-                                                            )
+                                            <td>
 
-                                                            : item.shopType ===
-                                                                "OFFLINE"
+                                                {
+                                                    getShopName(
+                                                        item
+                                                    )
+                                                }
 
-                                                                ? (
+                                            </td>
 
-                                                                    <span className="badge bg-success">
 
-                                                                        OFFLINE
+                                            <td>
 
-                                                                    </span>
+                                                {
+                                                    item.paymentMode ||
+                                                    "-"
+                                                }
 
-                                                                )
+                                            </td>
 
-                                                                : (
 
-                                                                    <span className="text-muted">
+                                            <td>
 
-                                                                        -
-
-                                                                    </span>
-
-                                                                )
-                                                    }
-
-                                                </td>
-
-
-                                                {/* =================================================
-                                                    SHOP
-                                                ================================================= */}
-
-                                                <td>
-
-                                                    {
-                                                        item.shop?.name ||
-                                                        item.shopName ||
-                                                        "-"
-                                                    }
-
-                                                </td>
-
-
-                                                {/* =================================================
-                                                    PAYMENT MODE IMAGE
-                                                ================================================= */}
-
-                                                <td className="text-center">
-
-                                                    {item.paymentMode ? (
-
-                                                        paymentImage ? (
-
-                                                            <img
-                                                                src={
-                                                                    paymentImage
-                                                                }
-                                                                alt={
-                                                                    item.paymentMode
-                                                                }
-                                                                title={
-                                                                    item.paymentMode
-                                                                }
-                                                                style={{
-                                                                    width:
-                                                                        "65px",
-
-                                                                    height:
-                                                                        "55px",
-
-                                                                    objectFit:
-                                                                        "contain",
-
-                                                                    display:
-                                                                        "inline-block"
-                                                                }}
-                                                                onError={
-                                                                    event => {
-
-                                                                        event.currentTarget.src =
-                                                                            PaymentModeImages.Other;
-
-                                                                    }
-                                                                }
-                                                            />
-
-                                                        ) : (
-
-                                                            <span>
-
-                                                                {
-                                                                    item.paymentMode
-                                                                }
-
-                                                            </span>
-
-                                                        )
-
-                                                    ) : (
-
-                                                        <span className="text-muted">
-
-                                                            -
-
-                                                        </span>
-
-                                                    )}
-
-                                                </td>
-
-
-                                                {/* =================================================
-                                                    BANK IMAGE
-                                                ================================================= */}
-
-                                                <td className="text-center">
-
-                                                    {item.bank ? (
-
-                                                        bankImage ? (
-
-                                                            <img
-                                                                src={
-                                                                    bankImage
-                                                                }
-                                                                alt={
-                                                                    item.bank
-                                                                }
-                                                                title={
-                                                                    item.bank
-                                                                }
-                                                                style={{
-                                                                    width:
-                                                                        "65px",
-
-                                                                    height:
-                                                                        "55px",
-
-                                                                    objectFit:
-                                                                        "contain",
-
-                                                                    display:
-                                                                        "inline-block"
-                                                                }}
-                                                                onError={
-                                                                    event => {
-
-                                                                        event.currentTarget.src =
-                                                                            bankImages.Other;
-
-                                                                    }
-                                                                }
-                                                            />
-
-                                                        ) : (
-
-                                                            <span>
-
-                                                                {
-                                                                    item.bank
-                                                                }
-
-                                                            </span>
-
-                                                        )
-
-                                                    ) : (
-
-                                                        <span className="text-muted">
-
-                                                            -
-
-                                                        </span>
-
-                                                    )}
-
-                                                </td>
-
-
-                                                {/* =================================================
-                                                    DATE
-                                                ================================================= */}
-
-                                                <td>
-
-                                                    {
+                                                {
+                                                    formatDate(
                                                         item.date
+                                                    )
+                                                }
 
-                                                            ? new Date(
-                                                                item.date
-                                                            ).toLocaleDateString(
-                                                                "en-IN"
-                                                            )
+                                            </td>
 
-                                                            : "-"
+
+                                            <td>
+
+                                                {
+                                                    item.note ||
+                                                    "-"
+                                                }
+
+                                            </td>
+
+
+                                            <td className="text-nowrap">
+
+                                                <Link
+                                                    to={
+                                                        `/expense/edit/${item._id}`
                                                     }
+                                                    className="btn btn-warning btn-sm me-2"
+                                                >
 
-                                                </td>
+                                                    Edit
 
-
-                                                {/* =================================================
-                                                    ACTION
-                                                ================================================= */}
-
-                                                <td>
-
-                                                    <Link
-                                                        className="btn btn-warning btn-sm me-2"
-                                                        to={
-                                                            `/expense/edit/${item._id}`
-                                                        }
-                                                    >
-
-                                                        Edit
-
-                                                    </Link>
+                                                </Link>
 
 
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-danger btn-sm"
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item._id
-                                                            )
-                                                        }
-                                                    >
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-danger btn-sm"
+                                                    onClick={() =>
+                                                        handleDelete(
+                                                            item._id
+                                                        )
+                                                    }
+                                                >
 
-                                                        Delete
+                                                    Delete
 
-                                                    </button>
+                                                </button>
 
-                                                </td>
+                                            </td>
 
-                                            </tr>
+                                        </tr>
 
-                                        );
-
-                                    }
+                                    )
                                 )
 
                             )}
@@ -2221,45 +2406,39 @@ const ExpenseList = () => {
                 </div>
 
 
-                {/* =================================================
-                    PAGINATION
-                ================================================= */}
+                {/* FOOTER */}
 
-                <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
+                <div className="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-                    <small className="text-muted">
+                    <div className="text-muted">
 
                         Showing{" "}
-
                         {startRecord}
-
                         {" "}to{" "}
-
                         {endRecord}
-
                         {" "}of{" "}
-
                         {total}
-
                         {" "}records
 
-                    </small>
+                    </div>
 
 
                     <Pagination
-                        page={page}
-                        limit={limit}
-                        total={total}
+                        page={
+                            page
+                        }
+                        limit={
+                            limit
+                        }
+                        total={
+                            total
+                        }
                         onPageChange={
                             nextPage => {
 
                                 if (
-
                                     nextPage >= 1 &&
-
-                                    nextPage <=
-                                    totalPages
-
+                                    nextPage <= totalPages
                                 ) {
 
                                     setPage(

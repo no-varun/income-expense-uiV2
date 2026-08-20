@@ -17,6 +17,7 @@ import {
     incomeColor
 } from "./chartColors";
 
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -27,9 +28,11 @@ ChartJS.register(
 );
 
 
-/* =========================================================
-   Colors
-========================================================= */
+/*
+|--------------------------------------------------------------------------
+| COLORS
+|--------------------------------------------------------------------------
+*/
 
 const savingColor = "#198754";
 const savingBorderColor = "#146c43";
@@ -41,40 +44,15 @@ const pendingDebtColor = "#0dcaf0";
 const pendingDebtBorderColor = "#0aa2c0";
 
 
-/* =========================================================
-   Format Date
-========================================================= */
+/*
+|--------------------------------------------------------------------------
+| FORMAT AMOUNT
+|--------------------------------------------------------------------------
+*/
 
-const formatDate = (date) => {
-
-    if (!date) {
-        return "-";
-    }
-
-    const parsedDate = new Date(
-        `${date}T00:00:00`
-    );
-
-    if (Number.isNaN(parsedDate.getTime())) {
-        return date;
-    }
-
-    return parsedDate.toLocaleDateString(
-        "en-IN",
-        {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        }
-    );
-};
-
-
-/* =========================================================
-   Format Amount
-========================================================= */
-
-const formatAmount = (amount) => {
+const formatAmount = (
+    amount
+) => {
 
     return Number(
         amount || 0
@@ -84,12 +62,77 @@ const formatAmount = (amount) => {
             maximumFractionDigits: 2
         }
     );
+
 };
 
 
-/* =========================================================
-   Daily Section
-========================================================= */
+/*
+|--------------------------------------------------------------------------
+| FORMAT DATE
+|--------------------------------------------------------------------------
+*/
+
+const formatDate = (
+    date
+) => {
+
+    if (!date) {
+        return "-";
+    }
+
+
+    const parsedDate =
+        new Date(
+            `${date}T00:00:00`
+        );
+
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+
+        return date;
+
+    }
+
+
+    return parsedDate.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET FIELD VALUE
+|--------------------------------------------------------------------------
+*/
+
+const getFieldValue = (
+    item,
+    field
+) => {
+
+    return Number(
+        item?.[field] || 0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DAILY SECTION
+|--------------------------------------------------------------------------
+*/
 
 const DailySection = ({
     title,
@@ -102,49 +145,85 @@ const DailySection = ({
     amountLabel
 }) => {
 
-    const rows = Array.isArray(data)
-        ? data
-        : [];
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
 
 
-    /* -----------------------------------------------------
-       Total
-    ----------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL
+    |--------------------------------------------------------------------------
+    */
 
-    const total = rows.reduce(
-        (sum, item) =>
-            sum + Number(item[field] || 0),
-        0
-    );
+    const total =
+        rows.reduce(
+            (
+                sum,
+                item
+            ) => {
+
+                return (
+                    sum +
+                    getFieldValue(
+                        item,
+                        field
+                    )
+                );
+
+            },
+            0
+        );
 
 
-    /* -----------------------------------------------------
-       Chart Data
-    ----------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | CHART DATA
+    |--------------------------------------------------------------------------
+    */
 
     const chartData = {
 
-        labels: rows.map(
-            item => item.day
-        ),
+        labels:
+            rows.map(
+                item =>
+                    item?.day ??
+                    item?.date ??
+                    "-"
+            ),
 
         datasets: [
 
             {
-                label: title,
 
-                data: rows.map(
-                    item =>
-                        Number(
-                            item[field] || 0
-                        )
-                ),
+                label:
+                    title,
 
-                backgroundColor: color,
+                data:
+                    rows.map(
+                        item =>
+                            getFieldValue(
+                                item,
+                                field
+                            )
+                    ),
 
-                borderColor: borderColor,
+                backgroundColor:
+                    color,
 
-                borderWidth: 1
+                borderColor:
+                    borderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             }
 
         ]
@@ -152,46 +231,80 @@ const DailySection = ({
     };
 
 
-    /* -----------------------------------------------------
-       Chart Options
-    ----------------------------------------------------- */
+    /*
+    |--------------------------------------------------------------------------
+    | CHART OPTIONS
+    |--------------------------------------------------------------------------
+    */
 
     const options = {
 
-        responsive: true,
+        responsive:
+            true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+            false,
 
         interaction: {
-            mode: "index",
-            intersect: false
+
+            mode:
+                "index",
+
+            intersect:
+                false
+
         },
+
 
         plugins: {
 
             legend: {
-                position: "top"
+
+                position:
+                    "top",
+
+                labels: {
+
+                    usePointStyle:
+                        true,
+
+                    padding:
+                        12
+
+                }
+
             },
+
 
             title: {
 
-                display: true,
+                display:
+                    true,
 
-                text: title
+                text:
+                    title
 
             },
+
 
             tooltip: {
 
                 callbacks: {
 
-                    label: context => {
+                    label:
+                        context => {
 
-                        return `${context.dataset.label}: ₹${formatAmount(
-                            context.raw
-                        )}`;
+                            return (
 
-                    }
+                                `${context.dataset.label}: ₹` +
+
+                                formatAmount(
+                                    context.raw
+                                )
+
+                            );
+
+                        }
 
                 }
 
@@ -199,35 +312,52 @@ const DailySection = ({
 
         },
 
+
         scales: {
 
             x: {
 
                 title: {
 
-                    display: true,
+                    display:
+                        true,
 
-                    text: "Day"
+                    text:
+                        "Day"
+
+                },
+
+                grid: {
+
+                    display:
+                        false
 
                 }
 
             },
 
+
             y: {
 
-                beginAtZero: true,
+                beginAtZero:
+                    true,
 
                 ticks: {
 
-                    callback: value => {
+                    callback:
+                        value => {
 
-                        return `₹${Number(
-                            value
-                        ).toLocaleString(
-                            "en-IN"
-                        )}`;
+                            return (
 
-                    }
+                                `₹${Number(
+                                    value
+                                ).toLocaleString(
+                                    "en-IN"
+                                )}`
+
+                            );
+
+                        }
 
                 }
 
@@ -240,37 +370,78 @@ const DailySection = ({
 
     return (
 
-        <div className="card shadow h-100">
+        <div
+            className="
+                card
+                shadow-sm
+                h-100
+            "
+            style={{
+                minWidth: 0,
+                overflow: "hidden"
+            }}
+        >
 
-            {/* =========================================
-                Header
-            ========================================= */}
+            {/* =====================================================
+                HEADER
+            ===================================================== */}
 
-            <div className="card-header d-flex justify-content-between align-items-center gap-2">
+            <div
+                className="
+                    card-header
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    gap-2
+                "
+            >
 
-                <h5 className="mb-0">
+                <h5
+                    className="
+                        mb-0
+                        text-truncate
+                    "
+                    title={title}
+                >
+
                     {title}
+
                 </h5>
 
+
                 <span
-                    className={`badge ${badgeColor}`}
+                    className={`
+                        badge
+                        ${badgeColor}
+                    `}
                     style={{
-                        whiteSpace: "nowrap"
+                        whiteSpace:
+                            "nowrap",
+                        flexShrink:
+                            0
                     }}
                 >
-                    ₹{formatAmount(total)}
+
+                    ₹
+                    {formatAmount(
+                        total
+                    )}
+
                 </span>
 
             </div>
 
 
-            {/* =========================================
-                Chart
-            ========================================= */}
+            {/* =====================================================
+                CHART
+            ===================================================== */}
 
             <div
-                className="card-body chart-body"
+                className="
+                    card-body
+                "
                 style={{
+                    height: "360px",
                     minWidth: 0,
                     position: "relative"
                 }}
@@ -279,13 +450,25 @@ const DailySection = ({
                 {rows.length > 0 ? (
 
                     <Bar
-                        data={chartData}
-                        options={options}
+                        data={
+                            chartData
+                        }
+                        options={
+                            options
+                        }
                     />
 
                 ) : (
 
-                    <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+                    <div
+                        className="
+                            d-flex
+                            justify-content-center
+                            align-items-center
+                            h-100
+                            text-muted
+                        "
+                    >
 
                         No data found
 
@@ -296,109 +479,201 @@ const DailySection = ({
             </div>
 
 
-            {/* =========================================
-                Table
-            ========================================= */}
+            {/* =====================================================
+                TABLE HEADER
+            ===================================================== */}
 
-            <div className="border-top">
+            <div
+                className="
+                    border-top
+                    px-3
+                    py-2
+                    bg-light
+                "
+            >
 
-                <div className="px-3 py-2 bg-light">
+                <h6 className="mb-0">
 
-                    <h6 className="mb-0">
-                        {tableTitle}
-                    </h6>
+                    {tableTitle}
 
-                </div>
+                </h6>
+
+            </div>
 
 
-                <div className="table-responsive">
+            {/* =====================================================
+                TABLE
+            ===================================================== */}
 
-                    <table className="table table-bordered table-hover mb-0">
+            <div
+                className="
+                    table-responsive
+                "
+            >
 
-                        <thead>
+                <table
+                    className="
+                        table
+                        table-bordered
+                        table-hover
+                        align-middle
+                        mb-0
+                    "
+                >
+
+                    <thead
+                        className="
+                            table-light
+                        "
+                    >
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th
+                                className="
+                                    text-end
+                                "
+                            >
+                                {amountLabel}
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {rows.length === 0 ? (
 
                             <tr>
 
-                                <th>
-                                    Date
-                                </th>
+                                <td
+                                    colSpan="2"
+                                    className="
+                                        text-center
+                                        text-muted
+                                        py-3
+                                    "
+                                >
 
-                                <th>
-                                    {amountLabel}
-                                </th>
+                                    No data found
+
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        ) : (
 
-
-                        <tbody>
-
-                            {rows.length === 0 ? (
-
-                                <tr>
-
-                                    <td
-                                        colSpan="2"
-                                        className="text-center text-muted"
-                                    >
-                                        No data found
-                                    </td>
-
-                                </tr>
-
-                            ) : (
-
-                                rows.map(item => (
+                            rows.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
 
                                     <tr
                                         key={
-                                            `${item.date}-${field}`
+                                            `${item?.date || item?.day}-${field}-${index}`
                                         }
                                     >
 
                                         <td>
+
                                             {formatDate(
-                                                item.date
+                                                item?.date
                                             )}
+
                                         </td>
 
-                                        <td>
+
+                                        <td
+                                            className="
+                                                text-end
+                                            "
+                                        >
 
                                             <span
-                                                className={`badge ${badgeColor}`}
+                                                className={`
+                                                    badge
+                                                    ${badgeColor}
+                                                `}
                                             >
+
                                                 ₹
                                                 {formatAmount(
-                                                    item[field]
+                                                    getFieldValue(
+                                                        item,
+                                                        field
+                                                    )
                                                 )}
+
                                             </span>
 
                                         </td>
 
                                     </tr>
 
-                                ))
+                                )
+                            )
 
-                            )}
+                        )}
 
-                        </tbody>
+                    </tbody>
 
-                    </table>
 
-                </div>
+                    {rows.length > 0 && (
+
+                        <tfoot
+                            className="
+                                table-light
+                            "
+                        >
+
+                            <tr>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <th
+                                    className="
+                                        text-end
+                                    "
+                                >
+
+                                    ₹
+                                    {formatAmount(
+                                        total
+                                    )}
+
+                                </th>
+
+                            </tr>
+
+                        </tfoot>
+
+                    )}
+
+                </table>
 
             </div>
 
         </div>
 
     );
+
 };
 
 
-/* =========================================================
-   Daily Chart
-========================================================= */
+/*
+|--------------------------------------------------------------------------
+| DAILY CHART
+|--------------------------------------------------------------------------
+*/
 
 const DailyChart = ({
     data = [],
@@ -406,141 +681,323 @@ const DailyChart = ({
     year
 }) => {
 
-    const rows = Array.isArray(data)
-        ? data
-        : [];
+    /*
+    |--------------------------------------------------------------------------
+    | SAFE DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
 
 
     /*
-     * month and year are no longer required
-     * because API already gives:
-     *
-     * date: "2026-08-01"
-     *
-     * Keeping them in props prevents breaking
-     * your existing component usage.
-     */
+    |--------------------------------------------------------------------------
+    | MONTH / YEAR ARE KEPT IN PROPS
+    |--------------------------------------------------------------------------
+    |
+    | Charts.jsx still passes these values.
+    | The API response itself contains the daily rows.
+    |
+    */
 
 
     return (
 
-        <div className="container-fluid px-0">
+        <div
+            className="
+                w-100
+            "
+            style={{
+                maxWidth: "100%",
+                minWidth: 0,
+                overflow: "hidden"
+            }}
+        >
 
-            {/* =========================================
-                Page Header
-            ========================================= */}
+            {/* =====================================================
+                HEADER
+            ===================================================== */}
 
-            <div className="d-flex justify-content-between align-items-center mb-4">
+            <div
+                className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    flex-wrap
+                    gap-2
+                    mb-3
+                "
+            >
 
-                <h3 className="mb-0">
-                    Daily Charts
-                </h3>
+                <div>
+
+                    <h4 className="mb-1">
+
+                        Daily Charts
+
+                    </h4>
+
+                    <div
+                        className="
+                            text-muted
+                            small
+                        "
+                    >
+
+                        Daily income, expense,
+                        saving and debt analysis
+
+                    </div>
+
+                </div>
+
+
+                {(month || year) && (
+
+                    <div
+                        className="
+                            text-muted
+                            small
+                        "
+                    >
+
+                        {month !== "all" && month}
+                        {month !== "all" && year !== "all" && " / "}
+                        {year !== "all" && year}
+
+                    </div>
+
+                )}
 
             </div>
 
 
-            {/* =========================================
-                5 Charts + 5 Tables
-            ========================================= */}
+            {/* =====================================================
+                CHART GRID
+            ===================================================== */}
 
-            <div className="row g-4">
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                "
+            >
 
+                {/* =================================================
+                    INCOME
+                ================================================= */}
 
-                {/* =====================================
-                    1. Income
-                ===================================== */}
-
-                <div className="col-12 col-xl-6">
+                <div
+                    className="
+                        col-12
+                        col-xl-6
+                        px-0
+                        pe-xl-2
+                    "
+                >
 
                     <DailySection
+
                         title="Daily Income"
+
                         tableTitle="Date Wise Income List"
-                        data={rows}
+
+                        data={
+                            rows
+                        }
+
                         field="income"
-                        color={incomeColor}
-                        borderColor={incomeBorderColor}
+
+                        color={
+                            incomeColor
+                        }
+
+                        borderColor={
+                            incomeBorderColor
+                        }
+
                         badgeColor="bg-success"
+
                         amountLabel="Total Income"
+
                     />
 
                 </div>
 
 
-                {/* =====================================
-                    2. Expense
-                ===================================== */}
+                {/* =================================================
+                    EXPENSE
+                ================================================= */}
 
-                <div className="col-12 col-xl-6">
+                <div
+                    className="
+                        col-12
+                        col-xl-6
+                        px-0
+                        ps-xl-2
+                    "
+                >
 
                     <DailySection
+
                         title="Daily Expense"
+
                         tableTitle="Date Wise Expense List"
-                        data={rows}
+
+                        data={
+                            rows
+                        }
+
                         field="expense"
-                        color={expenseColor}
-                        borderColor={expenseBorderColor}
+
+                        color={
+                            expenseColor
+                        }
+
+                        borderColor={
+                            expenseBorderColor
+                        }
+
                         badgeColor="bg-danger"
+
                         amountLabel="Total Expense"
+
                     />
 
                 </div>
 
 
-                {/* =====================================
-                    3. Saving
-                ===================================== */}
+                {/* =================================================
+                    SAVING
+                ================================================= */}
 
-                <div className="col-12 col-xl-6">
+                <div
+                    className="
+                        col-12
+                        col-xl-6
+                        px-0
+                        pe-xl-2
+                    "
+                >
 
                     <DailySection
+
                         title="Daily Saving"
+
                         tableTitle="Date Wise Saving List"
-                        data={rows}
+
+                        data={
+                            rows
+                        }
+
                         field="saving"
-                        color={savingColor}
-                        borderColor={savingBorderColor}
-                        badgeColor="bg-success"
+
+                        color={
+                            savingColor
+                        }
+
+                        borderColor={
+                            savingBorderColor
+                        }
+
+                        badgeColor="bg-primary"
+
                         amountLabel="Total Saving"
+
                     />
 
                 </div>
 
 
-                {/* =====================================
-                    4. Debt
-                ===================================== */}
+                {/* =================================================
+                    DEBT
+                ================================================= */}
 
-                <div className="col-12 col-xl-6">
+                <div
+                    className="
+                        col-12
+                        col-xl-6
+                        px-0
+                        ps-xl-2
+                    "
+                >
 
                     <DailySection
+
                         title="Daily Debt"
+
                         tableTitle="Date Wise Debt List"
-                        data={rows}
+
+                        data={
+                            rows
+                        }
+
                         field="totalDebt"
-                        color={debtColor}
-                        borderColor={debtBorderColor}
-                        badgeColor="bg-warning text-dark"
+
+                        color={
+                            debtColor
+                        }
+
+                        borderColor={
+                            debtBorderColor
+                        }
+
+                        badgeColor="
+                            bg-warning
+                            text-dark
+                        "
+
                         amountLabel="Total Debt"
+
                     />
 
                 </div>
 
 
-                {/* =====================================
-                    5. Pending Debt
-                ===================================== */}
+                {/* =================================================
+                    PENDING DEBT
+                ================================================= */}
 
-                <div className="col-12 col-xl-6">
+                <div
+                    className="
+                        col-12
+                        col-xl-6
+                        px-0
+                        pe-xl-2
+                    "
+                >
 
                     <DailySection
+
                         title="Daily Pending Debt"
+
                         tableTitle="Date Wise Pending Debt List"
-                        data={rows}
+
+                        data={
+                            rows
+                        }
+
                         field="pendingDebt"
-                        color={pendingDebtColor}
-                        borderColor={pendingDebtBorderColor}
-                        badgeColor="bg-info text-dark"
+
+                        color={
+                            pendingDebtColor
+                        }
+
+                        borderColor={
+                            pendingDebtBorderColor
+                        }
+
+                        badgeColor="
+                            bg-info
+                            text-dark
+                        "
+
                         amountLabel="Pending Debt"
+
                     />
 
                 </div>
@@ -550,6 +1007,8 @@ const DailyChart = ({
         </div>
 
     );
+
 };
+
 
 export default DailyChart;

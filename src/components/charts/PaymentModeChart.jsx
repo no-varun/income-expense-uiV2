@@ -17,107 +17,209 @@ ChartJS.register(
 );
 
 
-const PaymentModeChart = ({
-    data = {
-        income: [],
-        expense: []
+/*
+|--------------------------------------------------------------------------
+| FORMAT CURRENCY
+|--------------------------------------------------------------------------
+*/
+
+const formatCurrency = (
+    value
+) => {
+
+    return `₹${Number(
+        value || 0
+    ).toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET NUMBER
+|--------------------------------------------------------------------------
+*/
+
+const getNumber = (
+    value
+) => {
+
+    return Number(
+        value || 0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| PAYMENT MODE NAME
+|--------------------------------------------------------------------------
+*/
+
+const getPaymentMode = (
+    item
+) => {
+
+    return (
+        item?._id ||
+        item?.paymentMode ||
+        item?.name ||
+        "Unknown"
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| PAYMENT MODE VALUE
+|--------------------------------------------------------------------------
+*/
+
+const getPaymentValue = (
+    item
+) => {
+
+    return getNumber(
+        item?.value ??
+        item?.amount ??
+        item?.total
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET TOTAL
+|--------------------------------------------------------------------------
+*/
+
+const getTotal = (
+    items
+) => {
+
+    return items.reduce(
+        (
+            sum,
+            item
+        ) => {
+
+            return (
+                sum +
+                getPaymentValue(
+                    item
+                )
+            );
+
+        },
+        0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET PERCENTAGE
+|--------------------------------------------------------------------------
+*/
+
+const getPercentage = (
+    value,
+    total
+) => {
+
+    if (
+        !total
+    ) {
+
+        return 0;
+
     }
+
+
+    return (
+        getNumber(
+            value
+        ) /
+        total
+    ) * 100;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DOUGHNUT CARD
+|--------------------------------------------------------------------------
+*/
+
+const PaymentModeDoughnut = ({
+    title,
+    data,
+    total,
+    offset,
+    type
 }) => {
 
-    const income = Array.isArray(data?.income)
-        ? data.income
-        : [];
-
-    const expense = Array.isArray(data?.expense)
-        ? data.expense
-        : [];
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
 
 
     /*
-     * Currency formatter
-     */
-    const formatCurrency = value => {
+    |--------------------------------------------------------------------------
+    | CHART DATA
+    |--------------------------------------------------------------------------
+    */
 
-        return `₹${Number(
-            value || 0
-        ).toLocaleString(
-            "en-IN",
-            {
-                maximumFractionDigits: 2
-            }
-        )}`;
+    const chartData = {
 
-    };
-
-
-    /*
-     * Calculate total
-     */
-    const getTotal = items => {
-
-        return items.reduce(
-            (sum, item) =>
-                sum + (Number(item.value) || 0),
-            0
-        );
-
-    };
-
-
-    const incomeTotal =
-        getTotal(income);
-
-    const expenseTotal =
-        getTotal(expense);
-
-
-    /*
-     * Percentage
-     */
-    const getPercentage = (
-        value,
-        total
-    ) => {
-
-        if (!total) {
-            return 0;
-        }
-
-        return (
-            (Number(value) / total) *
-            100
-        );
-
-    };
-
-
-    /*
-     * Income chart
-     */
-    const incomeChartData = {
-
-        labels: income.map(
-            item => item._id || "Unknown"
-        ),
+        labels:
+            rows.map(
+                item =>
+                    getPaymentMode(
+                        item
+                    )
+            ),
 
         datasets: [
 
             {
-                label: "Income",
 
-                data: income.map(
-                    item =>
-                        Number(item.value) || 0
-                ),
+                label:
+                    type,
+
+                data:
+                    rows.map(
+                        item =>
+                            getPaymentValue(
+                                item
+                            )
+                    ),
 
                 backgroundColor:
                     getSliceColors(
-                        income.length
+                        rows.length,
+                        offset
                     ),
 
-                borderColor: "#ffffff",
+                borderColor:
+                    "#ffffff",
 
-                borderWidth: 2
+                borderWidth:
+                    2,
+
+                hoverOffset:
+                    5
 
             }
 
@@ -127,90 +229,78 @@ const PaymentModeChart = ({
 
 
     /*
-     * Expense chart
-     */
-    const expenseChartData = {
+    |--------------------------------------------------------------------------
+    | OPTIONS
+    |--------------------------------------------------------------------------
+    */
 
-        labels: expense.map(
-            item => item._id || "Unknown"
-        ),
-
-        datasets: [
-
-            {
-                label: "Expense",
-
-                data: expense.map(
-                    item =>
-                        Number(item.value) || 0
-                ),
-
-                backgroundColor:
-                    getSliceColors(
-                        expense.length,
-                        4
-                    ),
-
-                borderColor: "#ffffff",
-
-                borderWidth: 2
-
-            }
-
-        ]
-
-    };
-
-
-    /*
-     * Common chart options
-     */
     const chartOptions = {
 
-        responsive: true,
+        responsive:
+            true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+            false,
+
 
         plugins: {
 
             legend: {
 
-                position: "bottom"
+                position:
+                    "bottom",
+
+                labels: {
+
+                    usePointStyle:
+                        true,
+
+                    padding:
+                        12,
+
+                    boxWidth:
+                        12
+
+                }
 
             },
+
 
             tooltip: {
 
                 callbacks: {
 
-                    label: context => {
+                    label:
+                        context => {
 
-                        const value =
-                            Number(
-                                context.raw
-                            ) || 0;
+                            const value =
+                                getNumber(
+                                    context.raw
+                                );
 
-                        const total =
-                            context.dataset.data.reduce(
-                                (sum, item) =>
-                                    sum +
-                                    Number(item || 0),
-                                0
+
+                            const percentage =
+                                getPercentage(
+                                    value,
+                                    total
+                                );
+
+
+                            return (
+
+                                `${context.label}: ` +
+
+                                `${formatCurrency(
+                                    value
+                                )} ` +
+
+                                `(${percentage.toFixed(
+                                    2
+                                )}%)`
+
                             );
 
-                        const percentage =
-                            getPercentage(
-                                value,
-                                total
-                            );
-
-                        return (
-                            `${context.label}: ` +
-                            `${formatCurrency(value)} ` +
-                            `(${percentage.toFixed(2)}%)`
-                        );
-
-                    }
+                        }
 
                 }
 
@@ -223,425 +313,701 @@ const PaymentModeChart = ({
 
     return (
 
-        <div className="row">
+        <div
+            className="
+                col-12
+                col-xl-6
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+                style={{
+                    minWidth: 0,
+                    overflow: "hidden"
+                }}
+            >
+
+                {/* =================================================
+                    HEADER
+                ================================================= */}
+
+                <div
+                    className="
+                        card-header
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                        gap-2
+                    "
+                >
+
+                    <h5
+                        className="
+                            mb-0
+                            text-truncate
+                        "
+                        title={title}
+                    >
+
+                        {title}
+
+                    </h5>
 
 
-            {/* =========================
-                INCOME
-            ========================= */}
-
-            <div className="col-md-6 mb-4">
-
-                <div className="card shadow">
-
-                    <div className="card-header">
-
-                        <div className="d-flex justify-content-between align-items-center">
-
-                            <h5 className="mb-0">
-                                Income Payment Modes (₹)
-                            </h5>
-
-                            <strong>
-                                {formatCurrency(
-                                    incomeTotal
-                                )}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        className="card-body chart-body chart-body-pie"
+                    <strong
                         style={{
-                            height: "350px"
+                            whiteSpace:
+                                "nowrap",
+                            flexShrink:
+                                0
                         }}
                     >
 
                         {
-                            income.length > 0 ? (
-
-                                <Doughnut
-                                    data={incomeChartData}
-                                    options={chartOptions}
-                                />
-
-                            ) : (
-
-                                <div className="d-flex justify-content-center align-items-center h-100 text-muted">
-
-                                    No income payment data
-
-                                </div>
-
+                            formatCurrency(
+                                total
                             )
                         }
 
-                    </div>
+                    </strong>
+
+                </div>
+
+
+                {/* =================================================
+                    CHART
+                ================================================= */}
+
+                <div
+                    className="
+                        card-body
+                    "
+                    style={{
+                        height: "360px",
+                        minWidth: 0,
+                        position: "relative"
+                    }}
+                >
+
+                    {rows.length > 0 ? (
+
+                        <Doughnut
+                            data={
+                                chartData
+                            }
+                            options={
+                                chartOptions
+                            }
+                        />
+
+                    ) : (
+
+                        <div
+                            className="
+                                d-flex
+                                justify-content-center
+                                align-items-center
+                                h-100
+                                text-muted
+                            "
+                        >
+
+                            No {type.toLowerCase()} payment data
+
+                        </div>
+
+                    )}
 
                 </div>
 
             </div>
 
+        </div>
 
-            {/* =========================
-                EXPENSE
-            ========================= */}
+    );
 
-            <div className="col-md-6 mb-4">
+};
 
-                <div className="card shadow">
 
-                    <div className="card-header">
+/*
+|--------------------------------------------------------------------------
+| PAYMENT MODE TABLE
+|--------------------------------------------------------------------------
+*/
 
-                        <div className="d-flex justify-content-between align-items-center">
+const PaymentModeTable = ({
+    title,
+    data,
+    total
+}) => {
 
-                            <h5 className="mb-0">
-                                Expense Payment Modes (₹)
-                            </h5>
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
 
-                            <strong>
-                                {formatCurrency(
-                                    expenseTotal
-                                )}
-                            </strong>
+
+    return (
+
+        <div
+            className="
+                col-12
+                col-xl-6
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                {/* HEADER */}
+
+                <div
+                    className="
+                        card-header
+                    "
+                >
+
+                    <h6 className="mb-0">
+
+                        {title}
+
+                    </h6>
+
+                </div>
+
+
+                {/* TABLE */}
+
+                <div
+                    className="
+                        card-body
+                        p-0
+                    "
+                >
+
+                    {rows.length > 0 ? (
+
+                        <div
+                            className="
+                                table-responsive
+                            "
+                        >
+
+                            <table
+                                className="
+                                    table
+                                    table-bordered
+                                    table-hover
+                                    align-middle
+                                    mb-0
+                                "
+                            >
+
+                                <thead
+                                    className="
+                                        table-light
+                                    "
+                                >
+
+                                    <tr>
+
+                                        <th>
+                                            Payment Mode
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Amount
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            %
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                    {rows.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => {
+
+                                            const value =
+                                                getPaymentValue(
+                                                    item
+                                                );
+
+
+                                            const percentage =
+                                                getPercentage(
+                                                    value,
+                                                    total
+                                                );
+
+
+                                            return (
+
+                                                <tr
+                                                    key={
+                                                        `${getPaymentMode(item)}-${index}`
+                                                    }
+                                                >
+
+                                                    <td>
+
+                                                        <strong>
+
+                                                            {
+                                                                getPaymentMode(
+                                                                    item
+                                                                )
+                                                            }
+
+                                                        </strong>
+
+                                                    </td>
+
+
+                                                    <td
+                                                        className="
+                                                            text-end
+                                                        "
+                                                    >
+
+                                                        {
+                                                            formatCurrency(
+                                                                value
+                                                            )
+                                                        }
+
+                                                    </td>
+
+
+                                                    <td
+                                                        className="
+                                                            text-end
+                                                        "
+                                                    >
+
+                                                        {
+                                                            percentage.toFixed(
+                                                                2
+                                                            )
+                                                        }
+
+                                                        %
+
+                                                    </td>
+
+                                                </tr>
+
+                                            );
+
+                                        }
+                                    )}
+
+                                </tbody>
+
+
+                                <tfoot
+                                    className="
+                                        table-light
+                                    "
+                                >
+
+                                    <tr>
+
+                                        <th>
+                                            Total
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+
+                                            {
+                                                formatCurrency(
+                                                    total
+                                                )
+                                            }
+
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+
+                                            {
+                                                rows.length > 0
+                                                    ? "100%"
+                                                    : "0%"
+                                            }
+
+                                        </th>
+
+                                    </tr>
+
+                                </tfoot>
+
+                            </table>
 
                         </div>
 
-                    </div>
+                    ) : (
 
+                        <div
+                            className="
+                                text-center
+                                text-muted
+                                p-4
+                            "
+                        >
 
-                    <div
-                        className="card-body chart-body chart-body-pie"
-                        style={{
-                            height: "350px"
-                        }}
-                    >
+                            No payment mode data
 
-                        {
-                            expense.length > 0 ? (
+                        </div>
 
-                                <Doughnut
-                                    data={expenseChartData}
-                                    options={chartOptions}
-                                />
-
-                            ) : (
-
-                                <div className="d-flex justify-content-center align-items-center h-100 text-muted">
-
-                                    No expense payment data
-
-                                </div>
-
-                            )
-                        }
-
-                    </div>
+                    )}
 
                 </div>
 
             </div>
 
+        </div>
 
-            {/* =========================
-                LIST / TABLE
-            ========================= */}
+    );
 
-            <div className="col-12">
+};
 
-                <div className="card shadow mb-4">
 
-                    <div className="card-header">
+/*
+|--------------------------------------------------------------------------
+| MAIN PAYMENT MODE CHART
+|--------------------------------------------------------------------------
+*/
 
-                        <h5 className="mb-0">
-                            Payment Mode Summary
-                        </h5>
+const PaymentModeChart = ({
+    data = {}
+}) => {
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAFE DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const income =
+        Array.isArray(
+            data?.income
+        )
+            ? data.income
+            : [];
+
+
+    const expense =
+        Array.isArray(
+            data?.expense
+        )
+            ? data.expense
+            : [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTALS
+    |--------------------------------------------------------------------------
+    */
+
+    const incomeTotal =
+        getTotal(
+            income
+        );
+
+
+    const expenseTotal =
+        getTotal(
+            expense
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GRAND TOTAL
+    |--------------------------------------------------------------------------
+    */
+
+    const grandTotal =
+        incomeTotal +
+        expenseTotal;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
+    return (
+
+        <div
+            className="
+                w-100
+            "
+            style={{
+                maxWidth: "100%",
+                minWidth: 0,
+                overflow: "hidden"
+            }}
+        >
+
+            {/* =====================================================
+                SUMMARY
+            ===================================================== */}
+
+            <div
+                className="
+                    row
+                    g-3
+                    mb-3
+                "
+            >
+
+                <SummaryCard
+                    title="Total Income"
+                    value={
+                        incomeTotal
+                    }
+                    className="text-success"
+                />
+
+
+                <SummaryCard
+                    title="Total Expense"
+                    value={
+                        expenseTotal
+                    }
+                    className="text-danger"
+                />
+
+
+                <SummaryCard
+                    title="Total Transactions"
+                    value={
+                        grandTotal
+                    }
+                    className="text-primary"
+                />
+
+            </div>
+
+
+            {/* =====================================================
+                DOUGHNUT CHARTS
+            ===================================================== */}
+
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                    mb-3
+                "
+            >
+
+                <PaymentModeDoughnut
+
+                    title="
+                        Income Payment Modes (₹)
+                    "
+
+                    data={
+                        income
+                    }
+
+                    total={
+                        incomeTotal
+                    }
+
+                    offset={
+                        0
+                    }
+
+                    type="
+                        Income
+                    "
+
+                />
+
+
+                <PaymentModeDoughnut
+
+                    title="
+                        Expense Payment Modes (₹)
+                    "
+
+                    data={
+                        expense
+                    }
+
+                    total={
+                        expenseTotal
+                    }
+
+                    offset={
+                        4
+                    }
+
+                    type="
+                        Expense
+                    "
+
+                />
+
+            </div>
+
+
+            {/* =====================================================
+                TABLES
+            ===================================================== */}
+
+            <div
+                className="
+                    row
+                    g-3
+                    mx-0
+                "
+            >
+
+                <PaymentModeTable
+
+                    title="
+                        Income Payment Mode Summary
+                    "
+
+                    data={
+                        income
+                    }
+
+                    total={
+                        incomeTotal
+                    }
+
+                />
+
+
+                <PaymentModeTable
+
+                    title="
+                        Expense Payment Mode Summary
+                    "
+
+                    data={
+                        expense
+                    }
+
+                    total={
+                        expenseTotal
+                    }
+
+                />
+
+            </div>
+
+        </div>
+
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| SUMMARY CARD
+|--------------------------------------------------------------------------
+*/
+
+const SummaryCard = ({
+    title,
+    value,
+    className
+}) => {
+
+    return (
+
+        <div
+            className="
+                col-12
+                col-sm-6
+                col-lg-4
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                <div
+                    className="
+                        card-body
+                    "
+                >
+
+                    <div
+                        className="
+                            text-muted
+                            small
+                            mb-1
+                        "
+                    >
+
+                        {title}
 
                     </div>
 
 
-                    <div className="card-body">
-
-                        <div className="row">
-
-
-                            {/* Income List */}
-
-                            <div className="col-md-6 mb-4">
-
-                                <h6 className="mb-3">
-                                    Income
-                                </h6>
-
-
-                                {
-                                    income.length > 0 ? (
-
-                                        <div className="table-responsive">
-
-                                            <table className="table table-bordered table-hover align-middle mb-0">
-
-                                                <thead className="table-light">
-
-                                                    <tr>
-
-                                                        <th>
-                                                            Payment Mode
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            Amount
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            %
-                                                        </th>
-
-                                                    </tr>
-
-                                                </thead>
-
-
-                                                <tbody>
-
-                                                    {
-                                                        income.map(
-                                                            (item, index) => {
-
-                                                                const value =
-                                                                    Number(
-                                                                        item.value
-                                                                    ) || 0;
-
-                                                                const percentage =
-                                                                    getPercentage(
-                                                                        value,
-                                                                        incomeTotal
-                                                                    );
-
-
-                                                                return (
-
-                                                                    <tr
-                                                                        key={`${item._id}-${index}`}
-                                                                    >
-
-                                                                        <td>
-                                                                            <strong>
-                                                                                {
-                                                                                    item._id ||
-                                                                                    "Unknown"
-                                                                                }
-                                                                            </strong>
-                                                                        </td>
-
-                                                                        <td className="text-end">
-                                                                            {
-                                                                                formatCurrency(
-                                                                                    value
-                                                                                )
-                                                                            }
-                                                                        </td>
-
-                                                                        <td className="text-end">
-                                                                            {
-                                                                                percentage.toFixed(
-                                                                                    2
-                                                                                )
-                                                                            }%
-                                                                        </td>
-
-                                                                    </tr>
-
-                                                                );
-
-                                                            }
-                                                        )
-                                                    }
-
-                                                </tbody>
-
-
-                                                <tfoot className="table-light">
-
-                                                    <tr>
-
-                                                        <th>
-                                                            Total
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            {
-                                                                formatCurrency(
-                                                                    incomeTotal
-                                                                )
-                                                            }
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            100%
-                                                        </th>
-
-                                                    </tr>
-
-                                                </tfoot>
-
-                                            </table>
-
-                                        </div>
-
-                                    ) : (
-
-                                        <div className="text-muted">
-                                            No income payment data
-                                        </div>
-
-                                    )
-                                }
-
-                            </div>
-
-
-                            {/* Expense List */}
-
-                            <div className="col-md-6 mb-4">
-
-                                <h6 className="mb-3">
-                                    Expense
-                                </h6>
-
-
-                                {
-                                    expense.length > 0 ? (
-
-                                        <div className="table-responsive">
-
-                                            <table className="table table-bordered table-hover align-middle mb-0">
-
-                                                <thead className="table-light">
-
-                                                    <tr>
-
-                                                        <th>
-                                                            Payment Mode
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            Amount
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            %
-                                                        </th>
-
-                                                    </tr>
-
-                                                </thead>
-
-
-                                                <tbody>
-
-                                                    {
-                                                        expense.map(
-                                                            (item, index) => {
-
-                                                                const value =
-                                                                    Number(
-                                                                        item.value
-                                                                    ) || 0;
-
-                                                                const percentage =
-                                                                    getPercentage(
-                                                                        value,
-                                                                        expenseTotal
-                                                                    );
-
-
-                                                                return (
-
-                                                                    <tr
-                                                                        key={`${item._id}-${index}`}
-                                                                    >
-
-                                                                        <td>
-                                                                            <strong>
-                                                                                {
-                                                                                    item._id ||
-                                                                                    "Unknown"
-                                                                                }
-                                                                            </strong>
-                                                                        </td>
-
-                                                                        <td className="text-end">
-                                                                            {
-                                                                                formatCurrency(
-                                                                                    value
-                                                                                )
-                                                                            }
-                                                                        </td>
-
-                                                                        <td className="text-end">
-                                                                            {
-                                                                                percentage.toFixed(
-                                                                                    2
-                                                                                )
-                                                                            }%
-                                                                        </td>
-
-                                                                    </tr>
-
-                                                                );
-
-                                                            }
-                                                        )
-                                                    }
-
-                                                </tbody>
-
-
-                                                <tfoot className="table-light">
-
-                                                    <tr>
-
-                                                        <th>
-                                                            Total
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            {
-                                                                formatCurrency(
-                                                                    expenseTotal
-                                                                )
-                                                            }
-                                                        </th>
-
-                                                        <th className="text-end">
-                                                            100%
-                                                        </th>
-
-                                                    </tr>
-
-                                                </tfoot>
-
-                                            </table>
-
-                                        </div>
-
-                                    ) : (
-
-                                        <div className="text-muted">
-                                            No expense payment data
-                                        </div>
-
-                                    )
-                                }
-
-                            </div>
-
-                        </div>
+                    <div
+                        className={`
+                            fs-5
+                            fw-bold
+                            ${className}
+                        `}
+                    >
+
+                        {
+                            formatCurrency(
+                                value
+                            )
+                        }
 
                     </div>
 
@@ -654,4 +1020,6 @@ const PaymentModeChart = ({
     );
 
 };
+
+
 export default PaymentModeChart;

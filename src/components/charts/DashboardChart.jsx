@@ -28,190 +28,367 @@ ChartJS.register(
 );
 
 
+/*
+|--------------------------------------------------------------------------
+| COLORS
+|--------------------------------------------------------------------------
+*/
+
+const savingColor =
+    "#198754";
+
+const savingBorderColor =
+    "#146c43";
+
+const debtColor =
+    "#ffc107";
+
+const debtBorderColor =
+    "#cc9a06";
+
+const pendingDebtColor =
+    "#0dcaf0";
+
+const pendingDebtBorderColor =
+    "#0aa2c0";
+
+
+/*
+|--------------------------------------------------------------------------
+| CURRENCY FORMATTER
+|--------------------------------------------------------------------------
+*/
+
+const formatCurrency = (
+    value
+) => {
+
+    return `₹${Number(
+        value || 0
+    ).toLocaleString(
+        "en-IN",
+        {
+            maximumFractionDigits: 2
+        }
+    )}`;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| MONTH NAMES
+|--------------------------------------------------------------------------
+*/
+
+const getMonthName = (
+    month
+) => {
+
+    return new Date(
+        2000,
+        month - 1,
+        1
+    ).toLocaleString(
+        "en-IN",
+        {
+            month: "short"
+        }
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET MONTH VALUE
+|--------------------------------------------------------------------------
+*/
+
+const getMonthValue = (
+    items,
+    month
+) => {
+
+    if (
+        !Array.isArray(items)
+    ) {
+
+        return 0;
+
+    }
+
+
+    const row =
+        items.find(
+            item =>
+                Number(
+                    item?._id
+                ) === Number(month)
+        );
+
+
+    return Number(
+        row?.total || 0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| NORMALIZE DATA
+|--------------------------------------------------------------------------
+*/
+
+const normalizeItems = (
+    value
+) => {
+
+    if (
+        !Array.isArray(value)
+    ) {
+
+        return [];
+
+    }
+
+
+    return value;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| DASHBOARD CHART
+|--------------------------------------------------------------------------
+*/
+
 const DashboardChart = ({
-    data = {
-        income: [],
-        expense: [],
-        Saving: [],
-        Debt: [],
-        pendingDebt: []
-    },
+    data = {},
     year = "all"
 }) => {
 
     /*
-     * API data
-     */
-    const income = data?.income || [];
-    const expense = data?.expense || [];
+    |--------------------------------------------------------------------------
+    | API DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const income =
+        normalizeItems(
+            data?.income
+        );
+
+
+    const expense =
+        normalizeItems(
+            data?.expense
+        );
+
 
     const saving =
-        data?.Saving ||
-        data?.saving ||
-        [];
+        normalizeItems(
+            data?.Saving ??
+            data?.saving
+        );
+
 
     const debt =
-        data?.Debt ||
-        data?.debt ||
-        [];
+        normalizeItems(
+            data?.Debt ??
+            data?.debt
+        );
+
 
     const pendingDebt =
-        data?.pendingDebt ||
-        data?.PendingDebt ||
-        [];
+        normalizeItems(
+            data?.pendingDebt ??
+            data?.PendingDebt
+        );
 
 
     /*
-     * Check selected filter
-     */
+    |--------------------------------------------------------------------------
+    | FILTER
+    |--------------------------------------------------------------------------
+    */
+
     const isAll =
-        String(year).toLowerCase() === "all";
+        String(
+            year
+        ).toLowerCase() === "all";
 
 
     /*
-     * Get all available months
-     */
-    const labels = [
+    |--------------------------------------------------------------------------
+    | MONTHS
+    |--------------------------------------------------------------------------
+    |
+    | Dashboard API returns:
+    |
+    | [
+    |   {
+    |      _id: 1,
+    |      total: 100
+    |   }
+    | ]
+    |
+    | Create a complete month list when data exists.
+    |
+    */
+
+    const monthNumbers = [
+
         ...new Set([
-            ...income.map(item => Number(item._id)),
-            ...expense.map(item => Number(item._id)),
-            ...saving.map(item => Number(item._id)),
-            ...debt.map(item => Number(item._id)),
-            ...pendingDebt.map(item => Number(item._id))
+
+            ...income.map(
+                item =>
+                    Number(
+                        item?._id
+                    )
+            ),
+
+            ...expense.map(
+                item =>
+                    Number(
+                        item?._id
+                    )
+            ),
+
+            ...saving.map(
+                item =>
+                    Number(
+                        item?._id
+                    )
+            ),
+
+            ...debt.map(
+                item =>
+                    Number(
+                        item?._id
+                    )
+            ),
+
+            ...pendingDebt.map(
+                item =>
+                    Number(
+                        item?._id
+                    )
+            )
+
         ])
+
     ]
         .filter(
             month =>
-                Number.isFinite(month) &&
+                Number.isFinite(
+                    month
+                ) &&
                 month >= 1 &&
                 month <= 12
         )
-        .sort((a, b) => a - b);
+        .sort(
+            (a, b) =>
+                a - b
+        );
 
 
     /*
-     * Month names
-     */
-    const monthLabels = labels.map(month => {
+    |--------------------------------------------------------------------------
+    | MONTH LABELS
+    |--------------------------------------------------------------------------
+    */
 
-        return new Date(
-            2000,
-            month - 1,
-            1
-        ).toLocaleString(
-            "default",
-            {
-                month: "short"
+    const labels =
+        monthNumbers.map(
+            month =>
+                getMonthName(
+                    month
+                )
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MONTHLY ROWS
+    |--------------------------------------------------------------------------
+    */
+
+    const rows =
+        monthNumbers.map(
+            month => {
+
+                return {
+
+                    month,
+
+                    monthName:
+                        getMonthName(
+                            month
+                        ),
+
+                    income:
+                        getMonthValue(
+                            income,
+                            month
+                        ),
+
+                    expense:
+                        getMonthValue(
+                            expense,
+                            month
+                        ),
+
+                    saving:
+                        getMonthValue(
+                            saving,
+                            month
+                        ),
+
+                    debt:
+                        getMonthValue(
+                            debt,
+                            month
+                        ),
+
+                    pendingDebt:
+                        getMonthValue(
+                            pendingDebt,
+                            month
+                        )
+
+                };
+
             }
         );
 
-    });
-
 
     /*
-     * Find value for month
-     */
-    const getMonthValue = (
-        items,
-        month
-    ) => {
+    |--------------------------------------------------------------------------
+    | CHART DATA
+    |--------------------------------------------------------------------------
+    */
 
-        const row = items.find(
-            item =>
-                Number(item._id) === month
-        );
-
-        return row
-            ? Number(row.total) || 0
-            : 0;
-
-    };
-
-
-    /*
-     * Create monthly rows
-     */
-    const rows = labels.map(
-        (month, index) => {
-
-            const incomeValue =
-                getMonthValue(
-                    income,
-                    month
-                );
-
-            const expenseValue =
-                getMonthValue(
-                    expense,
-                    month
-                );
-
-            const savingValue =
-                getMonthValue(
-                    saving,
-                    month
-                );
-
-            const debtValue =
-                getMonthValue(
-                    debt,
-                    month
-                );
-
-            const pendingDebtValue =
-                getMonthValue(
-                    pendingDebt,
-                    month
-                );
-
-
-            return {
-
-                month,
-
-                monthName:
-                    monthLabels[index],
-
-                income:
-                    incomeValue,
-
-                expense:
-                    expenseValue,
-
-                saving:
-                    savingValue,
-
-                debt:
-                    debtValue,
-
-                pendingDebt:
-                    pendingDebtValue
-
-            };
-
-        }
-    );
-
-
-    /*
-     * Chart data
-     */
     const chartData = {
 
-        labels: monthLabels,
+        labels,
 
         datasets: [
 
             {
-                label: "Income",
+                label:
+                    "Income",
 
-                data: labels.map(
-                    month =>
-                        getMonthValue(
-                            income,
-                            month
-                        )
-                ),
+                data:
+                    monthNumbers.map(
+                        month =>
+                            getMonthValue(
+                                income,
+                                month
+                            )
+                    ),
 
                 backgroundColor:
                     incomeColor,
@@ -219,20 +396,24 @@ const DashboardChart = ({
                 borderColor:
                     incomeBorderColor,
 
-                borderWidth: 1
+                borderWidth:
+                    1
+
             },
 
 
             {
-                label: "Expense",
+                label:
+                    "Expense",
 
-                data: labels.map(
-                    month =>
-                        getMonthValue(
-                            expense,
-                            month
-                        )
-                ),
+                data:
+                    monthNumbers.map(
+                        month =>
+                            getMonthValue(
+                                expense,
+                                month
+                            )
+                    ),
 
                 backgroundColor:
                     expenseColor,
@@ -240,70 +421,84 @@ const DashboardChart = ({
                 borderColor:
                     expenseBorderColor,
 
-                borderWidth: 1
+                borderWidth:
+                    1
+
             },
 
 
             {
-                label: "Saving",
+                label:
+                    "Saving",
 
-                data: labels.map(
-                    month =>
-                        getMonthValue(
-                            saving,
-                            month
-                        )
-                ),
+                data:
+                    monthNumbers.map(
+                        month =>
+                            getMonthValue(
+                                saving,
+                                month
+                            )
+                    ),
 
                 backgroundColor:
-                    "#198754",
+                    savingColor,
 
                 borderColor:
-                    "#146c43",
+                    savingBorderColor,
 
-                borderWidth: 1
+                borderWidth:
+                    1
+
             },
 
 
             {
-                label: "Debt",
+                label:
+                    "Debt",
 
-                data: labels.map(
-                    month =>
-                        getMonthValue(
-                            debt,
-                            month
-                        )
-                ),
+                data:
+                    monthNumbers.map(
+                        month =>
+                            getMonthValue(
+                                debt,
+                                month
+                            )
+                    ),
 
                 backgroundColor:
-                    "#ffc107",
+                    debtColor,
 
                 borderColor:
-                    "#cc9a06",
+                    debtBorderColor,
 
-                borderWidth: 1
+                borderWidth:
+                    1
+
             },
 
 
             {
-                label: "Pending Debt",
+                label:
+                    "Pending Debt",
 
-                data: labels.map(
-                    month =>
-                        getMonthValue(
-                            pendingDebt,
-                            month
-                        )
-                ),
+                data:
+                    monthNumbers.map(
+                        month =>
+                            getMonthValue(
+                                pendingDebt,
+                                month
+                            )
+                    ),
 
                 backgroundColor:
-                    "#0dcaf0",
+                    pendingDebtColor,
 
                 borderColor:
-                    "#0aa2c0",
+                    pendingDebtBorderColor,
 
-                borderWidth: 1
+                borderWidth:
+                    1
+
             }
 
         ]
@@ -312,57 +507,89 @@ const DashboardChart = ({
 
 
     /*
-     * Chart options
-     */
+    |--------------------------------------------------------------------------
+    | CHART OPTIONS
+    |--------------------------------------------------------------------------
+    */
+
     const options = {
 
-        responsive: true,
+        responsive:
+            true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+            false,
 
         interaction: {
-            mode: "index",
-            intersect: false
+
+            mode:
+                "index",
+
+            intersect:
+                false
+
         },
+
 
         plugins: {
 
             legend: {
-                position: "top"
+
+                position:
+                    "top",
+
+                labels: {
+
+                    usePointStyle:
+                        true,
+
+                    padding:
+                        18
+
+                }
+
             },
+
 
             title: {
 
-                display: true,
+                display:
+                    true,
 
-                text: isAll
-                    ? "Dashboard Income vs Expense - All"
-                    : `Dashboard Income vs Expense - ${year}`
+                text:
+                    isAll
+
+                        ? "Dashboard Overview - All Years"
+
+                        : `Dashboard Overview - ${year}`
 
             },
+
 
             tooltip: {
 
                 callbacks: {
 
-                    label: context => {
+                    label:
+                        context => {
 
-                        const value =
-                            Number(
-                                context.raw
-                            ) || 0;
+                            const value =
+                                Number(
+                                    context.raw
+                                ) || 0;
 
-                        return (
-                            `${context.dataset.label}: ₹` +
-                            value.toLocaleString(
-                                "en-IN",
-                                {
-                                    maximumFractionDigits: 2
-                                }
-                            )
-                        );
 
-                    }
+                            return (
+
+                                `${context.dataset.label}: ` +
+
+                                formatCurrency(
+                                    value
+                                )
+
+                            );
+
+                        }
 
                 }
 
@@ -370,31 +597,37 @@ const DashboardChart = ({
 
         },
 
+
         scales: {
 
             x: {
 
-                stacked: false
+                stacked:
+                    false,
+
+                grid: {
+
+                    display:
+                        false
+
+                }
 
             },
 
+
             y: {
 
-                beginAtZero: true,
+                beginAtZero:
+                    true,
 
                 ticks: {
 
-                    callback: value => {
+                    callback:
+                        value =>
 
-                        return (
-                            `₹${Number(
+                            formatCurrency(
                                 value
-                            ).toLocaleString(
-                                "en-IN"
-                            )}`
-                        );
-
-                    }
+                            )
 
                 }
 
@@ -406,96 +639,280 @@ const DashboardChart = ({
 
 
     /*
-     * Currency formatter
-     */
-    const formatCurrency = value => {
-
-        return `₹${Number(
-            value || 0
-        ).toLocaleString(
-            "en-IN",
-            {
-                maximumFractionDigits: 2
-            }
-        )}`;
-
-    };
-
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="card shadow mb-4">
+        <div
+            className="
+                w-100
+            "
+            style={{
+                minWidth: 0,
+                maxWidth: "100%"
+            }}
+        >
 
-            {/* Header */}
-            <div className="card-header">
+            {/* =========================================================
+                SUMMARY
+            ========================================================= */}
 
-                <div className="d-flex justify-content-between align-items-center">
+            <div
+                className="
+                    row
+                    g-3
+                    mb-3
+                "
+            >
+
+                <SummaryCard
+                    title="Income"
+                    value={
+                        income.reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Number(
+                                    item?.total || 0
+                                ),
+                            0
+                        )
+                    }
+                    className="text-success"
+                />
+
+
+                <SummaryCard
+                    title="Expense"
+                    value={
+                        expense.reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Number(
+                                    item?.total || 0
+                                ),
+                            0
+                        )
+                    }
+                    className="text-danger"
+                />
+
+
+                <SummaryCard
+                    title="Saving"
+                    value={
+                        saving.reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Number(
+                                    item?.total || 0
+                                ),
+                            0
+                        )
+                    }
+                    className="text-primary"
+                />
+
+
+                <SummaryCard
+                    title="Debt"
+                    value={
+                        debt.reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Number(
+                                    item?.total || 0
+                                ),
+                            0
+                        )
+                    }
+                    className="text-warning"
+                />
+
+
+                <SummaryCard
+                    title="Pending Debt"
+                    value={
+                        pendingDebt.reduce(
+                            (
+                                total,
+                                item
+                            ) =>
+                                total +
+                                Number(
+                                    item?.total || 0
+                                ),
+                            0
+                        )
+                    }
+                    className="text-info"
+                />
+
+            </div>
+
+
+            {/* =========================================================
+                CHART
+            ========================================================= */}
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    w-100
+                    mb-4
+                "
+            >
+
+                <div
+                    className="
+                        card-header
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                    "
+                >
 
                     <h5 className="mb-0">
-                        Dashboard Chart (₹)
+
+                        Dashboard Overview
+
                     </h5>
 
-                    <span className="text-muted">
+
+                    <span
+                        className="
+                            text-muted
+                        "
+                    >
+
                         {
                             isAll
-                                ? "All"
+                                ? "All Years"
                                 : year
                         }
+
                     </span>
+
+                </div>
+
+
+                <div
+                    className="
+                        card-body
+                    "
+                    style={{
+                        height: "450px",
+                        minWidth: 0,
+                        position: "relative"
+                    }}
+                >
+
+                    {monthNumbers.length > 0 ? (
+
+                        <Bar
+                            data={
+                                chartData
+                            }
+                            options={
+                                options
+                            }
+                        />
+
+                    ) : (
+
+                        <div
+                            className="
+                                d-flex
+                                justify-content-center
+                                align-items-center
+                                h-100
+                                text-muted
+                            "
+                        >
+
+                            No chart data available
+
+                        </div>
+
+                    )}
 
                 </div>
 
             </div>
 
 
-            {/* Chart */}
-            <div
-                className="card-body"
-                style={{
-                    minWidth: 0,
-                    position: "relative",
-                    height: "450px"
-                }}
-            >
+            {/* =========================================================
+                MONTHLY SUMMARY
+            ========================================================= */}
 
-                {
-                    labels.length > 0 ? (
+            {rows.length > 0 && (
 
-                        <Bar
-                            data={chartData}
-                            options={options}
-                        />
+                <div
+                    className="
+                        card
+                        shadow-sm
+                        w-100
+                    "
+                >
 
-                    ) : (
+                    <div
+                        className="
+                            card-header
+                        "
+                    >
 
-                        <div className="d-flex justify-content-center align-items-center h-100 text-muted">
+                        <h6 className="mb-0">
 
-                            No chart data available
-
-                        </div>
-
-                    )
-                }
-
-            </div>
-
-
-            {/* Monthly List */}
-            {
-                rows.length > 0 && (
-
-                    <div className="card-body pt-0">
-
-                        <h6 className="mb-3">
                             Monthly Summary
+
                         </h6>
 
+                    </div>
 
-                        <div className="table-responsive">
 
-                            <table className="table table-bordered table-hover align-middle mb-0">
+                    <div
+                        className="
+                            card-body
+                            p-0
+                        "
+                    >
 
-                                <thead className="table-light">
+                        <div
+                            className="
+                                table-responsive
+                            "
+                        >
+
+                            <table
+                                className="
+                                    table
+                                    table-bordered
+                                    table-hover
+                                    align-middle
+                                    mb-0
+                                "
+                            >
+
+                                <thead
+                                    className="
+                                        table-light
+                                    "
+                                >
 
                                     <tr>
 
@@ -503,23 +920,43 @@ const DashboardChart = ({
                                             Month
                                         </th>
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Income
                                         </th>
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Expense
                                         </th>
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Saving
                                         </th>
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Debt
                                         </th>
 
-                                        <th className="text-end">
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
                                             Pending Debt
                                         </th>
 
@@ -530,58 +967,116 @@ const DashboardChart = ({
 
                                 <tbody>
 
-                                    {
-                                        rows.map(row => (
+                                    {rows.map(
+                                        row => (
 
                                             <tr
-                                                key={row.month}
+                                                key={
+                                                    row.month
+                                                }
                                             >
 
                                                 <td>
+
                                                     <strong>
-                                                        {row.monthName}
+
+                                                        {
+                                                            row.monthName
+                                                        }
+
                                                     </strong>
+
                                                 </td>
 
 
-                                                <td className="text-end">
-                                                    {formatCurrency(
-                                                        row.income
-                                                    )}
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-success
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatCurrency(
+                                                            row.income
+                                                        )
+                                                    }
+
                                                 </td>
 
 
-                                                <td className="text-end">
-                                                    {formatCurrency(
-                                                        row.expense
-                                                    )}
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-danger
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatCurrency(
+                                                            row.expense
+                                                        )
+                                                    }
+
                                                 </td>
 
 
-                                                <td className="text-end">
-                                                    {formatCurrency(
-                                                        row.saving
-                                                    )}
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-primary
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatCurrency(
+                                                            row.saving
+                                                        )
+                                                    }
+
                                                 </td>
 
 
-                                                <td className="text-end">
-                                                    {formatCurrency(
-                                                        row.debt
-                                                    )}
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-warning
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatCurrency(
+                                                            row.debt
+                                                        )
+                                                    }
+
                                                 </td>
 
 
-                                                <td className="text-end">
-                                                    {formatCurrency(
-                                                        row.pendingDebt
-                                                    )}
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-info
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatCurrency(
+                                                            row.pendingDebt
+                                                        )
+                                                    }
+
                                                 </td>
 
                                             </tr>
 
-                                        ))
-                                    }
+                                        )
+                                    )}
 
                                 </tbody>
 
@@ -591,9 +1086,86 @@ const DashboardChart = ({
 
                     </div>
 
-                )
+                </div>
 
-            }
+            )}
+
+        </div>
+
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| SUMMARY CARD
+|--------------------------------------------------------------------------
+*/
+
+const SummaryCard = ({
+    title,
+    value,
+    className
+}) => {
+
+    return (
+
+        <div
+            className="
+                col-12
+                col-sm-6
+                col-lg-4
+                col-xl
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                <div
+                    className="
+                        card-body
+                    "
+                >
+
+                    <div
+                        className="
+                            text-muted
+                            small
+                            mb-1
+                        "
+                    >
+
+                        {title}
+
+                    </div>
+
+
+                    <div
+                        className={`
+                            fs-5
+                            fw-bold
+                            ${className}
+                        `}
+                    >
+
+                        {
+                            formatCurrency(
+                                value
+                            )
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 

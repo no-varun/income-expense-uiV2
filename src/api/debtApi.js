@@ -1,48 +1,94 @@
 import axios from "./axios";
 
-/**
- * Get All Income
- */
+
+/*
+|--------------------------------------------------------------------------
+| GET DEBTS
+|--------------------------------------------------------------------------
+*/
+
 export const getDebts = async (params = {}) => {
 
-    return await axios.get("/debt", {
-        params
-    });
+    const response = await axios.get(
+        "/debt",
+        {
+            params
+        }
+    );
+
+    return response.data;
 
 };
 
-/**
- * Get Single Income
- */
+
+/*
+|--------------------------------------------------------------------------
+| GET DEBT BY ID
+|--------------------------------------------------------------------------
+*/
+
 export const getDebt = async (id) => {
 
-    return await axios.get(`/debt/${id}`);
+    const response = await axios.get(
+        `/debt/${id}`
+    );
+
+    return response.data;
 
 };
 
-/**
- * Create Income
- */
+
+/*
+|--------------------------------------------------------------------------
+| CREATE DEBT
+|--------------------------------------------------------------------------
+*/
+
 export const createDebt = async (data) => {
 
-    return await axios.post("/debt", data);
+    const response = await axios.post(
+        "/debt",
+        data
+    );
+
+    return response.data;
 
 };
 
-/**
- * Update Income
- */
-export const updateDebt = async (id, data) => {
 
-    return await axios.put(`/debt/${id}`, data);
+/*
+|--------------------------------------------------------------------------
+| UPDATE DEBT
+|--------------------------------------------------------------------------
+*/
+
+export const updateDebt = async (
+    id,
+    data
+) => {
+
+    const response = await axios.put(
+        `/debt/${id}`,
+        data
+    );
+
+    return response.data;
 
 };
 
-/**
- * Delete Income
- */
+
+/*
+|--------------------------------------------------------------------------
+| DELETE DEBT
+|--------------------------------------------------------------------------
+*/
+
 export const deleteDebt = async (id) => {
 
-    return await axios.delete(`/debt/${id}`);
+    const response = await axios.delete(
+        `/debt/${id}`
+    );
+
+    return response.data;
 
 };

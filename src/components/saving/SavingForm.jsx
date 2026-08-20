@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
+import { getAccounts } from "../../api/accountApi";
+
 
 const SavingForm = ({
     initialValues = {},
@@ -14,24 +16,28 @@ const SavingForm = ({
 
     const [categories, setCategories] = useState([]);
     const [items, setItems] = useState([]);
+    const [accounts, setAccounts] = useState([]);
+
     const [itemsLoading, setItemsLoading] = useState(false);
+    const [accountsLoading, setAccountsLoading] = useState(false);
 
     const [form, setForm] = useState({
+        category: "",
+        item: "",
         title: "",
         amount: "",
-        category: "",
-        paymentMode: "Paytm",
-        bank: "icici",
+        account: "",
+        paymentMode: "Cash",
         date: new Date().toISOString().split("T")[0],
         note: ""
     });
 
 
     /*
-     * =========================
-     * LOAD CATEGORIES
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD CATEGORIES
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -40,30 +46,45 @@ const SavingForm = ({
             try {
 
                 const response = await getCategories({
-                    limit: 100,
-                    type: "SAVING"
+                    page: 1,
+                    limit: 100
                 });
 
-                if (response.success) {
+                console.log(
+                    "Saving Category Response:",
+                    response
+                );
 
-                    const rows =
-                        response.data?.rows ||
-                        response.data?.data ||
-                        response.data ||
-                        [];
+                const payload =
+                    response?.data || response;
 
-                    setCategories(
-                        Array.isArray(rows)
-                            ? rows
-                            : []
-                    );
+                let rows = [];
 
+                if (Array.isArray(payload)) {
+                    rows = payload;
+                } else if (Array.isArray(payload?.rows)) {
+                    rows = payload.rows;
+                } else if (Array.isArray(payload?.data)) {
+                    rows = payload.data;
+                } else if (Array.isArray(payload?.data?.rows)) {
+                    rows = payload.data.rows;
                 }
+
+                /*
+                 * Only Saving categories
+                 */
+                rows = rows.filter(
+                    category =>
+                        !category.type ||
+                        String(category.type).toUpperCase() === "SAVING"
+                );
+
+                setCategories(rows);
 
             } catch (error) {
 
                 console.error(
-                    "Category fetch error:",
+                    "Saving Category Error:",
                     error
                 );
 
@@ -79,10 +100,107 @@ const SavingForm = ({
 
 
     /*
-     * =========================
-     * LOAD ITEMS
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const loadAccounts = async () => {
+
+            try {
+
+                setAccountsLoading(true);
+
+                const response = await getAccounts({
+                    page: 1,
+                    limit: 100
+                });
+
+                console.log(
+                    "Saving Account Response:",
+                    response
+                );
+
+                const payload =
+                    response?.data || response;
+
+                let rows = [];
+
+                /*
+                 * Supported account response formats
+                 *
+                 * {
+                 *   total,
+                 *   rows: []
+                 * }
+                 *
+                 * or
+                 *
+                 * {
+                 *   data: []
+                 * }
+                 */
+
+                if (Array.isArray(payload)) {
+
+                    rows = payload;
+
+                } else if (
+                    Array.isArray(payload?.rows)
+                ) {
+
+                    rows = payload.rows;
+
+                } else if (
+                    Array.isArray(payload?.data)
+                ) {
+
+                    rows = payload.data;
+
+                } else if (
+                    Array.isArray(payload?.data?.rows)
+                ) {
+
+                    rows = payload.data.rows;
+
+                }
+
+                console.log(
+                    "Saving Accounts:",
+                    rows
+                );
+
+                setAccounts(rows);
+
+            } catch (error) {
+
+                console.error(
+                    "Saving Account Error:",
+                    error
+                );
+
+                setAccounts([]);
+
+            } finally {
+
+                setAccountsLoading(false);
+
+            }
+
+        };
+
+        loadAccounts();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD ITEMS
+    |--------------------------------------------------------------------------
+    */
 
     const loadItems = async (categoryId) => {
 
@@ -97,40 +215,53 @@ const SavingForm = ({
         try {
 
             setItemsLoading(true);
-            setItems([]);
 
             const response = await getItems({
+                page: 1,
                 limit: 1000,
-                category: categoryId,
-                type: "SAVING",
-                status: true
+                category: categoryId
             });
 
-            if (response.success) {
+            console.log(
+                "Saving Item Response:",
+                response
+            );
 
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
+            const payload =
+                response?.data || response;
 
-                setItems(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
-                );
+            let rows = [];
 
-            } else {
+            if (Array.isArray(payload)) {
 
-                setItems([]);
+                rows = payload;
+
+            } else if (
+                Array.isArray(payload?.rows)
+            ) {
+
+                rows = payload.rows;
+
+            } else if (
+                Array.isArray(payload?.data)
+            ) {
+
+                rows = payload.data;
+
+            } else if (
+                Array.isArray(payload?.data?.rows)
+            ) {
+
+                rows = payload.data.rows;
 
             }
+
+            setItems(rows);
 
         } catch (error) {
 
             console.error(
-                "Item fetch error:",
+                "Saving Item Error:",
                 error
             );
 
@@ -146,10 +277,10 @@ const SavingForm = ({
 
 
     /*
-     * =========================
-     * EDIT MODE
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | EDIT MODE
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -157,9 +288,7 @@ const SavingForm = ({
             !initialValues ||
             Object.keys(initialValues).length === 0
         ) {
-
             return;
-
         }
 
         const categoryId =
@@ -167,23 +296,33 @@ const SavingForm = ({
             initialValues.category ||
             "";
 
+        const itemId =
+            initialValues.item?._id ||
+            initialValues.item ||
+            "";
+
+        const accountId =
+            initialValues.account?._id ||
+            initialValues.account ||
+            "";
+
         setForm({
+
+            category: categoryId,
+
+            item: itemId,
+
             title:
                 initialValues.title || "",
 
             amount:
                 initialValues.amount ?? "",
 
-            category:
-                categoryId,
+            account: accountId,
 
             paymentMode:
                 initialValues.paymentMode ||
                 "Cash",
-
-            bank:
-                initialValues.bank ||
-                "icici",
 
             date:
                 initialValues.date
@@ -194,15 +333,12 @@ const SavingForm = ({
 
             note:
                 initialValues.note || ""
+
         });
 
         if (categoryId) {
 
             loadItems(categoryId);
-
-        } else {
-
-            setItems([]);
 
         }
 
@@ -210,40 +346,20 @@ const SavingForm = ({
 
 
     /*
-     * =========================
-     * INPUT CHANGE
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | CATEGORY CHANGE
+    |--------------------------------------------------------------------------
+    */
 
-    const handleChange = (e) => {
-
-        const {
-            name,
-            value
-        } = e.target;
-
-        setForm(prev => ({
-            ...prev,
-            [name]: value
-        }));
-
-    };
-
-
-    /*
-     * =========================
-     * CATEGORY CHANGE
-     * =========================
-     */
-
-    const handleCategoryChange = async (e) => {
+    const handleCategoryChange = async (event) => {
 
         const categoryId =
-            e.target.value;
+            event.target.value;
 
-        setForm(prev => ({
-            ...prev,
+        setForm(previous => ({
+            ...previous,
             category: categoryId,
+            item: "",
             title: ""
         }));
 
@@ -259,15 +375,15 @@ const SavingForm = ({
 
 
     /*
-     * =========================
-     * ITEM CHANGE
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | ITEM CHANGE
+    |--------------------------------------------------------------------------
+    */
 
-    const handleItemChange = (e) => {
+    const handleItemChange = (event) => {
 
         const itemId =
-            e.target.value;
+            event.target.value;
 
         const selectedItem =
             items.find(
@@ -276,36 +392,62 @@ const SavingForm = ({
                     String(itemId)
             );
 
-        setForm(prev => ({
-            ...prev,
+        setForm(previous => ({
+            ...previous,
+
+            item: itemId,
+
             title:
-                selectedItem?.name || ""
+                selectedItem?.name ||
+                selectedItem?.title ||
+                ""
         }));
 
     };
 
 
     /*
-     * =========================
-     * SUBMIT
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | INPUT CHANGE
+    |--------------------------------------------------------------------------
+    */
 
-    const handleSubmit = (e) => {
+    const handleChange = (event) => {
 
-        e.preventDefault();
+        const {
+            name,
+            value
+        } = event.target;
+
+        setForm(previous => ({
+            ...previous,
+            [name]: value
+        }));
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT
+    |--------------------------------------------------------------------------
+    */
+
+    const handleSubmit = (event) => {
+
+        event.preventDefault();
 
         if (!form.category) {
 
-            alert("Please select category");
+            alert("Please select category.");
 
             return;
 
         }
 
-        if (!form.title.trim()) {
+        if (!form.item && !form.title) {
 
-            alert("Please select item");
+            alert("Please select item.");
 
             return;
 
@@ -317,319 +459,510 @@ const SavingForm = ({
         ) {
 
             alert(
-                "Amount should be greater than zero"
+                "Amount must be greater than 0."
             );
 
             return;
 
         }
 
-        onSubmit({
-            ...form,
-            amount: Number(form.amount)
-        });
+        if (!form.account) {
+
+            alert("Please select account.");
+
+            return;
+
+        }
+
+        if (!form.date) {
+
+            alert("Please select date.");
+
+            return;
+
+        }
+
+        const data = {
+
+            category: form.category,
+
+            item:
+                form.item || undefined,
+
+            title: form.title,
+
+            amount:
+                Number(form.amount),
+
+            account: form.account,
+
+            paymentMode:
+                form.paymentMode,
+
+            date:
+                form.date,
+
+            note:
+                form.note
+
+        };
+
+        console.log(
+            "Saving Payload:",
+            data
+        );
+
+        onSubmit(data);
 
     };
 
 
     /*
-     * =========================
-     * SELECTED ITEM
-     * =========================
-     */
+    |--------------------------------------------------------------------------
+    | ACCOUNT NAME
+    |--------------------------------------------------------------------------
+    */
 
-    const selectedItemId =
-        items.find(
-            item =>
-                item.name === form.title
-        )?._id || "";
+    const getAccountName = (account) => {
 
+        return (
+            account.name ||
+            account.accountName ||
+            account.title ||
+            account.bankName ||
+            account.account_title ||
+            "Unnamed Account"
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="card shadow">
+        <div className="container-fluid px-4 py-4">
 
-            <div className="card-header d-flex justify-content-between align-items-center">
+            <div className="card shadow-sm border-0 w-100">
 
-                <h5 className="mb-0">
-                    Saving Details
-                </h5>
+                {/* HEADER */}
 
-                <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() =>
-                        navigate("/saving")
-                    }
+                <div
+                    className="
+                        card-header
+                        bg-white
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                    "
                 >
-                    Back
-                </button>
 
-            </div>
-
-
-            <div className="card-body">
-
-                <form onSubmit={handleSubmit}>
-
-                    {/* CATEGORY */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Category
-                        </label>
-
-                        <select
-                            className="form-select"
-                            value={form.category}
-                            onChange={
-                                handleCategoryChange
-                            }
-                            required
-                        >
-
-                            <option value="">
-                                Select Category
-                            </option>
-
-                            {categories.map(category => (
-
-                                <option
-                                    key={category._id}
-                                    value={category._id}
-                                >
-                                    {category.name}
-                                </option>
-
-                            ))}
-
-                        </select>
-
-                    </div>
-
-
-                    {/* ITEM */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Item
-                        </label>
-
-                        <select
-                            className="form-select"
-                            value={selectedItemId}
-                            onChange={handleItemChange}
-                            disabled={
-                                !form.category ||
-                                itemsLoading
-                            }
-                            required
-                        >
-
-                            <option value="">
-
-                                {itemsLoading
-                                    ? "Loading items..."
-                                    : !form.category
-                                        ? "First select category"
-                                        : items.length === 0
-                                            ? "No items found"
-                                            : "Select Item"
-                                }
-
-                            </option>
-
-                            {items.map(item => (
-
-                                <option
-                                    key={item._id}
-                                    value={item._id}
-                                >
-                                    {item.name}
-                                </option>
-
-                            ))}
-
-                        </select>
-
-                    </div>
-
-
-                    {/* AMOUNT */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Amount
-                        </label>
-
-                        <input
-                            type="number"
-                            className="form-control"
-                            name="amount"
-                            value={form.amount}
-                            onChange={handleChange}
-                            min="0"
-                            step="0.01"
-                            required
-                        />
-
-                    </div>
-
-
-                    {/* PAYMENT MODE */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Payment Mode
-                        </label>
-
-                        <select
-                            className="form-select"
-                            name="paymentMode"
-                            value={form.paymentMode}
-                            onChange={handleChange}
-                            required
-                        >
-
-                            <option value="Cash">
-                                Cash
-                            </option>
-
-                            <option value="Paytm">
-                                Paytm
-                            </option>
-
-                            <option value="PhonePe">
-                                PhonePe
-                            </option>
-
-                            <option value="GPay">
-                                GPay
-                            </option>
-
-                            <option value="Bhim">
-                                Bhim
-                            </option>
-
-                            <option value="AmazonPay">
-                                Amazon Pay
-                            </option>
-                            <option value="BankTransfer">
-                                Bank Transfer
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* BANK */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Bank
-                        </label>
-
-                        <select
-                            className="form-select"
-                            name="bank"
-                            value={form.bank}
-                            onChange={handleChange}
-                        >
-
-                            <option value="Pnb">
-                                PNB
-                            </option>
-
-                            <option value="Rbl">
-                                RBL
-                            </option>
-
-                            <option value="icici">
-                                ICICI
-                            </option>
-
-                            <option value="Cash">
-                                Cash
-                            </option>
-
-                            <option value="Other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    {/* DATE */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Date
-                        </label>
-
-                        <input
-                            type="date"
-                            className="form-control"
-                            name="date"
-                            value={form.date}
-                            onChange={handleChange}
-                            required
-                        />
-
-                    </div>
-
-
-                    {/* NOTE */}
-
-                    <div className="mb-3">
-
-                        <label className="form-label">
-                            Note
-                        </label>
-
-                        <textarea
-                            rows="3"
-                            className="form-control"
-                            name="note"
-                            value={form.note}
-                            onChange={handleChange}
-                            placeholder="Enter note"
-                        />
-
-                    </div>
-
-
-                    {/* SUBMIT */}
+                    <h4 className="mb-0">
+                        Saving Details
+                    </h4>
 
                     <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={
-                            loading ||
-                            itemsLoading
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() =>
+                            navigate("/saving")
                         }
                     >
-
-                        {loading
-                            ? "Please wait..."
-                            : "Save Saving"
-                        }
-
+                        Back
                     </button>
 
-                </form>
+                </div>
+
+
+                {/* BODY */}
+
+                <div className="card-body">
+
+                    <form onSubmit={handleSubmit}>
+
+                        {/* CATEGORY */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Category
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={form.category}
+                                onChange={
+                                    handleCategoryChange
+                                }
+                                required
+                            >
+
+                                <option value="">
+                                    Select Category
+                                </option>
+
+                                {categories.map(
+                                    category => (
+
+                                        <option
+                                            key={
+                                                category._id
+                                            }
+                                            value={
+                                                category._id
+                                            }
+                                        >
+
+                                            {
+                                                category.name
+                                            }
+
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* ITEM */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Item
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={form.item}
+                                onChange={
+                                    handleItemChange
+                                }
+                                disabled={
+                                    !form.category ||
+                                    itemsLoading
+                                }
+                            >
+
+                                <option value="">
+
+                                    {!form.category
+                                        ? "First select category"
+                                        : itemsLoading
+                                            ? "Loading items..."
+                                            : items.length === 0
+                                                ? "No items found"
+                                                : "Select Item"
+                                    }
+
+                                </option>
+
+                                {items.map(
+                                    item => (
+
+                                        <option
+                                            key={
+                                                item._id
+                                            }
+                                            value={
+                                                item._id
+                                            }
+                                        >
+
+                                            {
+                                                item.name ||
+                                                item.title
+                                            }
+
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* AMOUNT */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Amount
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <div className="input-group">
+
+                                <span className="input-group-text">
+                                    ₹
+                                </span>
+
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    className="form-control"
+                                    placeholder="Enter amount"
+                                    value={form.amount}
+                                    onChange={
+                                        handleChange
+                                    }
+                                    min="-1000000"
+                                    step="0.01"
+                                    required
+                                />
+
+                            </div>
+
+                        </div>
+
+
+                        {/* ACCOUNT */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Account
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <select
+                                name="account"
+                                className="form-select"
+                                value={form.account}
+                                onChange={
+                                    handleChange
+                                }
+                                disabled={
+                                    accountsLoading
+                                }
+                                required
+                            >
+
+                                <option value="">
+
+                                    {accountsLoading
+                                        ? "Loading accounts..."
+                                        : accounts.length === 0
+                                            ? "No accounts found"
+                                            : "Select Account"
+                                    }
+
+                                </option>
+
+                                {accounts.map(
+                                    account => (
+
+                                        <option
+                                            key={
+                                                account._id
+                                            }
+                                            value={
+                                                account._id
+                                            }
+                                        >
+
+                                            {
+                                                getAccountName(
+                                                    account
+                                                )
+                                            }
+
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* PAYMENT MODE */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Payment Mode
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <select
+                                name="paymentMode"
+                                className="form-select"
+                                value={
+                                    form.paymentMode
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                required
+                            >
+
+                                <option value="Cash">
+                                    Cash
+                                </option>
+
+                                <option value="BankTransfer">
+                                    Bank Transfer
+                                </option>
+
+                                <option value="AmazonPay">
+                                    Amazon Pay
+                                </option>
+
+                                <option value="Bhim">
+                                    Bhim
+                                </option>
+
+                                <option value="GPay">
+                                    GPay
+                                </option>
+
+                                <option value="Paytm">
+                                    Paytm
+                                </option>
+
+                                <option value="PhonePe">
+                                    PhonePe
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        {/* DATE */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+
+                                Date
+                                <span className="text-danger">
+                                    *
+                                </span>
+
+                            </label>
+
+                            <input
+                                type="date"
+                                name="date"
+                                className="form-control"
+                                value={
+                                    form.date
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                                required
+                            />
+
+                        </div>
+
+
+                        {/* NOTE */}
+
+                        <div className="mb-3">
+
+                            <label className="form-label">
+                                Note
+                            </label>
+
+                            <textarea
+                                name="note"
+                                className="form-control"
+                                rows="4"
+                                placeholder="Enter note"
+                                value={
+                                    form.note
+                                }
+                                onChange={
+                                    handleChange
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* BUTTONS */}
+
+                        <div className="d-flex gap-2">
+
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={
+                                    loading ||
+                                    itemsLoading ||
+                                    accountsLoading
+                                }
+                            >
+
+                                {loading
+                                    ? "Saving..."
+                                    : "Save Saving"
+                                }
+
+                            </button>
+
+
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() =>
+                                    navigate(
+                                        "/saving"
+                                    )
+                                }
+                                disabled={
+                                    loading
+                                }
+                            >
+
+                                Cancel
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
 
             </div>
 
@@ -638,5 +971,6 @@ const SavingForm = ({
     );
 
 };
+
 
 export default SavingForm;

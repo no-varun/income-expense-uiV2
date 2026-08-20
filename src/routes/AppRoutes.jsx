@@ -57,7 +57,14 @@ import Charts from "../pages/charts/Charts";
 
 // Profile
 import Profile from "../pages/profile/Profile";
-
+import AccountList from "../pages/account/AccountList";
+import AddAccount from "../pages/account/AddAccount";
+import EditAccount from "../pages/account/EditAccount";
+import TransferList from "../pages/transfer/TransferList";
+import AddTransfer from "../pages/transfer/AddTransfer";
+import InvestmentList from "../pages/investment/InvestmentList";
+import AddInvestment from "../pages/investment/AddInvestment";
+import EditInvestment from "../pages/investment/EditInvestment";
 const AppRoutes = () => {
 
     return (
@@ -221,11 +228,44 @@ const AppRoutes = () => {
                             element={<EditDebt />}
                         />
 
+                        <Route
+                            path="/accounts"
+                            element={<AccountList />}
+                        />
 
+                        <Route
+                            path="/accounts/add"
+                            element={<AddAccount />}
+                        />
 
+                        <Route
+                            path="/accounts/edit/:id"
+                            element={<EditAccount />}
+                        />
+                        <Route
+                            path="/transfers"
+                            element={<TransferList />}
+                        />
+
+                        <Route
+                            path="/transfers/add"
+                            element={<AddTransfer />}
+                        />
+                        <Route
+                            path="/investments"
+                            element={<InvestmentList />}
+                        />
+
+                        <Route
+                            path="/investments/add"
+                            element={<AddInvestment />}
+                        />
+
+                        <Route
+                            path="/investments/edit/:id"
+                            element={<EditInvestment />}
+                        />
                         {/* Reports */}
-
-
                         <Route
                             path="/reports"
                             element={<Reports />}

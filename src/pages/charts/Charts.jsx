@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
+
+import {
+    useLocation,
+    useNavigate
+} from "react-router-dom";
 
 import {
     getDailyChart,
     getMonthlyChart,
-    getYearlyChart,
     getWeeklyChart,
+    getYearlyChart,
     getWeekWiseExpenseChart,
     getCategoryChart,
     getPaymentModeChart,
@@ -13,436 +22,212 @@ import {
 } from "../../api/chartApi";
 
 
+import DashboardChart from "../../components/charts/DashboardChart";
 import DailyChart from "../../components/charts/DailyChart";
 import MonthlyChart from "../../components/charts/MonthlyChart";
 import WeeklyChart from "../../components/charts/WeeklyChart";
-import WeekWiseExpenseChart from "../../components/charts/WeekWiseExpenseChart";
 import YearlyChart from "../../components/charts/YearlyChart";
+import WeekWiseChart from "../../components/charts/WeekWiseExpenseChart";
 import CategoryChart from "../../components/charts/CategoryChart";
 import PaymentModeChart from "../../components/charts/PaymentModeChart";
-import DashboardChart from "../../components/charts/DashboardChart";
 import TitleTypeChart from "../../components/charts/TitleTypeChart";
 
-const chartModules = {
 
-    daily: {
+const Charts = () => {
 
-        title: "Daily Chart",
+    const location =
+        useLocation();
 
-        load: getDailyChart,
-
-        render: (data, filters) => (
-            <DailyChart
-                data={data}
-                month={filters.month}
-                year={filters.year}
-            />
-        ),
-
-        initialData: []
-
-    },
-
-
-    monthly: {
-
-        title: "Monthly Chart",
-
-        load: getMonthlyChart,
-
-        render: data => (
-            <MonthlyChart data={data} />
-        ),
-
-        initialData: []
-
-    },
-
-
-    weekly: {
-
-        title: "Weekly Chart",
-
-        load: getWeeklyChart,
-
-        render: data => (
-            <WeeklyChart data={data} />
-        ),
-
-        initialData: {
-
-            income: [],
-            expense: []
-
-        }
-
-    },
-
-
-    "week-wise": {
-
-        title: "Week Wise Expense Chart",
-
-        load: getWeekWiseExpenseChart,
-
-        render: data => (
-            <WeekWiseExpenseChart data={data} />
-        ),
-
-        initialData: []
-
-    },
-
-
-    yearly: {
-
-        title: "Yearly Chart",
-
-        load: getYearlyChart,
-
-        render: data => (
-            <YearlyChart data={data} />
-        ),
-
-        initialData: []
-
-    },
-
-
-    category: {
-
-        title: "Category Chart",
-
-        load: getCategoryChart,
-
-        render: data => (
-            <CategoryChart data={data} />
-        ),
-
-        initialData: {
-
-            income: [],
-            expense: [],
-            saving: [],
-            debt: [],
-            pendingDebt: []
-
-        }
-
-    },
-
-
-    titleType: {
-
-        title: "Title Type Chart",
-
-        load: getTitleTypeChart,
-
-        render: data => (
-            <TitleTypeChart data={data} />
-        ),
-
-        initialData: {
-
-            income: [],
-            expense: [],
-            saving: [],
-            debt: [],
-            pendingDebt: []
-
-        }
-
-    },
-    "payment-mode": {
-
-        title: "Payment Mode Chart",
-
-        load: getPaymentModeChart,
-
-        render: data => (
-            <PaymentModeChart data={data} />
-        ),
-
-        initialData: {
-
-            income: [],
-            expense: []
-
-        }
-
-    },
-
-
-    dashboard: {
-
-        title: "Dashboard Chart",
-
-        load: getDashboardChart,
-
-        render: (data, filters) => (
-            <DashboardChart
-                data={data}
-                year={filters.year}
-            />
-        ),
-
-        initialData: {
-
-            income: [],
-            expense: [],
-            Saving: [],
-            Debt: [],
-            pendingDebt: []
-
-        }
-
-    }
-
-};
-
-
-const cloneInitialData = data => (
-
-    Array.isArray(data)
-        ? [...data]
-        : { ...data }
-
-);
-
-
-const normalizeChartData = (
-    module,
-    data,
-    initialData
-) => {
-
-    if (
-        module === "daily" ||
-        module === "monthly" ||
-        module === "week-wise" ||
-        module === "yearly"
-    ) {
-
-        return Array.isArray(data)
-            ? data
-            : data?.data ||
-            data?.rows ||
-            [];
-
-    }
-
-
-    return (
-        data ||
-        cloneInitialData(initialData)
-    );
-
-};
-
-
-const Charts = ({
-    module = "monthly"
-}) => {
-
-    const currentYear =
-        new Date().getFullYear();
-
-    const currentMonth =
-        new Date().getMonth() + 1;
-
-
-    const months = [
-
-        {
-            value: 1,
-            label: "January"
-        },
-
-        {
-            value: 2,
-            label: "February"
-        },
-
-        {
-            value: 3,
-            label: "March"
-        },
-
-        {
-            value: 4,
-            label: "April"
-        },
-
-        {
-            value: 5,
-            label: "May"
-        },
-
-        {
-            value: 6,
-            label: "June"
-        },
-
-        {
-            value: 7,
-            label: "July"
-        },
-
-        {
-            value: 8,
-            label: "August"
-        },
-
-        {
-            value: 9,
-            label: "September"
-        },
-
-        {
-            value: 10,
-            label: "October"
-        },
-
-        {
-            value: 11,
-            label: "November"
-        },
-
-        {
-            value: 12,
-            label: "December"
-        }
-
-    ];
-
-
-    const chartModule = useMemo(
-        () =>
-            chartModules[module] ||
-            chartModules.monthly,
-        [module]
-    );
+    const navigate =
+        useNavigate();
 
 
     /*
-     * Dashboard:
-     *     year = all by default
-     *
-     * Category:
-     *     year = all
-     *     month = all
-     *
-     * titleType:
-     *     year = all
-     *     month = all
-     *
-     * Payment Mode:
-     *     year = all
-     *     month = all
-     *
-     * Other charts:
-     *     current year
-     */
-    const [year, setYear] = useState(
-        module === "dashboard" || module === "category" || module === "titleType" || module === "payment-mode" ? "all" : currentYear
-    );
+    |--------------------------------------------------------------------------
+    | STATE
+    |--------------------------------------------------------------------------
+    */
 
-
-    const [month, setMonth] = useState(
-        module === "category" || module === "titleType" || module === "payment-mode" ? "all" : currentMonth
-    );
-
+    const [data, setData] =
+        useState([]);
 
     const [loading, setLoading] =
         useState(false);
 
+    const [error, setError] =
+        useState("");
 
-    const [chartData, setChartData] =
+
+    const [year, setYear] =
         useState(
-            cloneInitialData(
-                chartModule.initialData
-            )
+            new Date().getFullYear()
+        );
+
+
+    const [month, setMonth] =
+        useState(
+            new Date().getMonth() + 1
         );
 
 
     /*
-     * Reset filters when module changes
-     */
-    useEffect(() => {
+    |--------------------------------------------------------------------------
+    | GET CURRENT CHART
+    |--------------------------------------------------------------------------
+    */
+
+    const getChartType = () => {
+
+        const path =
+            location.pathname.toLowerCase();
+
 
         if (
-            module === "dashboard" ||
-            module === "category" ||
-            module === "titleType" ||
-            module === "payment-mode"
+            path.includes(
+                "titletype"
+            )
         ) {
-
-            setYear("all");
-
-        } else {
-
-            setYear(currentYear);
-
+            return "titleType";
         }
 
 
         if (
-            module === "category" ||
-            module === "titleType" ||
-            module === "payment-mode"
+            path.includes(
+                "paymentmode"
+            )
         ) {
-
-            setMonth("all");
-
-        } else {
-
-            setMonth(currentMonth);
-
+            return "paymentMode";
         }
 
-    }, [
-        module,
-        currentYear,
-        currentMonth
-    ]);
+
+        if (
+            path.includes(
+                "category"
+            )
+        ) {
+            return "category";
+        }
+
+
+        if (
+            path.includes(
+                "weekwise"
+            )
+        ) {
+            return "weekWise";
+        }
+
+
+        if (
+            path.includes(
+                "weekly"
+            )
+        ) {
+            return "weekly";
+        }
+
+
+        if (
+            path.includes(
+                "yearly"
+            )
+        ) {
+            return "yearly";
+        }
+
+
+        if (
+            path.includes(
+                "daily"
+            )
+        ) {
+            return "daily";
+        }
+
+
+        if (
+            path.includes(
+                "dashboard"
+            )
+        ) {
+            return "dashboard";
+        }
+
+
+        return "monthly";
+
+    };
+
+
+    const chartType =
+        getChartType();
 
 
     /*
-     * Load chart
-     */
-    useEffect(() => {
+    |--------------------------------------------------------------------------
+    | LOAD CHART
+    |--------------------------------------------------------------------------
+    */
 
-        let ignore = false;
-
-
-        const loadChart = async () => {
+    const loadChart = useCallback(
+        async () => {
 
             try {
 
                 setLoading(true);
 
+                setError("");
 
-                setChartData(
-                    cloneInitialData(
-                        chartModule.initialData
-                    )
-                );
+                setData([]);
 
 
                 let response;
 
 
                 /*
-                 * DAILY
-                 *
-                 * /daily?month=8&year=2026
-                 */
+                |--------------------------------------------------------------------------
+                | TITLE TYPE
+                |--------------------------------------------------------------------------
+                */
+
                 if (
-                    module === "daily"
+                    chartType ===
+                    "titleType"
+                ) {
+
+                    console.log(
+                        "Loading Title Type Chart"
+                    );
+
+
+                    response =
+                        await getTitleTypeChart(
+                            year,
+                            month
+                        );
+
+
+                    console.log(
+                        "Title Type API Response:",
+                        response
+                    );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | DAILY
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    chartType ===
+                    "daily"
                 ) {
 
                     response =
-                        await chartModule.load(
+                        await getDailyChart(
                             month,
                             year
                         );
@@ -451,16 +236,71 @@ const Charts = ({
 
 
                 /*
-                 * WEEK-WISE
-                 *
-                 * /week-wise?month=8&year=2026
-                 */
+                |--------------------------------------------------------------------------
+                | MONTHLY
+                |--------------------------------------------------------------------------
+                */
+
                 else if (
-                    module === "week-wise"
+                    chartType ===
+                    "monthly"
                 ) {
 
                     response =
-                        await chartModule.load(
+                        await getMonthlyChart(
+                            year
+                        );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | WEEKLY
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    chartType ===
+                    "weekly"
+                ) {
+
+                    response =
+                        await getWeeklyChart();
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | YEARLY
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    chartType ===
+                    "yearly"
+                ) {
+
+                    response =
+                        await getYearlyChart();
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | WEEK WISE
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    chartType ===
+                    "weekWise"
+                ) {
+
+                    response =
+                        await getWeekWiseExpenseChart(
                             month,
                             year
                         );
@@ -469,412 +309,838 @@ const Charts = ({
 
 
                 /*
-                 * MONTHLY
-                 *
-                 * /monthly?year=2026
-                 */
+                |--------------------------------------------------------------------------
+                | CATEGORY
+                |--------------------------------------------------------------------------
+                */
+
                 else if (
-                    module === "monthly"
+                    chartType ===
+                    "category"
                 ) {
 
                     response =
-                        await chartModule.load(
-                            year
-                        );
-
-                }
-
-
-                /*
-                 * DASHBOARD
-                 *
-                 * /dashboard?year=all
-                 * /dashboard?year=2026
-                 */
-                else if (module === "dashboard") {
-                    response = await chartModule.load(year);
-                }
-
-
-                /*
-                 * CATEGORY
-                 *
-                 * /category?year=all&month=all
-                 * /category?year=2026&month=all
-                 * /category?year=2026&month=8
-                 */
-                else if (module === "category") {
-                    response = await chartModule.load(year, month);
-                }
-
-
-                /*
-                 * PAYMENT MODE
-                 *
-                 * /payment-mode?year=all&month=all
-                 * /payment-mode?year=2026&month=all
-                 * /payment-mode?year=2026&month=8
-                 */
-                else if (
-                    module === "payment-mode"
-                ) {
-
-                    response =
-                        await chartModule.load(
+                        await getCategoryChart(
                             year,
                             month
                         );
 
                 }
-                /*
-                 * titleType
-                 *
-                 * /titleType?year=all&month=all
-                 * /titleType?year=2026&month=all
-                 * /titleType?year=2026&month=8
-                 */
-                else if (module === "titleType") {
-                    response = await chartModule.load(year, month);
-                }
-
-                /*
-                 * WEEKLY / YEARLY
-                 */
-                else {
-
-                    response =
-                        await chartModule.load();
-
-                }
 
 
                 /*
-                 * Set API response
-                 */
-                if (
-                    !ignore &&
-                    response?.success
+                |--------------------------------------------------------------------------
+                | PAYMENT MODE
+                |--------------------------------------------------------------------------
+                */
+
+                else if (
+                    chartType ===
+                    "paymentMode"
                 ) {
 
-                    setChartData(
-                        normalizeChartData(
-                            module,
-                            response.data,
-                            chartModule.initialData
-                        )
-                    );
+                    response =
+                        await getPaymentModeChart(
+                            year,
+                            month
+                        );
 
                 }
 
 
-            } catch (error) {
+                /*
+                |--------------------------------------------------------------------------
+                | DASHBOARD
+                |--------------------------------------------------------------------------
+                */
 
-                if (!ignore) {
+                else if (
+                    chartType ===
+                    "dashboard"
+                ) {
 
-                    console.log(error);
+                    response =
+                        await getDashboardChart(
+                            year
+                        );
 
-                    alert(
-                        error.response?.data?.message ||
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | RESPONSE
+                |--------------------------------------------------------------------------
+                */
+
+                console.log(
+                    "Chart Type:",
+                    chartType
+                );
+
+                console.log(
+                    "Chart Response:",
+                    response
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | AXIOS RESPONSE UNWRAP
+                |--------------------------------------------------------------------------
+                */
+
+                const apiResponse =
+                    response?.data;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | SUCCESS
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    apiResponse?.success === false
+                ) {
+
+                    setError(
+                        apiResponse?.message ||
                         "Unable to load chart."
                     );
 
+                    return;
+
                 }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | TITLE TYPE
+                |
+                | IMPORTANT:
+                | Keep the complete object because
+                | TitleTypeChart needs:
+                |
+                | data
+                | totals
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    chartType ===
+                    "titleType"
+                ) {
+
+                    const titleTypeData = {
+
+                        data:
+                            Array.isArray(
+                                apiResponse?.data
+                            )
+                                ? apiResponse.data
+                                : [],
+
+                        totals:
+                            apiResponse?.totals ||
+                            {}
+
+                    };
+
+
+                    console.log(
+                        "Title Type Data:",
+                        titleTypeData
+                    );
+
+
+                    setData(
+                        titleTypeData
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | NORMAL CHART DATA
+                |--------------------------------------------------------------------------
+                */
+
+                let chartData =
+                    apiResponse?.data;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | HANDLE PAGINATED DATA
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    chartData &&
+                    Array.isArray(
+                        chartData.data
+                    )
+                ) {
+
+                    chartData =
+                        chartData.data;
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | ARRAY
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    Array.isArray(
+                        chartData
+                    )
+                ) {
+
+                    setData(
+                        chartData
+                    );
+
+                }
+
+                else if (
+                    chartData &&
+                    typeof chartData ===
+                    "object"
+                ) {
+
+                    setData(
+                        chartData
+                    );
+
+                }
+
+                else {
+
+                    setData([]);
+
+                }
+
+            } catch (
+                error
+            ) {
+
+                console.error(
+                    "Chart Load Error:",
+                    error
+                );
+
+
+                setError(
+
+                    error?.response?.data?.message ||
+
+                    error?.message ||
+
+                    "Unable to load chart."
+
+                );
 
             } finally {
 
-                if (!ignore) {
-
-                    setLoading(false);
-
-                }
+                setLoading(false);
 
             }
 
-        };
-
-
-        loadChart();
-
-
-        return () => {
-
-            ignore = true;
-
-        };
-
-
-    }, [
-        chartModule,
-        module,
-        month,
-        year
-    ]);
-
-
-    /*
-     * Last 10 years
-     */
-    const yearOptions = Array.from(
-        {
-            length: 10
         },
-        (_, index) =>
-            currentYear - index
+        [
+            chartType,
+            year,
+            month
+        ]
     );
 
 
     /*
-     * Which filters should be visible?
-     */
-    const showMonthFilter =
-        module === "daily" ||
-        module === "week-wise" ||
-        module === "category" ||
-        module === "titleType" ||
-        module === "payment-mode";
+    |--------------------------------------------------------------------------
+    | LOAD WHEN PAGE CHANGES
+    |--------------------------------------------------------------------------
+    */
 
+    useEffect(
+        () => {
 
-    const showYearFilter =
-        module === "dashboard" ||
-        module === "daily" ||
-        module === "monthly" ||
-        module === "week-wise" ||
-        module === "category" ||
-        module === "titleType" ||
-        module === "payment-mode";
+            loadChart();
+
+        },
+        [
+            loadChart
+        ]
+    );
 
 
     /*
-     * All option
-     */
-    const showAllYear =
-        module === "dashboard" ||
-        module === "category" ||
-        module === "titleType" ||
-        module === "payment-mode";
+    |--------------------------------------------------------------------------
+    | FORMAT TITLE
+    |--------------------------------------------------------------------------
+    */
+
+    const getTitle = () => {
+
+        switch (
+            chartType
+        ) {
+
+            case "dashboard":
+                return "Dashboard Chart";
+
+            case "daily":
+                return "Daily Chart";
+
+            case "weekly":
+                return "This Week Chart";
+
+            case "monthly":
+                return "Monthly Chart";
+
+            case "yearly":
+                return "Yearly Chart";
+
+            case "weekWise":
+                return "Week Wise Chart";
+
+            case "category":
+                return "Category Wise Chart";
+
+            case "paymentMode":
+                return "Payment Mode Chart";
+
+            case "titleType":
+                return "Title Type Chart";
+
+            default:
+                return "Charts";
+
+        }
+
+    };
 
 
-    const showAllMonth =
-        module === "category" ||
-        module === "titleType" ||
-        module === "payment-mode";
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER CHART
+    |--------------------------------------------------------------------------
+    */
 
+    const renderChart = () => {
+
+        if (
+            loading
+        ) {
+
+            return (
+
+                <div
+                    className="
+                        d-flex
+                        justify-content-center
+                        align-items-center
+                        py-5
+                    "
+                >
+
+                    <div
+                        className="
+                            spinner-border
+                            text-primary
+                        "
+                        role="status"
+                    />
+
+                    <span className="ms-3">
+                        Loading chart...
+                    </span>
+
+                </div>
+
+            );
+
+        }
+
+
+        if (
+            error
+        ) {
+
+            return (
+
+                <div
+                    className="
+                        alert
+                        alert-danger
+                    "
+                >
+
+                    {error}
+
+                </div>
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TITLE TYPE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "titleType"
+        ) {
+
+            return (
+
+                <TitleTypeChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DAILY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "daily"
+        ) {
+
+            return (
+
+                <DailyChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MONTHLY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "monthly"
+        ) {
+
+            return (
+
+                <MonthlyChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | WEEKLY
+        |--------------------------------------------------------------------------
+
+        */
+
+        if (
+            chartType ===
+            "weekly"
+        ) {
+
+            return (
+
+                <WeeklyChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | YEARLY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "yearly"
+        ) {
+
+            return (
+
+                <YearlyChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | WEEK WISE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "weekWise"
+        ) {
+
+            return (
+
+                <WeekWiseChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "category"
+        ) {
+
+            return (
+
+                <CategoryChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYMENT MODE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "paymentMode"
+        ) {
+
+            return (
+
+                <PaymentModeChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            chartType ===
+            "dashboard"
+        ) {
+
+            return (
+
+                <DashboardChart
+                    data={
+                        data
+                    }
+                />
+
+            );
+
+        }
+
+
+        return null;
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="container-fluid">
+        <div
+            className="
+                container-fluid
+                px-3
+                px-md-4
+                py-3
+            "
+            style={{
+                width: "100%",
+                maxWidth: "100%",
+                minWidth: 0
+            }}
+        >
+
+            {/* HEADER */}
+
+            <div
+                className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    flex-wrap
+                    gap-3
+                    mb-3
+                "
+            >
+
+                <div>
+
+                    <h3
+                        className="mb-1"
+                    >
+
+                        {getTitle()}
+
+                    </h3>
 
 
-            {/* =========================
-                HEADER
-            ========================= */}
+                    <div
+                        className="
+                            text-muted
+                        "
+                    >
 
-            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                        View and analyse your
+                        financial data.
 
-
-                <h3 className="mb-0">
-                    {chartModule.title}
-                </h3>
-
-
-                {/* =========================
-                    FILTERS
-                ========================= */}
-
-                <div className="d-flex gap-2 flex-wrap">
-
-
-                    {/* =========================
-                        MONTH FILTER
-                    ========================= */}
-
-                    {
-                        showMonthFilter && (
-
-                            <select
-                                className="form-select"
-                                value={month}
-                                onChange={e => {
-
-                                    const value =
-                                        e.target.value;
-
-                                    if (
-                                        value === "all"
-                                    ) {
-
-                                        setMonth("all");
-
-                                    } else {
-
-                                        const parsed =
-                                            Number(value);
-
-                                        if (
-                                            Number.isFinite(
-                                                parsed
-                                            )
-                                        ) {
-
-                                            setMonth(
-                                                parsed
-                                            );
-
-                                        }
-
-                                    }
-
-                                }}
-                            >
-
-                                {
-                                    showAllMonth && (
-
-                                        <option value="all">
-                                            All Months
-                                        </option>
-
-                                    )
-                                }
-
-
-                                {
-                                    months.map(item => (
-
-                                        <option
-                                            key={item.value}
-                                            value={item.value}
-                                        >
-                                            {item.label}
-                                        </option>
-
-                                    ))
-                                }
-
-                            </select>
-
-                        )
-                    }
-
-
-                    {/* =========================
-                        YEAR FILTER
-                    ========================= */}
-
-                    {
-                        showYearFilter && (
-
-                            <select
-                                className="form-select"
-                                value={year}
-                                onChange={e => {
-
-                                    const value =
-                                        e.target.value;
-
-
-                                    if (
-                                        value === "all"
-                                    ) {
-
-                                        setYear("all");
-
-                                    } else {
-
-                                        const parsed =
-                                            Number(value);
-
-                                        if (
-                                            Number.isFinite(
-                                                parsed
-                                            )
-                                        ) {
-
-                                            setYear(
-                                                parsed
-                                            );
-
-                                        }
-
-                                    }
-
-                                }}
-                            >
-
-                                {
-                                    showAllYear && (
-
-                                        <option value="all">
-                                            All Years
-                                        </option>
-
-                                    )
-                                }
-
-
-                                {
-                                    yearOptions.map(
-                                        item => (
-
-                                            <option
-                                                key={item}
-                                                value={item}
-                                            >
-                                                {item}
-                                            </option>
-
-                                        )
-                                    )
-                                }
-
-                            </select>
-
-                        )
-                    }
+                    </div>
 
                 </div>
+
+
+                {/* YEAR */}
+
+                <select
+                    className="
+                        form-select
+                    "
+                    style={{
+                        width: 130
+                    }}
+                    value={
+                        year
+                    }
+                    onChange={e =>
+                        setYear(
+                            Number(
+                                e.target.value
+                            )
+                        )
+                    }
+                >
+
+                    {Array.from(
+                        {
+                            length: 7
+                        },
+                        (
+                            _,
+                            index
+                        ) => {
+
+                            const itemYear =
+                                new Date()
+                                    .getFullYear() -
+                                index;
+
+                            return (
+
+                                <option
+                                    key={
+                                        itemYear
+                                    }
+                                    value={
+                                        itemYear
+                                    }
+                                >
+
+                                    {itemYear}
+
+                                </option>
+
+                            );
+
+                        }
+                    )}
+
+                </select>
 
             </div>
 
 
-            {/* =========================
-                CHART
-            ========================= */}
+            {/* MONTH */}
 
-            {
-                loading ? (
+            {(
+                chartType ===
+                "daily" ||
+                chartType ===
+                "weekWise" ||
+                chartType ===
+                "titleType"
+            ) && (
 
-                    <div className="text-center mt-5">
+                <div
+                    className="
+                        mb-3
+                    "
+                    style={{
+                        maxWidth: 180
+                    }}
+                >
 
-                        <div
-                            className="spinner-border"
-                            role="status"
-                        />
+                    <label
+                        className="
+                            form-label
+                            mb-1
+                        "
+                    >
 
-                    </div>
+                        Month
 
-                ) : (
+                    </label>
 
-                    <div
-                        key={
-                            `${module}-${month}-${year}`
+
+                    <select
+                        className="
+                            form-select
+                        "
+                        value={
+                            month
+                        }
+                        onChange={e =>
+                            setMonth(
+                                Number(
+                                    e.target.value
+                                )
+                            )
                         }
                     >
 
-                        {
-                            chartModule.render(
-                                chartData,
-                                {
-                                    month,
-                                    year
-                                }
-                            )
-                        }
+                        <option value={1}>
+                            January
+                        </option>
 
-                    </div>
+                        <option value={2}>
+                            February
+                        </option>
 
-                )
-            }
+                        <option value={3}>
+                            March
+                        </option>
+
+                        <option value={4}>
+                            April
+                        </option>
+
+                        <option value={5}>
+                            May
+                        </option>
+
+                        <option value={6}>
+                            June
+                        </option>
+
+                        <option value={7}>
+                            July
+                        </option>
+
+                        <option value={8}>
+                            August
+                        </option>
+
+                        <option value={9}>
+                            September
+                        </option>
+
+                        <option value={10}>
+                            October
+                        </option>
+
+                        <option value={11}>
+                            November
+                        </option>
+
+                        <option value={12}>
+                            December
+                        </option>
+
+                    </select>
+
+                </div>
+
+            )}
+
+
+            {/* CHART */}
+
+            {renderChart()}
 
         </div>
 

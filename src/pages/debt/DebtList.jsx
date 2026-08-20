@@ -1,8 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {
+    useCallback,
+    useEffect,
+    useState
+} from "react";
 
-import { getDebts, deleteDebt } from "../../api/debtApi";
-import { getCategories } from "../../api/categoryApi";
+import {
+    Link
+} from "react-router-dom";
+
+import {
+    getDebts,
+    deleteDebt
+} from "../../api/debtApi";
+
+import {
+    getCategories
+} from "../../api/categoryApi";
+
+import {
+    getAccounts
+} from "../../api/accountApi";
 
 import Pagination from "../../components/common/Pagination";
 
@@ -11,73 +28,26 @@ import {
 } from "../../utils/badgeStyles";
 
 
-/*
- * =====================================================
- * BANK IMAGES
- * =====================================================
- */
-
-const bankImages = {
-    Pnb: "/images/banks/pnb.png",
-    Rbl: "/images/banks/rbl.png",
-    icici: "/images/banks/icici.png",
-    Cash: "/images/banks/cash.png",
-    Other: "/images/banks/card.png"
-};
-
-
-/*
- * =====================================================
- * PAYMENT MODE IMAGES
- * =====================================================
- */
-
-const paymentModeImages = {
-    Bhim: "/images/payment/Bhim.png",
-
-    "AmazonPay":
-        "/images/payment/amazonpay.png",
-
-    "BankTransfer":
-        "/images/payment/BankTransfer.png",
-
-    GPay:
-        "/images/payment/GPay.png",
-
-    PhonePe:
-        "/images/payment/phonepe.png",
-
-    Paytm:
-        "/images/payment/paytm.png",
-
-    Cash:
-        "/images/payment/cash.png",
-
-    Other:
-        "/images/payment/card.png"
-};
-
-
 const DebtList = () => {
 
     /*
-     * =====================================================
-     * DATA
-     * =====================================================
-     */
-
-    const [loading, setLoading] = useState(true);
+    |--------------------------------------------------------------------------
+    | DATA
+    |--------------------------------------------------------------------------
+    */
 
     const [debts, setDebts] = useState([]);
 
     const [categories, setCategories] = useState([]);
 
+    const [accounts, setAccounts] = useState([]);
+
 
     /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
     const [page, setPage] = useState(1);
 
@@ -87,16 +57,27 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * INPUT FILTERS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
+
+    const [loading, setLoading] = useState(true);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER INPUTS
+    |--------------------------------------------------------------------------
+    */
+
+    const [searchInput, setSearchInput] = useState("");
 
     const [categoryInput, setCategoryInput] = useState("");
 
-    const [paymentModeInput, setPaymentModeInput] = useState("");
+    const [accountInput, setAccountInput] = useState("");
 
-    const [bankInput, setBankInput] = useState("");
+    const [paymentModeInput, setPaymentModeInput] = useState("");
 
     const [fromDateInput, setFromDateInput] = useState("");
 
@@ -104,16 +85,18 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * APPLIED FILTERS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | APPLIED FILTERS
+    |--------------------------------------------------------------------------
+    */
+
+    const [search, setSearch] = useState("");
 
     const [category, setCategory] = useState("");
 
-    const [paymentMode, setPaymentMode] = useState("");
+    const [account, setAccount] = useState("");
 
-    const [bank, setBank] = useState("");
+    const [paymentMode, setPaymentMode] = useState("");
 
     const [fromDate, setFromDate] = useState("");
 
@@ -121,10 +104,10 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * PAYMENT MODES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | PAYMENT MODES
+    |--------------------------------------------------------------------------
+    */
 
     const paymentModes = [
         "Cash",
@@ -132,32 +115,46 @@ const DebtList = () => {
         "PhonePe",
         "GPay",
         "Bhim",
-        "Amazon Pay",
-        "Bank Transfer",
+        "AmazonPay",
+        "BankTransfer",
         "Other"
     ];
 
 
     /*
-     * =====================================================
-     * BANKS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | NORMALIZE CATEGORY RESPONSE
+    |--------------------------------------------------------------------------
+    */
 
-    const banks = [
-        "Pnb",
-        "Rbl",
-        "icici",
-        "Cash",
-        "Other"
-    ];
+    const normalizeList = (response) => {
+
+        if (Array.isArray(response?.data)) {
+            return response.data;
+        }
+
+        if (Array.isArray(response?.rows)) {
+            return response.rows;
+        }
+
+        if (Array.isArray(response?.data?.data)) {
+            return response.data.data;
+        }
+
+        if (Array.isArray(response?.data?.rows)) {
+            return response.data.rows;
+        }
+
+        return [];
+
+    };
 
 
     /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD CATEGORIES
+    |--------------------------------------------------------------------------
+    */
 
     const loadCategories = useCallback(async () => {
 
@@ -168,20 +165,15 @@ const DebtList = () => {
                 type: "DEBT"
             });
 
+            console.log(
+                "Debt Category Response:",
+                response
+            );
 
-            if (response.success) {
-
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
-
+            if (response?.success) {
 
                 setCategories(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
+                    normalizeList(response)
                 );
 
             } else {
@@ -192,8 +184,8 @@ const DebtList = () => {
 
         } catch (error) {
 
-            console.log(
-                "Category fetch error:",
+            console.error(
+                "Debt Category Error:",
                 error
             );
 
@@ -205,114 +197,332 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * LOAD DEBTS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
 
-    const loadDebt = useCallback(async () => {
+    const loadAccounts = useCallback(async () => {
 
         try {
 
-            setLoading(true);
-
-
-            const response = await getDebts({
-
-                page,
-
-                limit,
-
-                from: fromDate,
-
-                to: toDate,
-
-                category,
-
-                paymentMode,
-
-                bank
-
+            const response = await getAccounts({
+                limit: 100,
+                status: true
             });
 
+            console.log(
+                "Debt Account Response:",
+                response
+            );
 
-            if (response.success) {
+            if (response?.success) {
 
-                const rows =
-                    response.data?.data ||
-                    response.data?.rows ||
-                    response.data ||
-                    [];
-
-
-                setDebts(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
-                );
-
-
-                setTotal(
-                    response.data?.total ??
-                    rows.length
+                setAccounts(
+                    normalizeList(response)
                 );
 
             } else {
 
-                setDebts([]);
-
-                setTotal(0);
+                setAccounts([]);
 
             }
 
         } catch (error) {
 
-            console.log(
-                "Debt fetch error:",
+            console.error(
+                "Debt Account Error:",
                 error
             );
 
-            setDebts([]);
-
-            setTotal(0);
-
-        } finally {
-
-            setLoading(false);
+            setAccounts([]);
 
         }
 
-    }, [
-        page,
-        limit,
-        fromDate,
-        toDate,
-        category,
-        paymentMode,
-        bank
-    ]);
+    }, []);
 
 
     /*
-     * =====================================================
-     * LOAD CATEGORIES
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD DEBTS
+    |--------------------------------------------------------------------------
+    */
+
+    const loadDebt = useCallback(async () => {
+    try {
+        setLoading(true);
+
+        const params = {
+            page,
+            limit,
+            search,
+            category,
+            account,
+            paymentMode,
+            from: fromDate,
+            to: toDate
+        };
+
+        Object.keys(params).forEach((key) => {
+            if (
+                params[key] === "" ||
+                params[key] === undefined ||
+                params[key] === null
+            ) {
+                delete params[key];
+            }
+        });
+
+        console.log("=================================");
+        console.log("DEBT REQUEST:", params);
+
+        const response = await getDebts(params);
+
+        console.log("DEBT RAW RESPONSE:", response);
+        console.log("DEBT RESPONSE DATA:", response?.data);
+        console.log("DEBT RESPONSE DATA DATA:", response?.data?.data);
+
+        /*
+        |--------------------------------------------------------------------------
+        | FIND ACTUAL API OBJECT
+        |--------------------------------------------------------------------------
+        */
+
+        let apiData = response;
+
+        /*
+         * Case:
+         * Axios response
+         *
+         * response.data = {
+         *    success: true,
+         *    data: [...]
+         * }
+         */
+
+        if (
+            apiData &&
+            apiData.data &&
+            typeof apiData.data === "object" &&
+            !Array.isArray(apiData.data) &&
+            (
+                apiData.data.success !== undefined ||
+                apiData.data.data !== undefined ||
+                apiData.data.total !== undefined
+            )
+        ) {
+            apiData = apiData.data;
+        }
+
+        console.log("DEBT API DATA:", apiData);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK SUCCESS
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            apiData?.success === false
+        ) {
+            console.error(
+                "Debt API returned failure:",
+                apiData
+            );
+
+            setDebts([]);
+            setTotal(0);
+
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | EXTRACT ROWS
+        |--------------------------------------------------------------------------
+        */
+
+        let rows = [];
+
+        /*
+         * Format 1:
+         *
+         * {
+         *   success: true,
+         *   data: [...]
+         * }
+         */
+
+        if (
+            Array.isArray(apiData?.data)
+        ) {
+            rows = apiData.data;
+        }
+
+        /*
+         * Format 2:
+         *
+         * {
+         *   success: true,
+         *   data: {
+         *      data: [...]
+         *   }
+         * }
+         */
+
+        else if (
+            Array.isArray(apiData?.data?.data)
+        ) {
+            rows = apiData.data.data;
+        }
+
+        /*
+         * Format 3:
+         *
+         * {
+         *   data: {
+         *      rows: [...]
+         *   }
+         * }
+         */
+
+        else if (
+            Array.isArray(apiData?.data?.rows)
+        ) {
+            rows = apiData.data.rows;
+        }
+
+        /*
+         * Format 4:
+         *
+         * {
+         *   rows: [...]
+         * }
+         */
+
+        else if (
+            Array.isArray(apiData?.rows)
+        ) {
+            rows = apiData.rows;
+        }
+
+        /*
+         * Format 5:
+         *
+         * Direct array
+         */
+
+        else if (
+            Array.isArray(apiData)
+        ) {
+            rows = apiData;
+        }
+
+        console.log(
+            "DEBT FINAL ROWS:",
+            rows
+        );
+
+        console.log(
+            "DEBT FINAL ROW COUNT:",
+            rows.length
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | SET DATA
+        |--------------------------------------------------------------------------
+        */
+
+        setDebts(rows);
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOTAL
+        |--------------------------------------------------------------------------
+        */
+
+        let totalRecords = 0;
+
+        if (
+            typeof apiData?.total === "number"
+        ) {
+            totalRecords = apiData.total;
+        }
+
+        else if (
+            typeof apiData?.data?.total === "number"
+        ) {
+            totalRecords = apiData.data.total;
+        }
+
+        else {
+            totalRecords = rows.length;
+        }
+
+        setTotal(totalRecords);
+
+        console.log(
+            "DEBT TOTAL:",
+            totalRecords
+        );
+
+    } catch (error) {
+
+        console.error(
+            "DEBT FETCH ERROR:",
+            error
+        );
+
+        console.error(
+            "DEBT ERROR RESPONSE:",
+            error?.response?.data
+        );
+
+        setDebts([]);
+
+        setTotal(0);
+
+    } finally {
+
+        setLoading(false);
+    }
+
+}, [
+    page,
+    limit,
+    search,
+    category,
+    account,
+    paymentMode,
+    fromDate,
+    toDate
+]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIAL LOAD
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
         loadCategories();
 
+        loadAccounts();
+
     }, [
-        loadCategories
+        loadCategories,
+        loadAccounts
     ]);
 
 
     /*
-     * =====================================================
-     * LOAD DEBTS
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | LOAD DEBT LIST
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
@@ -324,115 +534,59 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * DELETE DEBT
-     * =====================================================
-     */
-
-    const handleDelete = async (id) => {
-
-        if (
-            !window.confirm(
-                "Delete this debt?"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        try {
-
-            const response =
-                await deleteDebt(id);
-
-
-            if (response.success) {
-
-                alert(
-                    response.message ||
-                    "Debt deleted successfully."
-                );
-
-
-                if (
-                    debts.length === 1 &&
-                    page > 1
-                ) {
-
-                    setPage(page - 1);
-
-                } else {
-
-                    loadDebt();
-
-                }
-
-            }
-
-        } catch (error) {
-
-            alert(
-                error.response?.data?.message ||
-                "Unable to delete debt."
-            );
-
-        }
-
-    };
-
-
-    /*
-     * =====================================================
-     * APPLY FILTER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | FILTER
+    |--------------------------------------------------------------------------
+    */
 
     const handleFilter = (event) => {
 
         event.preventDefault();
 
+        setPage(1);
+
+        setSearch(searchInput);
 
         setCategory(categoryInput);
 
-        setPaymentMode(paymentModeInput);
+        setAccount(accountInput);
 
-        setBank(bankInput);
+        setPaymentMode(paymentModeInput);
 
         setFromDate(fromDateInput);
 
         setToDate(toDateInput);
 
-        setPage(1);
-
     };
 
 
     /*
-     * =====================================================
-     * CLEAR FILTER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | CLEAR FILTER
+    |--------------------------------------------------------------------------
+    */
 
-    const handleClearFilter = () => {
+    const handleClear = () => {
+
+        setSearchInput("");
 
         setCategoryInput("");
 
-        setPaymentModeInput("");
+        setAccountInput("");
 
-        setBankInput("");
+        setPaymentModeInput("");
 
         setFromDateInput("");
 
         setToDateInput("");
 
+        setSearch("");
 
         setCategory("");
 
-        setPaymentMode("");
+        setAccount("");
 
-        setBank("");
+        setPaymentMode("");
 
         setFromDate("");
 
@@ -444,19 +598,161 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * PAGINATION
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    const handleDelete = async (id) => {
+
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this debt?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await deleteDebt(id);
+
+
+            if (response?.success) {
+
+                alert(
+                    response.message ||
+                    "Debt deleted successfully."
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | If last record on current page
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    debts.length === 1 &&
+                    page > 1
+                ) {
+
+                    setPage(
+                        page - 1
+                    );
+
+                } else {
+
+                    loadDebt();
+
+                }
+
+            } else {
+
+                alert(
+                    response?.message ||
+                    "Unable to delete debt."
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Delete Debt Error:",
+                error
+            );
+
+            alert(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Unable to delete debt."
+            );
+
+        }
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCOUNT LABEL
+    |--------------------------------------------------------------------------
+    */
+
+    const getAccountLabel = (accountItem) => {
+
+        if (!accountItem) {
+            return "-";
+        }
+
+
+        if (typeof accountItem === "string") {
+            return accountItem;
+        }
+
+
+        if (accountItem.name) {
+            return accountItem.name;
+        }
+
+
+        if (accountItem.accountName) {
+            return accountItem.accountName;
+        }
+
+
+        if (accountItem.title) {
+            return accountItem.title;
+        }
+
+
+        return "-";
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL DEBT
+    |--------------------------------------------------------------------------
+    */
+
+    const totalDebt = debts.reduce(
+        (sum, item) => {
+
+            return (
+                sum +
+                Number(
+                    item.amount || 0
+                )
+            );
+
+        },
+        0
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
     const totalPages =
-        Math.ceil(total / limit) || 1;
+        Math.ceil(
+            total / limit
+        ) || 1;
 
 
     const startRecord =
         total === 0
             ? 0
-            : ((page - 1) * limit) + 1;
+            : (
+                (page - 1) *
+                limit
+            ) + 1;
 
 
     const endRecord =
@@ -467,130 +763,108 @@ const DebtList = () => {
 
 
     /*
-     * =====================================================
-     * BANK IMAGE HELPER
-     * =====================================================
-     */
-
-    const getBankImage = (bankName) => {
-
-        if (!bankName) {
-            return null;
-        }
-
-
-        if (bankImages[bankName]) {
-            return bankImages[bankName];
-        }
-
-
-        const matchedBank =
-            Object.keys(bankImages).find(
-                key =>
-                    key.toLowerCase() ===
-                    String(bankName).toLowerCase()
-            );
-
-
-        return matchedBank
-            ? bankImages[matchedBank]
-            : bankImages.Other;
-
-    };
-
-
-    /*
-     * =====================================================
-     * PAYMENT MODE IMAGE HELPER
-     * =====================================================
-     */
-
-    const getPaymentModeImage = (mode) => {
-
-        if (!mode) {
-            return null;
-        }
-
-
-        if (paymentModeImages[mode]) {
-            return paymentModeImages[mode];
-        }
-
-
-        const matchedMode =
-            Object.keys(paymentModeImages).find(
-                key =>
-                    key.toLowerCase() ===
-                    String(mode).toLowerCase()
-            );
-
-
-        return matchedMode
-            ? paymentModeImages[matchedMode]
-            : paymentModeImages.Other;
-
-    };
-
-
-    /*
-     * =====================================================
-     * RENDER
-     * =====================================================
-     */
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <div className="container-fluid">
+        <div
+            className="container-fluid px-0 w-100"
+            style={{
+                maxWidth: "100%"
+            }}
+        >
+
+            {/* HEADER */}
+
+            <div
+                className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    mb-3
+                    px-1
+                "
+            >
+
+                <div>
+
+                    <h3 className="mb-1">
+                        Debt List
+                    </h3>
 
 
-            {/* =================================================
-                HEADER
-            ================================================= */}
+                    <div className="text-danger">
 
-            <div className="d-flex justify-content-between align-items-center mb-3">
+                        Total Debt: ₹
+                        {totalDebt.toLocaleString(
+                            "en-IN",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}
 
-                <h3 className="mb-0">
-                    Debt List
-                </h3>
+                    </div>
+
+                </div>
 
 
                 <Link
                     to="/debt/add"
                     className="btn btn-primary"
                 >
+
                     Add Debt
+
                 </Link>
 
             </div>
 
 
-            {/* =================================================
-                CARD
-            ================================================= */}
+            {/* FILTER CARD */}
 
-            <div className="card">
+            <div className="card mb-3">
 
                 <div className="card-body">
 
-
-                    {/* =================================================
-                        FILTER
-                    ================================================= */}
-
                     <form
-                        className="row g-2 align-items-end mb-3"
                         onSubmit={handleFilter}
+                        className="row g-2 align-items-end"
                     >
+
+                        {/* SEARCH */}
+
+                        <div className="col-12 col-md-6 col-lg-2">
+
+                            <label className="form-label mb-1">
+                                Search
+                            </label>
+
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Search title"
+                                value={searchInput}
+                                onChange={(event) =>
+                                    setSearchInput(
+                                        event.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
 
 
                         {/* CATEGORY */}
 
-                        <div className="col-12 col-md-2">
+                        <div className="col-12 col-md-6 col-lg-2">
 
-                            <label className="form-label">
+                            <label className="form-label mb-1">
                                 Category
                             </label>
-
 
                             <select
                                 className="form-select"
@@ -608,13 +882,54 @@ const DebtList = () => {
 
 
                                 {categories.map(
-                                    categoryItem => (
+                                    (item) => (
 
                                         <option
-                                            key={categoryItem._id}
-                                            value={categoryItem._id}
+                                            key={item._id}
+                                            value={item._id}
                                         >
-                                            {categoryItem.name}
+                                            {item.name}
+                                        </option>
+
+                                    )
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* ACCOUNT */}
+
+                        <div className="col-12 col-md-6 col-lg-2">
+
+                            <label className="form-label mb-1">
+                                Account
+                            </label>
+
+                            <select
+                                className="form-select"
+                                value={accountInput}
+                                onChange={(event) =>
+                                    setAccountInput(
+                                        event.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    All Accounts
+                                </option>
+
+
+                                {accounts.map(
+                                    (item) => (
+
+                                        <option
+                                            key={item._id}
+                                            value={item._id}
+                                        >
+                                            {getAccountLabel(item)}
                                         </option>
 
                                     )
@@ -627,12 +942,11 @@ const DebtList = () => {
 
                         {/* PAYMENT MODE */}
 
-                        <div className="col-12 col-md-2">
+                        <div className="col-12 col-md-6 col-lg-2">
 
-                            <label className="form-label">
+                            <label className="form-label mb-1">
                                 Payment Mode
                             </label>
-
 
                             <select
                                 className="form-select"
@@ -650,7 +964,7 @@ const DebtList = () => {
 
 
                                 {paymentModes.map(
-                                    mode => (
+                                    (mode) => (
 
                                         <option
                                             key={mode}
@@ -667,56 +981,13 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* BANK */}
+                        {/* FROM */}
 
-                        <div className="col-12 col-md-2">
+                        <div className="col-6 col-md-3 col-lg-1">
 
-                            <label className="form-label">
-                                Bank
-                            </label>
-
-
-                            <select
-                                className="form-select"
-                                value={bankInput}
-                                onChange={(event) =>
-                                    setBankInput(
-                                        event.target.value
-                                    )
-                                }
-                            >
-
-                                <option value="">
-                                    All Banks
-                                </option>
-
-
-                                {banks.map(
-                                    bankName => (
-
-                                        <option
-                                            key={bankName}
-                                            value={bankName}
-                                        >
-                                            {bankName}
-                                        </option>
-
-                                    )
-                                )}
-
-                            </select>
-
-                        </div>
-
-
-                        {/* FROM DATE */}
-
-                        <div className="col-12 col-md-2">
-
-                            <label className="form-label">
+                            <label className="form-label mb-1">
                                 From
                             </label>
-
 
                             <input
                                 type="date"
@@ -732,14 +1003,13 @@ const DebtList = () => {
                         </div>
 
 
-                        {/* TO DATE */}
+                        {/* TO */}
 
-                        <div className="col-12 col-md-2">
+                        <div className="col-6 col-md-3 col-lg-1">
 
-                            <label className="form-label">
+                            <label className="form-label mb-1">
                                 To
                             </label>
-
 
                             <input
                                 type="date"
@@ -757,12 +1027,11 @@ const DebtList = () => {
 
                         {/* PER PAGE */}
 
-                        <div className="col-6 col-md-1">
+                        <div className="col-6 col-md-3 col-lg-1">
 
-                            <label className="form-label">
+                            <label className="form-label mb-1">
                                 Per page
                             </label>
-
 
                             <select
                                 className="form-select"
@@ -792,514 +1061,414 @@ const DebtList = () => {
                                     50
                                 </option>
 
+                                <option value="100">
+                                    100
+                                </option>
+
                             </select>
 
                         </div>
 
 
-                        {/* FILTER */}
+                        {/* BUTTONS */}
 
-                        <div className="col-6 col-md-1">
+                        <div className="col-6 col-md-3 col-lg-1">
 
-                            <button
-                                type="submit"
-                                className="btn btn-dark w-100"
-                            >
-                                Filter
-                            </button>
+                            <div className="d-flex gap-1">
 
-                        </div>
+                                <button
+                                    type="submit"
+                                    className="btn btn-dark"
+                                >
+                                    Filter
+                                </button>
 
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={handleClear}
+                                >
+                                    Clear
+                                </button>
 
-                        {/* CLEAR */}
-
-                        <div className="col-6 col-md-1">
-
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary w-100"
-                                onClick={handleClearFilter}
-                                disabled={
-                                    !categoryInput &&
-                                    !paymentModeInput &&
-                                    !bankInput &&
-                                    !fromDateInput &&
-                                    !toDateInput &&
-                                    !category &&
-                                    !paymentMode &&
-                                    !bank &&
-                                    !fromDate &&
-                                    !toDate
-                                }
-                            >
-                                Clear
-                            </button>
+                            </div>
 
                         </div>
 
                     </form>
 
+                </div>
 
-                    {/* =================================================
-                        TABLE
-                    ================================================= */}
+            </div>
 
-                    <div className="table-responsive">
 
-                        <table className="table table-bordered table-hover align-middle">
+            {/* TABLE */}
 
-                            <thead>
+            <div className="card">
+
+                <div className="table-responsive">
+
+                    <table
+                        className="
+                            table
+                            table-bordered
+                            table-hover
+                            align-middle
+                            mb-0
+                        "
+                    >
+
+                        <thead className="table-light">
+
+                            <tr>
+
+                                <th>
+                                    #
+                                </th>
+
+                                <th>
+                                    Title
+                                </th>
+
+                                <th>
+                                    Total Amount
+                                </th>
+
+                                <th>
+                                    Pending Amount
+                                </th>
+
+                                <th>
+                                    Recovered Amount
+                                </th>
+
+                                <th>
+                                    Category
+                                </th>
+
+                                <th>
+                                    Account
+                                </th>
+
+                                <th>
+                                    Payment Mode
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {loading ? (
 
                                 <tr>
 
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th>
-                                        Title
-                                    </th>
-
-                                    <th>
-                                        Total Amount
-                                    </th>
-
-                                    <th>
-                                        Pending Amount
-                                    </th>
-
-                                    <th>
-                                        Recovered Amount
-                                    </th>
-
-                                    <th>
-                                        Category
-                                    </th>
-
-                                    <th
-                                        className="text-center"
-                                        style={{
-                                            width: "100px"
-                                        }}
+                                    <td
+                                        colSpan="10"
+                                        className="text-center py-5"
                                     >
-                                        Payment
-                                    </th>
 
-                                    <th
-                                        className="text-center"
-                                        style={{
-                                            width: "100px"
-                                        }}
-                                    >
-                                        Bank
-                                    </th>
+                                        <div
+                                            className="
+                                                spinner-border
+                                                spinner-border-sm
+                                                me-2
+                                            "
+                                        />
 
-                                    <th>
-                                        Date
-                                    </th>
+                                        Loading...
 
-                                    <th
-                                        style={{
-                                            minWidth: "170px"
-                                        }}
-                                    >
-                                        Action
-                                    </th>
+                                    </td>
 
                                 </tr>
 
-                            </thead>
+                            ) : debts.length === 0 ? (
+
+                                <tr>
+
+                                    <td
+                                        colSpan="10"
+                                        className="
+                                            text-center
+                                            text-muted
+                                            py-5
+                                        "
+                                    >
+
+                                        No Record Found
+
+                                    </td>
+
+                                </tr>
+
+                            ) : (
+
+                                debts.map(
+                                    (
+                                        item,
+                                        index
+                                    ) => {
+
+                                        const amount =
+                                            Number(
+                                                item.amount || 0
+                                            );
 
 
-                            <tbody>
-
-                                {loading ? (
-
-                                    <tr>
-
-                                        <td
-                                            colSpan="10"
-                                            className="text-center py-4"
-                                        >
-
-                                            <div
-                                                className="spinner-border spinner-border-sm me-2"
-                                                role="status"
-                                            />
-
-                                            Loading...
-
-                                        </td>
-
-                                    </tr>
-
-                                ) : debts.length === 0 ? (
-
-                                    <tr>
-
-                                        <td
-                                            colSpan="10"
-                                            className="text-center text-muted py-4"
-                                        >
-                                            No Record Found
-                                        </td>
-
-                                    </tr>
-
-                                ) : (
-
-                                    debts.map(
-                                        (item, index) => {
-
-                                            const amount =
-                                                Number(
-                                                    item.amount || 0
-                                                );
+                                        const pending =
+                                            Number(
+                                                item.pendingAmount ?? 0
+                                            );
 
 
-                                            const pendingAmount =
-                                                Number(
-                                                    item.pendingAmount || 0
-                                                );
+                                        const recovered =
+                                            Math.max(
+                                                0,
+                                                amount - pending
+                                            );
 
 
-                                            const recoveredAmount =
-                                                amount -
-                                                pendingAmount;
+                                        return (
+
+                                            <tr
+                                                key={
+                                                    item._id
+                                                }
+                                            >
+
+                                                {/* NUMBER */}
+
+                                                <td>
+                                                    {
+                                                        (
+                                                            (page - 1) *
+                                                            limit
+                                                        ) +
+                                                        index +
+                                                        1
+                                                    }
+                                                </td>
 
 
-                                            const bankName =
-                                                item.bank || "";
+                                                {/* TITLE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.title ||
+                                                        "-"
+                                                    }
+
+                                                </td>
 
 
-                                            const paymentModeName =
-                                                item.paymentMode || "";
+                                                {/* TOTAL */}
 
+                                                <td>
 
-                                            const bankImage =
-                                                getBankImage(
-                                                    bankName
-                                                );
+                                                    ₹{" "}
 
-
-                                            const paymentModeImage =
-                                                getPaymentModeImage(
-                                                    paymentModeName
-                                                );
-
-
-                                            return (
-
-                                                <tr
-                                                    key={item._id}
-                                                >
-
-
-                                                    {/* NUMBER */}
-
-                                                    <td>
-
+                                                    {amount.toLocaleString(
+                                                        "en-IN",
                                                         {
-                                                            (
-                                                                (page - 1) *
-                                                                limit
-                                                            ) +
-                                                            index +
-                                                            1
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2
                                                         }
+                                                    )}
 
-                                                    </td>
-
-
-                                                    {/* TITLE */}
-
-                                                    <td>
-
-                                                        {
-                                                            item.title ||
-                                                            "-"
-                                                        }
-
-                                                    </td>
+                                                </td>
 
 
-                                                    {/* TOTAL */}
+                                                {/* PENDING */}
 
-                                                    <td>
+                                                <td>
+
+                                                    <span className="text-danger">
 
                                                         ₹{" "}
 
-                                                        {
-                                                            amount.toLocaleString(
-                                                                "en-IN",
-                                                                {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2
-                                                                }
+                                                        {pending.toLocaleString(
+                                                            "en-IN",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            }
+                                                        )}
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* RECOVERED */}
+
+                                                <td>
+
+                                                    <span className="text-success">
+
+                                                        ₹{" "}
+
+                                                        {recovered.toLocaleString(
+                                                            "en-IN",
+                                                            {
+                                                                minimumFractionDigits: 2,
+                                                                maximumFractionDigits: 2
+                                                            }
+                                                        )}
+
+                                                    </span>
+
+                                                </td>
+
+
+                                                {/* CATEGORY */}
+
+                                                <td>
+
+                                                    <span
+                                                        className="badge"
+                                                        style={
+                                                            getCategoryBadgeStyle(
+                                                                item.category
                                                             )
                                                         }
-
-                                                    </td>
-
-
-                                                    {/* PENDING */}
-
-                                                    <td>
-
-                                                        <span className="text-danger">
-
-                                                            ₹{" "}
-
-                                                            {
-                                                                pendingAmount.toLocaleString(
-                                                                    "en-IN",
-                                                                    {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2
-                                                                    }
-                                                                )
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    {/* RECOVERED */}
-
-                                                    <td>
-
-                                                        <span className="text-success">
-
-                                                            ₹{" "}
-
-                                                            {
-                                                                recoveredAmount.toLocaleString(
-                                                                    "en-IN",
-                                                                    {
-                                                                        minimumFractionDigits: 2,
-                                                                        maximumFractionDigits: 2
-                                                                    }
-                                                                )
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    {/* CATEGORY */}
-
-                                                    <td>
-
-                                                        <span
-                                                            className="badge"
-                                                            style={
-                                                                getCategoryBadgeStyle(
-                                                                    item.category
-                                                                )
-                                                            }
-                                                        >
-
-                                                            {
-                                                                item.category?.name ||
-                                                                item.categoryName ||
-                                                                "-"
-                                                            }
-
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    {/* =================================================
-                                                        PAYMENT IMAGE ONLY
-                                                    ================================================= */}
-
-                                                    <td
-                                                        className="text-center"
                                                     >
-
-                                                        {paymentModeImage ? (
-
-                                                            <div
-                                                                className="d-flex justify-content-center align-items-center"
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "45px"
-                                                                }}
-                                                            >
-
-                                                                <img
-                                                                    src={
-                                                                        paymentModeImage
-                                                                    }
-                                                                    alt={
-                                                                        paymentModeName ||
-                                                                        "Payment"
-                                                                    }
-                                                                    title={
-                                                                        paymentModeName ||
-                                                                        "Payment"
-                                                                    }
-                                                                    style={{
-                                                                        width: "45px",
-                                                                        height: "40px",
-                                                                        objectFit: "contain",
-                                                                        display: "block"
-                                                                    }}
-                                                                    onError={(
-                                                                        event
-                                                                    ) => {
-
-                                                                        event.currentTarget.style.display =
-                                                                            "none";
-
-                                                                    }}
-                                                                />
-
-                                                            </div>
-
-                                                        ) : (
-
-                                                            <span className="text-muted">
-                                                                -
-                                                            </span>
-
-                                                        )}
-
-                                                    </td>
-
-
-                                                    {/* =================================================
-                                                        BANK IMAGE ONLY
-                                                    ================================================= */}
-
-                                                    <td
-                                                        className="text-center"
-                                                    >
-
-                                                        {bankImage ? (
-
-                                                            <div
-                                                                className="d-flex justify-content-center align-items-center"
-                                                                style={{
-                                                                    width: "100%",
-                                                                    height: "45px"
-                                                                }}
-                                                            >
-
-                                                                <img
-                                                                    src={
-                                                                        bankImage
-                                                                    }
-                                                                    alt={
-                                                                        bankName ||
-                                                                        "Bank"
-                                                                    }
-                                                                    title={
-                                                                        bankName ||
-                                                                        "Bank"
-                                                                    }
-                                                                    style={{
-                                                                        width: "55px",
-                                                                        height: "40px",
-                                                                        objectFit: "contain",
-                                                                        display: "block"
-                                                                    }}
-                                                                    onError={(
-                                                                        event
-                                                                    ) => {
-
-                                                                        event.currentTarget.style.display =
-                                                                            "none";
-
-                                                                    }}
-                                                                />
-
-                                                            </div>
-
-                                                        ) : (
-
-                                                            <span className="text-muted">
-                                                                -
-                                                            </span>
-
-                                                        )}
-
-                                                    </td>
-
-
-                                                    {/* DATE */}
-
-                                                    <td>
 
                                                         {
-                                                            item.date
-
-                                                                ? new Date(
-                                                                    item.date
-                                                                ).toLocaleDateString(
-                                                                    "en-IN"
-                                                                )
-
-                                                                : "-"
+                                                            item.category?.name ||
+                                                            "-"
                                                         }
 
-                                                    </td>
+                                                    </span>
+
+                                                </td>
 
 
-                                                    {/* ACTION */}
+                                                {/* ACCOUNT */}
 
-                                                    <td>
+                                                <td>
+
+                                                    {
+                                                        getAccountLabel(
+                                                            item.account
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                {/* PAYMENT */}
+
+                                                <td>
+
+                                                    {
+                                                        item.paymentMode ||
+                                                        "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* DATE */}
+
+                                                <td>
+
+                                                    {
+                                                        item.date
+                                                            ? new Date(
+                                                                item.date
+                                                            ).toLocaleDateString(
+                                                                "en-IN"
+                                                            )
+                                                            : "-"
+                                                    }
+
+                                                </td>
+
+
+                                                {/* ACTION */}
+
+                                                <td>
+
+                                                    <div className="d-flex gap-1">
 
                                                         <Link
-                                                            className="btn btn-warning btn-sm me-2"
                                                             to={
                                                                 `/debt/edit/${item._id}`
                                                             }
+                                                            className="
+                                                                btn
+                                                                btn-warning
+                                                                btn-sm
+                                                            "
                                                         >
+
                                                             Edit
+
                                                         </Link>
 
 
                                                         <button
                                                             type="button"
-                                                            className="btn btn-danger btn-sm"
+                                                            className="
+                                                                btn
+                                                                btn-danger
+                                                                btn-sm
+                                                            "
                                                             onClick={() =>
                                                                 handleDelete(
                                                                     item._id
                                                                 )
                                                             }
                                                         >
+
                                                             Delete
+
                                                         </button>
 
-                                                    </td>
+                                                    </div>
 
-                                                </tr>
+                                                </td>
 
-                                            );
+                                            </tr>
 
-                                        }
-                                    )
+                                        );
 
-                                )}
+                                    }
+                                )
 
-                            </tbody>
+                            )}
 
-                        </table>
+                        </tbody>
 
-                    </div>
+                    </table>
 
                 </div>
 
 
-                {/* =================================================
-                    PAGINATION
-                ================================================= */}
+                {/* FOOTER */}
 
-                <div className="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2 bg-white">
+                <div
+                    className="
+                        card-footer
+                        bg-white
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                        flex-wrap
+                        gap-2
+                    "
+                >
 
                     <small className="text-muted">
 
@@ -1320,23 +1489,29 @@ const DebtList = () => {
                     </small>
 
 
-                    <Pagination
-                        page={page}
-                        limit={limit}
-                        total={total}
-                        onPageChange={(nextPage) => {
+                    {total > 0 && (
 
-                            if (
-                                nextPage >= 1 &&
-                                nextPage <= totalPages
-                            ) {
+                        <Pagination
+                            page={page}
+                            limit={limit}
+                            total={total}
+                            onPageChange={(nextPage) => {
 
-                                setPage(nextPage);
+                                if (
+                                    nextPage >= 1 &&
+                                    nextPage <= totalPages
+                                ) {
 
-                            }
+                                    setPage(
+                                        nextPage
+                                    );
 
-                        }}
-                    />
+                                }
+
+                            }}
+                        />
+
+                    )}
 
                 </div>
 

@@ -1,48 +1,90 @@
 import axios from "./axios";
 
-/**
- * Get All Income
- */
-export const getIncomes = async (params = {}) => {
 
-    return await axios.get("/income", {
-        params
-    });
-
-};
-
-/**
- * Get Single Income
- */
-export const getIncome = async (id) => {
-
-    return await axios.get(`/income/${id}`);
-
-};
-
-/**
- * Create Income
- */
 export const createIncome = async (data) => {
 
-    return await axios.post("/income", data);
+    const response = await axios.post(
+        "/income",
+        data
+    );
+
+    return response.data;
 
 };
 
-/**
- * Update Income
- */
-export const updateIncome = async (id, data) => {
 
-    return await axios.put(`/income/${id}`, data);
+export const getIncomes = async (params = {}) => {
+
+    const response = await axios.get(
+        "/income",
+        {
+            params: {
+
+                page:
+                    params.page || 1,
+
+                limit:
+                    params.limit || 10,
+
+                search:
+                    params.search || "",
+
+                category:
+                    params.category || "",
+
+                paymentMode:
+                    params.paymentMode || "",
+
+                account:
+                    params.account || "",
+
+                from:
+                    params.from || "",
+
+                to:
+                    params.to || ""
+
+            }
+        }
+    );
+
+    return response.data;
 
 };
 
-/**
- * Delete Income
- */
+
+export const getIncomeById = async (id) => {
+
+    const response = await axios.get(
+        `/income/${id}`
+    );
+
+    return response.data;
+
+};
+
+
+export const updateIncome = async (
+    id,
+    data
+) => {
+
+    const response = await axios.put(
+        `/income/${id}`,
+        data
+    );
+
+    return response.data;
+
+};
+
+
 export const deleteIncome = async (id) => {
 
-    return await axios.delete(`/income/${id}`);
+    const response = await axios.delete(
+        `/income/${id}`
+    );
+
+    return response.data;
 
 };

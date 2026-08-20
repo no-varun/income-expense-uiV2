@@ -1,36 +1,95 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
 
 import SavingForm from "../../components/saving/SavingForm";
 
-import { createSaving  } from "../../api/savingApi";
+import {
+    createSaving,
+} from "../../api/savingApi";
+
 
 const AddSaving = () => {
 
     const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const handleSubmit = async (data) => {
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE SAVING
+    |--------------------------------------------------------------------------
+    */
+
+    const handleSubmit = async (
+        formData
+    ) => {
 
         try {
 
             setLoading(true);
 
-            const response = await createSaving(data);
+            console.log(
+                "Create Saving Payload:",
+                formData
+            );
 
-            if (response.success) {
 
-                alert(response.message);
+            const response =
+                await createSaving(
+                    formData
+                );
 
-                navigate("/saving");
+
+            console.log(
+                "Create Saving Response:",
+                response
+            );
+
+
+            if (
+                response?.success
+            ) {
+
+                alert(
+                    response.message ||
+                    "Saving created successfully."
+                );
+
+
+                navigate(
+                    "/saving"
+                );
+
+                return;
 
             }
 
+
+            alert(
+                response?.message ||
+                "Unable to create saving."
+            );
+
+
         } catch (error) {
 
-            alert(error.response?.data?.message);
+            console.error(
+                "Create Saving Error:",
+                error
+            );
+
+
+            alert(
+
+                error?.response?.data?.message ||
+
+                error?.message ||
+
+                "Unable to create saving."
+
+            );
 
         } finally {
 
@@ -40,18 +99,30 @@ const AddSaving = () => {
 
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <SavingForm
 
-            loading={loading}
+            onSubmit={
+                handleSubmit
+            }
 
-            onSubmit={handleSubmit}
+            loading={
+                loading
+            }
 
         />
 
     );
 
 };
+
 
 export default AddSaving;

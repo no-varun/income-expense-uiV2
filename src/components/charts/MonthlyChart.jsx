@@ -17,6 +17,7 @@ import {
     incomeColor
 } from "./chartColors";
 
+
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -26,113 +27,389 @@ ChartJS.register(
     Legend
 );
 
-const MonthlyChart = ({ data = [] }) => {
 
-    const rows = Array.isArray(data) ? data : [];
+/*
+|--------------------------------------------------------------------------
+| COLORS
+|--------------------------------------------------------------------------
+*/
 
-    /*
-     * Format Amount
-     */
-    const formatAmount = (value) => {
-        return `₹${Number(value || 0).toLocaleString("en-IN", {
+const savingColor =
+    "#198754";
+
+const savingBorderColor =
+    "#146c43";
+
+const debtColor =
+    "#ffc107";
+
+const debtBorderColor =
+    "#cc9a06";
+
+const pendingDebtColor =
+    "#0dcaf0";
+
+const pendingDebtBorderColor =
+    "#0aa2c0";
+
+
+/*
+|--------------------------------------------------------------------------
+| FORMAT AMOUNT
+|--------------------------------------------------------------------------
+*/
+
+const formatAmount = (
+    value
+) => {
+
+    return `₹${Number(
+        value || 0
+    ).toLocaleString(
+        "en-IN",
+        {
             maximumFractionDigits: 2
-        })}`;
-    };
+        }
+    )}`;
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| NORMALIZE MONTH
+|--------------------------------------------------------------------------
+*/
+
+const getMonthLabel = (
+    item
+) => {
+
+    return (
+        item?.month ??
+        item?.label ??
+        item?.name ??
+        "-"
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| GET NUMBER
+|--------------------------------------------------------------------------
+*/
+
+const getNumber = (
+    value
+) => {
+
+    return Number(
+        value || 0
+    );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| MONTHLY CHART
+|--------------------------------------------------------------------------
+*/
+
+const MonthlyChart = ({
+    data = []
+}) => {
+
+    /*
+    |--------------------------------------------------------------------------
+    | SAFE DATA
+    |--------------------------------------------------------------------------
+    */
+
+    const rows =
+        Array.isArray(data)
+            ? data
+            : [];
 
 
     /*
-     * Chart Data
-     */
+    |--------------------------------------------------------------------------
+    | TOTALS
+    |--------------------------------------------------------------------------
+    */
+
+    const totalIncome =
+        rows.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                getNumber(
+                    item?.income
+                ),
+            0
+        );
+
+
+    const totalExpense =
+        rows.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                getNumber(
+                    item?.expense
+                ),
+            0
+        );
+
+
+    const totalSaving =
+        rows.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                getNumber(
+                    item?.saving
+                ),
+            0
+        );
+
+
+    const totalDebt =
+        rows.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                getNumber(
+                    item?.totalDebt
+                ),
+            0
+        );
+
+
+    const totalPendingDebt =
+        rows.reduce(
+            (
+                total,
+                item
+            ) =>
+                total +
+                getNumber(
+                    item?.pendingDebt
+                ),
+            0
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHART DATA
+    |--------------------------------------------------------------------------
+    */
+
     const chartData = {
 
-        labels: rows.map(
-            item => item.month
-        ),
+        labels:
+            rows.map(
+                item =>
+                    getMonthLabel(
+                        item
+                    )
+            ),
 
         datasets: [
 
             /*
-             * Income
-             */
+            |--------------------------------------------------------------------------
+            | INCOME
+            |--------------------------------------------------------------------------
+            */
+
             {
-                label: "Income",
 
-                data: rows.map(
-                    item => Number(item.income) || 0
-                ),
+                label:
+                    "Income",
 
-                backgroundColor: incomeColor,
-                borderColor: incomeBorderColor,
+                data:
+                    rows.map(
+                        item =>
+                            getNumber(
+                                item?.income
+                            )
+                    ),
 
-                borderWidth: 1
+                backgroundColor:
+                    incomeColor,
+
+                borderColor:
+                    incomeBorderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             },
 
 
             /*
-             * Expense
-             */
+            |--------------------------------------------------------------------------
+            | EXPENSE
+            |--------------------------------------------------------------------------
+            */
+
             {
-                label: "Expense",
 
-                data: rows.map(
-                    item => Number(item.expense) || 0
-                ),
+                label:
+                    "Expense",
 
-                backgroundColor: expenseColor,
-                borderColor: expenseBorderColor,
+                data:
+                    rows.map(
+                        item =>
+                            getNumber(
+                                item?.expense
+                            )
+                    ),
 
-                borderWidth: 1
+                backgroundColor:
+                    expenseColor,
+
+                borderColor:
+                    expenseBorderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             },
 
 
             /*
-             * Saving
-             */
+            |--------------------------------------------------------------------------
+            | SAVING
+            |--------------------------------------------------------------------------
+            */
+
             {
-                label: "Saving",
 
-                data: rows.map(
-                    item => Number(item.saving) || 0
-                ),
+                label:
+                    "Saving",
 
-                backgroundColor: "#198754",
-                borderColor: "#146c43",
+                data:
+                    rows.map(
+                        item =>
+                            getNumber(
+                                item?.saving
+                            )
+                    ),
 
-                borderWidth: 1
+                backgroundColor:
+                    savingColor,
+
+                borderColor:
+                    savingBorderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             },
 
 
             /*
-             * Debt
-             */
+            |--------------------------------------------------------------------------
+            | DEBT
+            |--------------------------------------------------------------------------
+            */
+
             {
-                label: "Debt",
 
-                data: rows.map(
-                    item => Number(item.totalDebt) || 0
-                ),
+                label:
+                    "Debt",
 
-                backgroundColor: "#ffc107",
-                borderColor: "#cc9a06",
+                data:
+                    rows.map(
+                        item =>
+                            getNumber(
+                                item?.totalDebt
+                            )
+                    ),
 
-                borderWidth: 1
+                backgroundColor:
+                    debtColor,
+
+                borderColor:
+                    debtBorderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             },
 
 
             /*
-             * Pending Debt
-             */
+            |--------------------------------------------------------------------------
+            | PENDING DEBT
+            |--------------------------------------------------------------------------
+            */
+
             {
-                label: "Pending Debt",
 
-                data: rows.map(
-                    item => Number(item.pendingDebt) || 0
-                ),
+                label:
+                    "Pending Debt",
 
-                backgroundColor: "#0dcaf0",
-                borderColor: "#0aa2c0",
+                data:
+                    rows.map(
+                        item =>
+                            getNumber(
+                                item?.pendingDebt
+                            )
+                    ),
 
-                borderWidth: 1
+                backgroundColor:
+                    pendingDebtColor,
+
+                borderColor:
+                    pendingDebtBorderColor,
+
+                borderWidth:
+                    1,
+
+                borderRadius:
+                    4,
+
+                maxBarThickness:
+                    45
+
             }
 
         ]
@@ -141,45 +418,85 @@ const MonthlyChart = ({ data = [] }) => {
 
 
     /*
-     * Chart Options
-     */
+    |--------------------------------------------------------------------------
+    | CHART OPTIONS
+    |--------------------------------------------------------------------------
+    */
+
     const options = {
 
-        responsive: true,
+        responsive:
+            true,
 
-        maintainAspectRatio: false,
+        maintainAspectRatio:
+            false,
 
         interaction: {
-            mode: "index",
-            intersect: false
+
+            mode:
+                "index",
+
+            intersect:
+                false
+
         },
+
 
         plugins: {
 
             legend: {
-                position: "top"
+
+                position:
+                    "top",
+
+                labels: {
+
+                    usePointStyle:
+                        true,
+
+                    padding:
+                        14
+
+                }
+
             },
+
 
             title: {
 
-                display: true,
+                display:
+                    true,
 
-                text: "Monthly Income vs Expense"
+                text:
+                    "Monthly Income vs Expense"
 
             },
+
 
             tooltip: {
 
                 callbacks: {
 
-                    label: (context) => {
+                    label:
+                        context => {
 
-                        const value =
-                            Number(context.raw) || 0;
+                            const value =
+                                getNumber(
+                                    context.raw
+                                );
 
-                        return `${context.dataset.label}: ${formatAmount(value)}`;
 
-                    }
+                            return (
+
+                                `${context.dataset.label}: ` +
+
+                                formatAmount(
+                                    value
+                                )
+
+                            );
+
+                        }
 
                 }
 
@@ -191,18 +508,35 @@ const MonthlyChart = ({ data = [] }) => {
         scales: {
 
             x: {
-                stacked: false
+
+                stacked:
+                    false,
+
+                grid: {
+
+                    display:
+                        false
+
+                }
+
             },
+
 
             y: {
 
-                beginAtZero: true,
+                beginAtZero:
+                    true,
 
                 ticks: {
 
-                    callback: (value) => {
-                        return formatAmount(value);
-                    }
+                    callback:
+                        value => {
+
+                            return formatAmount(
+                                value
+                            );
+
+                        }
 
                 }
 
@@ -213,162 +547,496 @@ const MonthlyChart = ({ data = [] }) => {
     };
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
-        <div className="card shadow mb-4">
+        <div
+            className="
+                w-100
+            "
+            style={{
+                minWidth: 0,
+                maxWidth: "100%",
+                overflow: "hidden"
+            }}
+        >
 
-            {/* ================= CHART ================= */}
-
-            <div className="card-header">
-
-                <h5 className="mb-0">
-                    Monthly Income vs Expense (₹)
-                </h5>
-
-            </div>
-
+            {/* =====================================================
+                SUMMARY CARDS
+            ===================================================== */}
 
             <div
-                className="card-body chart-body"
-                style={{
-                    minWidth: 0,
-                    position: "relative",
-                    height: "400px"
-                }}
+                className="
+                    row
+                    g-3
+                    mb-3
+                "
             >
 
-                {rows.length > 0 ? (
+                <SummaryCard
+                    title="Income"
+                    value={
+                        totalIncome
+                    }
+                    className="text-success"
+                />
 
-                    <Bar
-                        data={chartData}
-                        options={options}
-                    />
 
-                ) : (
+                <SummaryCard
+                    title="Expense"
+                    value={
+                        totalExpense
+                    }
+                    className="text-danger"
+                />
 
-                    <div className="d-flex justify-content-center align-items-center h-100 text-muted">
 
-                        No monthly data available
+                <SummaryCard
+                    title="Saving"
+                    value={
+                        totalSaving
+                    }
+                    className="text-primary"
+                />
 
-                    </div>
 
-                )}
+                <SummaryCard
+                    title="Debt"
+                    value={
+                        totalDebt
+                    }
+                    className="text-warning"
+                />
+
+
+                <SummaryCard
+                    title="Pending Debt"
+                    value={
+                        totalPendingDebt
+                    }
+                    className="text-info"
+                />
 
             </div>
 
 
-            {/* ================= MONTHLY LIST ================= */}
+            {/* =====================================================
+                CHART
+            ===================================================== */}
 
-            {rows.length > 0 && (
+            <div
+                className="
+                    card
+                    shadow-sm
+                    w-100
+                    mb-3
+                "
+            >
 
-                <div className="card-body border-top">
+                <div
+                    className="
+                        card-header
+                        d-flex
+                        justify-content-between
+                        align-items-center
+                    "
+                >
 
-                    <h5 className="mb-3">
-                        Monthly Summary
+                    <h5 className="mb-0">
+
+                        Monthly Income vs Expense
+
                     </h5>
 
 
-                    <div className="table-responsive">
+                    <span
+                        className="
+                            text-muted
+                            small
+                        "
+                    >
 
-                        <table className="table table-hover table-bordered align-middle mb-0">
+                        ₹
 
-                            <thead className="table-light">
+                    </span>
 
-                                <tr>
-
-                                    <th>
-                                        Month
-                                    </th>
-
-                                    <th className="text-end">
-                                        Income
-                                    </th>
-
-                                    <th className="text-end">
-                                        Expense
-                                    </th>
-
-                                    <th className="text-end">
-                                        Saving
-                                    </th>
-
-                                    <th className="text-end">
-                                        Total Debt
-                                    </th>
-
-                                    <th className="text-end">
-                                        Pending Debt
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+                </div>
 
 
-                            <tbody>
+                <div
+                    className="
+                        card-body
+                    "
+                    style={{
+                        height: "420px",
+                        minWidth: 0,
+                        position: "relative"
+                    }}
+                >
 
-                                {rows.map((item) => (
+                    {rows.length > 0 ? (
 
-                                    <tr key={item.month}>
+                        <Bar
+                            data={
+                                chartData
+                            }
+                            options={
+                                options
+                            }
+                        />
 
-                                        {/* Month */}
+                    ) : (
 
-                                        <td className="fw-bold">
-                                            {item.month}
-                                        </td>
+                        <div
+                            className="
+                                d-flex
+                                justify-content-center
+                                align-items-center
+                                h-100
+                                text-muted
+                            "
+                        >
 
+                            No monthly data available
 
-                                        {/* Income */}
+                        </div>
 
-                                        <td className="text-end text-success fw-semibold">
-                                            {formatAmount(
-                                                item.income
-                                            )}
-                                        </td>
+                    )}
 
+                </div>
 
-                                        {/* Expense */}
-
-                                        <td className="text-end text-danger fw-semibold">
-                                            {formatAmount(
-                                                item.expense
-                                            )}
-                                        </td>
-
-
-                                        {/* Saving */}
-
-                                        <td className="text-end text-primary fw-semibold">
-                                            {formatAmount(
-                                                item.saving
-                                            )}
-                                        </td>
-
-
-                                        {/* Total Debt */}
-
-                                        <td className="text-end text-warning fw-semibold">
-                                            {formatAmount(
-                                                item.totalDebt
-                                            )}
-                                        </td>
+            </div>
 
 
-                                        {/* Pending Debt */}
+            {/* =====================================================
+                MONTHLY SUMMARY
+            ===================================================== */}
 
-                                        <td className="text-end text-info fw-semibold">
-                                            {formatAmount(
-                                                item.pendingDebt
-                                            )}
-                                        </td>
+            {rows.length > 0 && (
+
+                <div
+                    className="
+                        card
+                        shadow-sm
+                        w-100
+                    "
+                >
+
+                    <div
+                        className="
+                            card-header
+                        "
+                    >
+
+                        <h5 className="mb-0">
+
+                            Monthly Summary
+
+                        </h5>
+
+                    </div>
+
+
+                    <div
+                        className="
+                            card-body
+                            p-0
+                        "
+                    >
+
+                        <div
+                            className="
+                                table-responsive
+                            "
+                        >
+
+                            <table
+                                className="
+                                    table
+                                    table-hover
+                                    table-bordered
+                                    align-middle
+                                    mb-0
+                                "
+                            >
+
+                                <thead
+                                    className="
+                                        table-light
+                                    "
+                                >
+
+                                    <tr>
+
+                                        <th>
+                                            Month
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Income
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Expense
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Saving
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Total Debt
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                            "
+                                        >
+                                            Pending Debt
+                                        </th>
 
                                     </tr>
 
-                                ))}
+                                </thead>
 
-                            </tbody>
 
-                        </table>
+                                <tbody>
+
+                                    {rows.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => (
+
+                                            <tr
+                                                key={
+                                                    `${getMonthLabel(item)}-${index}`
+                                                }
+                                            >
+
+                                                <td
+                                                    className="
+                                                        fw-bold
+                                                    "
+                                                >
+
+                                                    {
+                                                        getMonthLabel(
+                                                            item
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-success
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatAmount(
+                                                            item?.income
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-danger
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatAmount(
+                                                            item?.expense
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-primary
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatAmount(
+                                                            item?.saving
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-warning
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatAmount(
+                                                            item?.totalDebt
+                                                        )
+                                                    }
+
+                                                </td>
+
+
+                                                <td
+                                                    className="
+                                                        text-end
+                                                        text-info
+                                                        fw-semibold
+                                                    "
+                                                >
+
+                                                    {
+                                                        formatAmount(
+                                                            item?.pendingDebt
+                                                        )
+                                                    }
+
+                                                </td>
+
+                                            </tr>
+
+                                        )
+                                    )}
+
+                                </tbody>
+
+
+                                <tfoot
+                                    className="
+                                        table-light
+                                    "
+                                >
+
+                                    <tr>
+
+                                        <th>
+                                            Total
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                                text-success
+                                            "
+                                        >
+
+                                            {
+                                                formatAmount(
+                                                    totalIncome
+                                                )
+                                            }
+
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                                text-danger
+                                            "
+                                        >
+
+                                            {
+                                                formatAmount(
+                                                    totalExpense
+                                                )
+                                            }
+
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                                text-primary
+                                            "
+                                        >
+
+                                            {
+                                                formatAmount(
+                                                    totalSaving
+                                                )
+                                            }
+
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                                text-warning
+                                            "
+                                        >
+
+                                            {
+                                                formatAmount(
+                                                    totalDebt
+                                                )
+                                            }
+
+                                        </th>
+
+                                        <th
+                                            className="
+                                                text-end
+                                                text-info
+                                            "
+                                        >
+
+                                            {
+                                                formatAmount(
+                                                    totalPendingDebt
+                                                )
+                                            }
+
+                                        </th>
+
+                                    </tr>
+
+                                </tfoot>
+
+                            </table>
+
+                        </div>
 
                     </div>
 
@@ -379,6 +1047,85 @@ const MonthlyChart = ({ data = [] }) => {
         </div>
 
     );
+
 };
+
+
+/*
+|--------------------------------------------------------------------------
+| SUMMARY CARD
+|--------------------------------------------------------------------------
+*/
+
+const SummaryCard = ({
+    title,
+    value,
+    className
+}) => {
+
+    return (
+
+        <div
+            className="
+                col-12
+                col-sm-6
+                col-lg-4
+                col-xl
+            "
+        >
+
+            <div
+                className="
+                    card
+                    shadow-sm
+                    h-100
+                "
+            >
+
+                <div
+                    className="
+                        card-body
+                    "
+                >
+
+                    <div
+                        className="
+                            text-muted
+                            small
+                            mb-1
+                        "
+                    >
+
+                        {title}
+
+                    </div>
+
+
+                    <div
+                        className={`
+                            fs-5
+                            fw-bold
+                            ${className}
+                        `}
+                    >
+
+                        {
+                            formatAmount(
+                                value
+                            )
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
+};
+
 
 export default MonthlyChart;
