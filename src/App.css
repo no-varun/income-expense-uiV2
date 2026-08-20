@@ -1,0 +1,456 @@
+/* ==========================
+   Global
+========================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    min-height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: #f5f6fa;
+    overflow-x: hidden;
+}
+
+img,
+svg,
+canvas {
+    max-width: 100%;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+/* ==========================
+   Sidebar
+========================== */
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    background: #212529;
+
+    transition: left 0.3s ease;
+
+    z-index: 1050;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    flex-shrink: 0;
+}
+
+
+/* ==========================
+   Main Content
+========================== */
+
+.main-content {
+    min-height: 100vh;
+
+    /*
+     * Sidebar is fixed and takes 260px.
+     * Keep content beside it on desktop.
+     */
+    margin-left: 260px;
+
+    width: calc(100% - 260px);
+
+    min-width: 0;
+
+    transition:
+        margin-left 0.3s ease,
+        width 0.3s ease;
+
+    overflow-x: hidden;
+}
+
+
+/* ==========================
+   Header
+========================== */
+
+.header {
+    height: 70px;
+
+    background: #fff;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 1000;
+
+    border-bottom: 1px solid #dee2e6;
+
+    width: 100%;
+}
+
+
+/* ==========================
+   Footer
+========================== */
+
+.footer {
+    background: #fff;
+
+    border-top: 1px solid #dee2e6;
+}
+
+
+/* ==========================
+   Sidebar Menu
+========================== */
+
+.sidebar .nav-link {
+    color: #fff;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease;
+}
+
+.sidebar .nav-link:hover {
+    background: #2c3136;
+}
+
+.sidebar .nav-link.active {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.sidebar button {
+    color: #fff;
+}
+
+
+/* ==========================
+   Cards
+========================== */
+
+.card {
+    border: none;
+    border-radius: 8px;
+
+    max-width: 100%;
+
+    min-width: 0;
+}
+
+.card-body {
+    min-width: 0;
+    max-width: 100%;
+}
+
+
+/* ==========================
+   Chart
+========================== */
+
+.chart-body {
+    height: 360px;
+    position: relative;
+
+    width: 100%;
+    min-width: 0;
+
+    overflow: hidden;
+}
+
+.chart-body-pie {
+    height: 320px;
+
+    width: 100%;
+    min-width: 0;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* ==========================
+   Chart / Row Safety
+========================== */
+
+.main-content .container,
+.main-content .container-fluid {
+    max-width: 100%;
+    min-width: 0;
+}
+
+.main-content .row {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.main-content .row > * {
+    min-width: 0;
+}
+
+
+/* ==========================
+   Responsive Table
+========================== */
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    max-width: 100%;
+}
+
+.table {
+    vertical-align: middle;
+}
+
+
+/* ==========================
+   Forms
+========================== */
+
+.form-control,
+.form-select {
+    border-radius: 8px;
+}
+
+
+/* ==========================
+   Buttons
+========================== */
+
+.btn {
+    border-radius: 8px;
+}
+
+
+/* ==========================
+   Scrollbar
+========================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 20px;
+}
+
+
+/* ==========================
+   Mobile / Tablet
+========================== */
+
+@media (max-width: 991px) {
+
+    .sidebar {
+        left: -260px;
+        width: 260px;
+    }
+
+    .sidebar.sidebar-open {
+        left: 0;
+    }
+
+    /*
+     * On mobile sidebar overlays the page,
+     * therefore content must use full width.
+     */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        min-width: 0;
+
+        overflow-x: hidden;
+    }
+}
+
+
+/* ==========================
+   Responsive Screens
+========================== */
+
+@media (max-width: 767px) {
+
+    .header {
+        height: 62px;
+    }
+
+    main {
+        padding: 1rem !important;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    h4 {
+        font-size: 1.05rem;
+    }
+
+    h5 {
+        font-size: 1rem;
+    }
+
+    .container,
+    .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
+
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .card {
+        max-width: 100%;
+        min-width: 0;
+
+        box-shadow:
+            0 0.25rem 0.75rem
+            rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .card-body {
+        padding: 1rem;
+
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .chart-body {
+        height: 300px;
+    }
+
+    .chart-body-pie {
+        height: 280px;
+    }
+
+    .card-header {
+        padding: 0.85rem 1rem;
+
+        min-width: 0;
+    }
+
+    .d-flex.justify-content-between {
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .d-flex.justify-content-between > .btn,
+    .d-flex.justify-content-between > div,
+    .d-flex.justify-content-between > a {
+        flex-shrink: 0;
+    }
+
+    /*
+     * Tables remain horizontally scrollable
+     * instead of breaking the page width.
+     */
+    .table {
+        min-width: 680px;
+        font-size: 0.875rem;
+    }
+
+    .table th,
+    .table td {
+        white-space: nowrap;
+    }
+
+    .card-body:has(> .table),
+    .card-body:has(> table) {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .btn {
+        min-height: 38px;
+    }
+
+    .btn-sm {
+        min-height: 32px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 42px;
+    }
+
+    .sidebar {
+        max-width: 85vw;
+    }
+
+    /*
+     * Important for Chart.js and flex/grid layouts.
+     */
+    .row {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .row > [class*="col-"] {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    canvas {
+        max-width: 100% !important;
+    }
+}
+
+
+/* ==========================
+   Small Mobile
+========================== */
+
+@media (max-width: 575px) {
+
+    .card.shadow,
+    .card {
+        border-radius: 8px;
+    }
+
+    .row {
+        --bs-gutter-x: 0.75rem;
+
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .btn + .btn,
+    .btn + a,
+    a + .btn {
+        margin-top: 0.35rem;
+    }
+
+    .table {
+        min-width: 620px;
+    }
+
+    /*
+     * Prevent long chart/card content
+     * from increasing page width.
+     */
+    .card-header,
+    .card-body {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
