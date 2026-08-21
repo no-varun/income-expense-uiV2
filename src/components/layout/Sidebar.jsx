@@ -419,8 +419,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
                                             <NavLink
                                                 to="/charts/payment-mode"
-                                                className="nav-link text-light ps-5"
-                                                onClick={() =>
+                                                className="nav-link text-light ps-5" onClick={() =>
                                                     setSidebarOpen(false)
                                                 }
                                             >

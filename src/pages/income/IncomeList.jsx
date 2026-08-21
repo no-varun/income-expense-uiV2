@@ -372,227 +372,61 @@ const IncomeList = () => {
     |--------------------------------------------------------------------------
     */
 
- const loadIncome = useCallback(
-    async () => {
+    const loadIncome = useCallback(
+        async () => {
 
-        try {
+            try {
 
-            setLoading(true);
-
-
-            const response = await getIncomes({
-
-                page,
-
-                limit,
-
-                search,
-
-                category,
-
-                paymentMode,
-
-                account,
-
-                from: fromDate,
-
-                to: toDate
-
-            });
+                setLoading(true);
 
 
-            console.log(
-                "Income API Response:",
-                response
-            );
+                const response = await getIncomes({ page, limit, search, category, paymentMode, account, from: fromDate, to: toDate });
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Your incomeApi.js returns response.data directly.
-            |
-            | Therefore response is:
-            |
-            | {
-            |     total: 18,
-            |     page: 1,
-            |     limit: 10,
-            |     totalPages: 2,
-            |     data: [...]
-            | }
-            |--------------------------------------------------------------------------
-            */
-
-
-            const result =
-                response || {};
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Income Rows
-            |--------------------------------------------------------------------------
-            */
-
-            const incomeRows =
-                Array.isArray(
-                    result.data
-                )
-
-                    ? result.data
-
-                    : [];
-
-
-            console.log(
-                "Income Rows:",
-                incomeRows
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Set Income Data
-            |--------------------------------------------------------------------------
-            */
-
-            setIncomes(
-                incomeRows
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Total Records
-            |--------------------------------------------------------------------------
-            */
-
-            setTotal(
-
-                Number(
-                    result.total ||
-                    0
-                )
-
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Total Amount
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                result.totalAmount !==
-                undefined
-            ) {
-
-                setTotalAmount(
-
-                    Number(
-                        result.totalAmount ||
-                        0
-                    )
-
-                );
-
-            } else {
-
-                /*
-                |--------------------------------------------------------------------------
-                | Calculate amount from current page
-                |--------------------------------------------------------------------------
-                |
-                | NOTE:
-                | This is only current page total.
-                |
-                | If backend later provides totalAmount,
-                | we will use that instead.
-                |--------------------------------------------------------------------------
-                */
-
-                const calculatedAmount =
-                    incomeRows.reduce(
-
-                        (
-                            sum,
-                            item
-                        ) => {
-
-                            return (
-
-                                sum +
-
-                                Number(
-                                    item.amount ||
-                                    0
-                                )
-
-                            );
-
-                        },
-
-                        0
-
-                    );
-
-
-                setTotalAmount(
-                    calculatedAmount
-                );
-
+                console.log("Income API Response:", response);
+                const result = response.data || {};
+                const incomeRows = Array.isArray(result.data) ? result?.data : [];
+                console.log("Income Rows:", incomeRows);
+                setIncomes(incomeRows);
+                setTotal(Number(result.total || 0));
+                if (result.totalAmount !== undefined) {
+                    setTotalAmount(Number(result.totalAmount || 0));
+                } else {
+                    const calculatedAmount = incomeRows.reduce((sum, item) => { return (sum + Number(item.amount || 0)); }, 0);
+                    setTotalAmount(calculatedAmount);
+                }
+            } catch (error) {
+                console.error("Income load error:", error);
+                console.error("Income API Error:", error?.response?.data);
+                setIncomes([]);
+                setTotal(0);
+                setTotalAmount(0);
+            } finally {
+                setLoading(false);
             }
 
-        } catch (error) {
+        },
 
-            console.error(
-                "Income load error:",
-                error
-            );
+        [
 
+            page,
 
-            console.error(
-                "Income API Error:",
-                error?.response?.data
-            );
+            limit,
 
+            search,
 
-            setIncomes([]);
+            category,
 
-            setTotal(0);
+            paymentMode,
 
-            setTotalAmount(0);
+            account,
 
-        } finally {
+            fromDate,
 
-            setLoading(false);
+            toDate
 
-        }
+        ]
 
-    },
-
-    [
-
-        page,
-
-        limit,
-
-        search,
-
-        category,
-
-        paymentMode,
-
-        account,
-
-        fromDate,
-
-        toDate
-
-    ]
-
-);
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -909,7 +743,7 @@ const IncomeList = () => {
 
                 return (
                     PaymentModeImages[
-                        matchedMode
+                    matchedMode
                     ]
                 );
 

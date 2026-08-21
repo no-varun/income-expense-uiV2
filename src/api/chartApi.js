@@ -161,19 +161,8 @@ export const getPaymentModeChart = async (
  * Specific year:
  * GET /api/charts/dashboard?year=2026
  */
-export const getDashboardChart = async (
-    year = "all"
-) => {
-
-    return await axios.get(
-        "/charts/dashboard",
-        {
-            params: {
-                year
-            }
-        }
-    );
-
+export const getDashboardChart = async (year = "all") => {
+    return await axios.get("/charts/dashboard",{params: {year}});
 };
 export const getTitleTypeChart = async (
     year = "all",

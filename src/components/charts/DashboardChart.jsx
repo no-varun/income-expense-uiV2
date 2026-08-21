@@ -1,1177 +1,486 @@
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-} from "chart.js";
+import React, { useMemo } from "react";
 
-import { Bar } from "react-chartjs-2";
+const DashboardChart = ({ data }) => {
+    console.log("DASHBOARD DATA:", data);
 
-import {
-    expenseBorderColor,
-    expenseColor,
-    incomeBorderColor,
-    incomeColor
-} from "./chartColors";
-
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend
-);
-
-
-/*
-|--------------------------------------------------------------------------
-| COLORS
-|--------------------------------------------------------------------------
-*/
-
-const savingColor =
-    "#198754";
-
-const savingBorderColor =
-    "#146c43";
-
-const debtColor =
-    "#ffc107";
-
-const debtBorderColor =
-    "#cc9a06";
-
-const pendingDebtColor =
-    "#0dcaf0";
-
-const pendingDebtBorderColor =
-    "#0aa2c0";
-
-
-/*
-|--------------------------------------------------------------------------
-| CURRENCY FORMATTER
-|--------------------------------------------------------------------------
-*/
-
-const formatCurrency = (
-    value
-) => {
-
-    return `₹${Number(
-        value || 0
-    ).toLocaleString(
-        "en-IN",
-        {
-            maximumFractionDigits: 2
+    const dashboardData = useMemo(() => {
+        if (!data || typeof data !== "object" || Array.isArray(data)) {
+            return {};
         }
-    )}`;
 
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| MONTH NAMES
-|--------------------------------------------------------------------------
-*/
-
-const getMonthName = (
-    month
-) => {
-
-    return new Date(
-        2000,
-        month - 1,
-        1
-    ).toLocaleString(
-        "en-IN",
-        {
-            month: "short"
+        if (data.success && data.data && typeof data.data === "object") {
+            return data.data;
         }
-    );
 
-};
+        return data;
+    }, [data]);
 
+    const income = Array.isArray(dashboardData.income)
+        ? dashboardData.income
+        : [];
 
-/*
-|--------------------------------------------------------------------------
-| GET MONTH VALUE
-|--------------------------------------------------------------------------
-*/
+    const expense = Array.isArray(dashboardData.expense)
+        ? dashboardData.expense
+        : [];
 
-const getMonthValue = (
-    items,
-    month
-) => {
+    const saving = Array.isArray(dashboardData.saving)
+        ? dashboardData.saving
+        : [];
 
-    if (
-        !Array.isArray(items)
-    ) {
+    const debt = Array.isArray(dashboardData.Debt)
+        ? dashboardData.Debt
+        : [];
 
-        return 0;
+    const pendingDebt = Array.isArray(dashboardData.pendingDebt)
+        ? dashboardData.pendingDebt
+        : [];
 
-    }
+    const months = [
+        { id: 1, name: "Jan" },
+        { id: 2, name: "Feb" },
+        { id: 3, name: "Mar" },
+        { id: 4, name: "Apr" },
+        { id: 5, name: "May" },
+        { id: 6, name: "Jun" },
+        { id: 7, name: "Jul" },
+        { id: 8, name: "Aug" },
+        { id: 9, name: "Sep" },
+        { id: 10, name: "Oct" },
+        { id: 11, name: "Nov" },
+        { id: 12, name: "Dec" }
+    ];
 
+    const getAmount = item => {
+        if (!item) {
+            return 0;
+        }
 
-    const row =
-        items.find(
-            item =>
-                Number(
-                    item?._id
-                ) === Number(month)
+        if (typeof item === "number") {
+            return Number(item) || 0;
+        }
+
+        return Number(
+            item.total ??
+            item.amount ??
+            item.totalAmount ??
+            item.value ??
+            0
+        ) || 0;
+    };
+
+    const getMonthAmount = (items, monthId) => {
+        const item = items.find(
+            item => Number(item?._id) === monthId
         );
 
+        return item ? getAmount(item) : 0;
+    };
 
-    return Number(
-        row?.total || 0
-    );
-
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| NORMALIZE DATA
-|--------------------------------------------------------------------------
-*/
-
-const normalizeItems = (
-    value
-) => {
-
-    if (
-        !Array.isArray(value)
-    ) {
-
-        return [];
-
-    }
-
-
-    return value;
-
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| DASHBOARD CHART
-|--------------------------------------------------------------------------
-*/
-
-const DashboardChart = ({
-    data = {},
-    year = "all"
-}) => {
-
-    /*
-    |--------------------------------------------------------------------------
-    | API DATA
-    |--------------------------------------------------------------------------
-    */
-
-    const income =
-        normalizeItems(
-            data?.income
-        );
-
-
-    const expense =
-        normalizeItems(
-            data?.expense
-        );
-
-
-    const saving =
-        normalizeItems(
-            data?.Saving ??
-            data?.saving
-        );
-
-
-    const debt =
-        normalizeItems(
-            data?.Debt ??
-            data?.debt
-        );
-
-
-    const pendingDebt =
-        normalizeItems(
-            data?.pendingDebt ??
-            data?.PendingDebt
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER
-    |--------------------------------------------------------------------------
-    */
-
-    const isAll =
-        String(
-            year
-        ).toLowerCase() === "all";
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | MONTHS
-    |--------------------------------------------------------------------------
-    |
-    | Dashboard API returns:
-    |
-    | [
-    |   {
-    |      _id: 1,
-    |      total: 100
-    |   }
-    | ]
-    |
-    | Create a complete month list when data exists.
-    |
-    */
-
-    const monthNumbers = [
-
-        ...new Set([
-
-            ...income.map(
-                item =>
-                    Number(
-                        item?._id
-                    )
-            ),
-
-            ...expense.map(
-                item =>
-                    Number(
-                        item?._id
-                    )
-            ),
-
-            ...saving.map(
-                item =>
-                    Number(
-                        item?._id
-                    )
-            ),
-
-            ...debt.map(
-                item =>
-                    Number(
-                        item?._id
-                    )
-            ),
-
-            ...pendingDebt.map(
-                item =>
-                    Number(
-                        item?._id
-                    )
+    const monthlyData = useMemo(() => {
+        return months.map(month => ({
+            id: month.id,
+            name: month.name,
+            income: getMonthAmount(income, month.id),
+            expense: getMonthAmount(expense, month.id),
+            saving: getMonthAmount(saving, month.id),
+            debt: getMonthAmount(debt, month.id),
+            pendingDebt: getMonthAmount(
+                pendingDebt,
+                month.id
             )
+        }));
+    }, [
+        income,
+        expense,
+        saving,
+        debt,
+        pendingDebt
+    ]);
 
-        ])
+    const totals = useMemo(() => {
+        return {
+            income: monthlyData.reduce(
+                (sum, item) => sum + item.income,
+                0
+            ),
+            expense: monthlyData.reduce(
+                (sum, item) => sum + item.expense,
+                0
+            ),
+            saving: monthlyData.reduce(
+                (sum, item) => sum + item.saving,
+                0
+            ),
+            debt: monthlyData.reduce(
+                (sum, item) => sum + item.debt,
+                0
+            ),
+            pendingDebt: monthlyData.reduce(
+                (sum, item) => sum + item.pendingDebt,
+                0
+            )
+        };
+    }, [monthlyData]);
 
-    ]
-        .filter(
-            month =>
-                Number.isFinite(
-                    month
-                ) &&
-                month >= 1 &&
-                month <= 12
-        )
-        .sort(
-            (a, b) =>
-                a - b
-        );
+    const maxValue = Math.max(
+        ...monthlyData.flatMap(item => [
+            item.income,
+            item.expense,
+            item.saving,
+            item.debt,
+            item.pendingDebt
+        ]),
+        1
+    );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | MONTH LABELS
-    |--------------------------------------------------------------------------
-    */
-
-    const labels =
-        monthNumbers.map(
-            month =>
-                getMonthName(
-                    month
-                )
-        );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | MONTHLY ROWS
-    |--------------------------------------------------------------------------
-    */
-
-    const rows =
-        monthNumbers.map(
-            month => {
-
-                return {
-
-                    month,
-
-                    monthName:
-                        getMonthName(
-                            month
-                        ),
-
-                    income:
-                        getMonthValue(
-                            income,
-                            month
-                        ),
-
-                    expense:
-                        getMonthValue(
-                            expense,
-                            month
-                        ),
-
-                    saving:
-                        getMonthValue(
-                            saving,
-                            month
-                        ),
-
-                    debt:
-                        getMonthValue(
-                            debt,
-                            month
-                        ),
-
-                    pendingDebt:
-                        getMonthValue(
-                            pendingDebt,
-                            month
-                        )
-
-                };
-
+    const formatAmount = amount => {
+        return Number(amount || 0).toLocaleString(
+            "en-IN",
+            {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
             }
         );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHART DATA
-    |--------------------------------------------------------------------------
-    */
-
-    const chartData = {
-
-        labels,
-
-        datasets: [
-
-            {
-                label:
-                    "Income",
-
-                data:
-                    monthNumbers.map(
-                        month =>
-                            getMonthValue(
-                                income,
-                                month
-                            )
-                    ),
-
-                backgroundColor:
-                    incomeColor,
-
-                borderColor:
-                    incomeBorderColor,
-
-                borderWidth:
-                    1
-
-            },
-
-
-            {
-                label:
-                    "Expense",
-
-                data:
-                    monthNumbers.map(
-                        month =>
-                            getMonthValue(
-                                expense,
-                                month
-                            )
-                    ),
-
-                backgroundColor:
-                    expenseColor,
-
-                borderColor:
-                    expenseBorderColor,
-
-                borderWidth:
-                    1
-
-            },
-
-
-            {
-                label:
-                    "Saving",
-
-                data:
-                    monthNumbers.map(
-                        month =>
-                            getMonthValue(
-                                saving,
-                                month
-                            )
-                    ),
-
-                backgroundColor:
-                    savingColor,
-
-                borderColor:
-                    savingBorderColor,
-
-                borderWidth:
-                    1
-
-            },
-
-
-            {
-                label:
-                    "Debt",
-
-                data:
-                    monthNumbers.map(
-                        month =>
-                            getMonthValue(
-                                debt,
-                                month
-                            )
-                    ),
-
-                backgroundColor:
-                    debtColor,
-
-                borderColor:
-                    debtBorderColor,
-
-                borderWidth:
-                    1
-
-            },
-
-
-            {
-                label:
-                    "Pending Debt",
-
-                data:
-                    monthNumbers.map(
-                        month =>
-                            getMonthValue(
-                                pendingDebt,
-                                month
-                            )
-                    ),
-
-                backgroundColor:
-                    pendingDebtColor,
-
-                borderColor:
-                    pendingDebtBorderColor,
-
-                borderWidth:
-                    1
-
-            }
-
-        ]
-
     };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHART OPTIONS
-    |--------------------------------------------------------------------------
-    */
-
-    const options = {
-
-        responsive:
-            true,
-
-        maintainAspectRatio:
-            false,
-
-        interaction: {
-
-            mode:
-                "index",
-
-            intersect:
-                false
-
-        },
-
-
-        plugins: {
-
-            legend: {
-
-                position:
-                    "top",
-
-                labels: {
-
-                    usePointStyle:
-                        true,
-
-                    padding:
-                        18
-
-                }
-
-            },
-
-
-            title: {
-
-                display:
-                    true,
-
-                text:
-                    isAll
-
-                        ? "Dashboard Overview - All Years"
-
-                        : `Dashboard Overview - ${year}`
-
-            },
-
-
-            tooltip: {
-
-                callbacks: {
-
-                    label:
-                        context => {
-
-                            const value =
-                                Number(
-                                    context.raw
-                                ) || 0;
-
-
-                            return (
-
-                                `${context.dataset.label}: ` +
-
-                                formatCurrency(
-                                    value
-                                )
-
-                            );
-
-                        }
-
-                }
-
-            }
-
-        },
-
-
-        scales: {
-
-            x: {
-
-                stacked:
-                    false,
-
-                grid: {
-
-                    display:
-                        false
-
-                }
-
-            },
-
-
-            y: {
-
-                beginAtZero:
-                    true,
-
-                ticks: {
-
-                    callback:
-                        value =>
-
-                            formatCurrency(
-                                value
-                            )
-
-                }
-
-            }
-
-        }
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER
-    |--------------------------------------------------------------------------
-    */
 
     return (
-
-        <div
-            className="
-                w-100
-            "
-            style={{
-                minWidth: 0,
-                maxWidth: "100%"
-            }}
-        >
-
-            {/* =========================================================
-                SUMMARY
-            ========================================================= */}
-
-            <div
-                className="
-                    row
-                    g-3
-                    mb-3
-                "
-            >
-
-                <SummaryCard
-                    title="Income"
-                    value={
-                        income.reduce(
-                            (
-                                total,
-                                item
-                            ) =>
-                                total +
-                                Number(
-                                    item?.total || 0
-                                ),
-                            0
-                        )
-                    }
-                    className="text-success"
-                />
-
-
-                <SummaryCard
-                    title="Expense"
-                    value={
-                        expense.reduce(
-                            (
-                                total,
-                                item
-                            ) =>
-                                total +
-                                Number(
-                                    item?.total || 0
-                                ),
-                            0
-                        )
-                    }
-                    className="text-danger"
-                />
-
-
-                <SummaryCard
-                    title="Saving"
-                    value={
-                        saving.reduce(
-                            (
-                                total,
-                                item
-                            ) =>
-                                total +
-                                Number(
-                                    item?.total || 0
-                                ),
-                            0
-                        )
-                    }
-                    className="text-primary"
-                />
-
-
-                <SummaryCard
-                    title="Debt"
-                    value={
-                        debt.reduce(
-                            (
-                                total,
-                                item
-                            ) =>
-                                total +
-                                Number(
-                                    item?.total || 0
-                                ),
-                            0
-                        )
-                    }
-                    className="text-warning"
-                />
-
-
-                <SummaryCard
-                    title="Pending Debt"
-                    value={
-                        pendingDebt.reduce(
-                            (
-                                total,
-                                item
-                            ) =>
-                                total +
-                                Number(
-                                    item?.total || 0
-                                ),
-                            0
-                        )
-                    }
-                    className="text-info"
-                />
-
-            </div>
-
-
-            {/* =========================================================
-                CHART
-            ========================================================= */}
-
-            <div
-                className="
-                    card
-                    shadow-sm
-                    w-100
-                    mb-4
-                "
-            >
-
-                <div
-                    className="
-                        card-header
-                        d-flex
-                        justify-content-between
-                        align-items-center
-                    "
-                >
-
-                    <h5 className="mb-0">
-
-                        Dashboard Overview
-
-                    </h5>
-
-
-                    <span
-                        className="
-                            text-muted
-                        "
-                    >
-
-                        {
-                            isAll
-                                ? "All Years"
-                                : year
-                        }
-
-                    </span>
-
-                </div>
-
-
-                <div
-                    className="
-                        card-body
-                    "
-                    style={{
-                        height: "450px",
-                        minWidth: 0,
-                        position: "relative"
-                    }}
-                >
-
-                    {monthNumbers.length > 0 ? (
-
-                        <Bar
-                            data={
-                                chartData
-                            }
-                            options={
-                                options
-                            }
-                        />
-
-                    ) : (
-
-                        <div
-                            className="
-                                d-flex
-                                justify-content-center
-                                align-items-center
-                                h-100
-                                text-muted
-                            "
-                        >
-
-                            No chart data available
-
+        <div className="w-100">
+            <div className="row g-3 mb-3">
+                <div className="col-12 col-md-6 col-lg">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <div className="text-muted mb-2">
+                                Income
+                            </div>
+                            <h4 className="mb-0 text-success">
+                                ₹{formatAmount(totals.income)}
+                            </h4>
                         </div>
-
-                    )}
-
+                    </div>
                 </div>
 
+                <div className="col-12 col-md-6 col-lg">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <div className="text-muted mb-2">
+                                Expense
+                            </div>
+                            <h4 className="mb-0 text-danger">
+                                ₹{formatAmount(totals.expense)}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12 col-md-6 col-lg">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <div className="text-muted mb-2">
+                                Saving
+                            </div>
+                            <h4 className="mb-0 text-primary">
+                                ₹{formatAmount(totals.saving)}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12 col-md-6 col-lg">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <div className="text-muted mb-2">
+                                Debt
+                            </div>
+                            <h4 className="mb-0 text-warning">
+                                ₹{formatAmount(totals.debt)}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-12 col-md-6 col-lg">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <div className="text-muted mb-2">
+                                Pending Debt
+                            </div>
+                            <h4 className="mb-0 text-info">
+                                ₹{formatAmount(totals.pendingDebt)}
+                            </h4>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-
-            {/* =========================================================
-                MONTHLY SUMMARY
-            ========================================================= */}
-
-            {rows.length > 0 && (
-
-                <div
-                    className="
-                        card
-                        shadow-sm
-                        w-100
-                    "
-                >
-
-                    <div
-                        className="
-                            card-header
-                        "
-                    >
-
-                        <h6 className="mb-0">
-
-                            Monthly Summary
-
-                        </h6>
-
+            <div className="card border-0 shadow-sm">
+                <div className="card-header bg-white py-3">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h4 className="mb-0">
+                            Dashboard Overview
+                        </h4>
+                        <span className="text-muted">
+                            {new Date().getFullYear()}
+                        </span>
                     </div>
+                </div>
 
-
+                <div className="card-body">
                     <div
-                        className="
-                            card-body
-                            p-0
-                        "
+                        className="w-100"
+                        style={{
+                            overflowX: "auto"
+                        }}
                     >
-
                         <div
-                            className="
-                                table-responsive
-                            "
+                            style={{
+                                minWidth: "900px"
+                            }}
                         >
-
-                            <table
-                                className="
-                                    table
-                                    table-bordered
-                                    table-hover
-                                    align-middle
-                                    mb-0
-                                "
+                            <div
+                                className="d-flex align-items-end"
+                                style={{
+                                    height: "350px",
+                                    gap: "12px",
+                                    padding: "20px 10px 0"
+                                }}
                             >
+                                {monthlyData.map(month => {
+                                    const incomeHeight =
+                                        month.income > 0
+                                            ? Math.max(
+                                                (month.income / maxValue) * 250,
+                                                4
+                                            )
+                                            : 2;
 
-                                <thead
-                                    className="
-                                        table-light
-                                    "
-                                >
+                                    const expenseHeight =
+                                        month.expense > 0
+                                            ? Math.max(
+                                                (month.expense / maxValue) * 250,
+                                                4
+                                            )
+                                            : 2;
 
-                                    <tr>
+                                    const savingHeight =
+                                        month.saving > 0
+                                            ? Math.max(
+                                                (month.saving / maxValue) * 250,
+                                                4
+                                            )
+                                            : 2;
 
-                                        <th>
-                                            Month
-                                        </th>
-
-                                        <th
-                                            className="
-                                                text-end
-                                            "
+                                    return (
+                                        <div
+                                            key={month.id}
+                                            className="flex-fill d-flex flex-column align-items-center"
+                                            style={{
+                                                minWidth: "60px",
+                                                height: "100%"
+                                            }}
                                         >
-                                            Income
-                                        </th>
-
-                                        <th
-                                            className="
-                                                text-end
-                                            "
-                                        >
-                                            Expense
-                                        </th>
-
-                                        <th
-                                            className="
-                                                text-end
-                                            "
-                                        >
-                                            Saving
-                                        </th>
-
-                                        <th
-                                            className="
-                                                text-end
-                                            "
-                                        >
-                                            Debt
-                                        </th>
-
-                                        <th
-                                            className="
-                                                text-end
-                                            "
-                                        >
-                                            Pending Debt
-                                        </th>
-
-                                    </tr>
-
-                                </thead>
-
-
-                                <tbody>
-
-                                    {rows.map(
-                                        row => (
-
-                                            <tr
-                                                key={
-                                                    row.month
-                                                }
+                                            <div
+                                                className="d-flex align-items-end justify-content-center gap-1"
+                                                style={{
+                                                    height: "280px",
+                                                    width: "100%"
+                                                }}
                                             >
+                                                <div
+                                                    title={`Income: ₹${formatAmount(month.income)}`}
+                                                    style={{
+                                                        width: "10px",
+                                                        height: `${incomeHeight}px`,
+                                                        backgroundColor: "#198754",
+                                                        borderRadius: "4px 4px 0 0"
+                                                    }}
+                                                />
 
-                                                <td>
+                                                <div
+                                                    title={`Expense: ₹${formatAmount(month.expense)}`}
+                                                    style={{
+                                                        width: "10px",
+                                                        height: `${expenseHeight}px`,
+                                                        backgroundColor: "#dc3545",
+                                                        borderRadius: "4px 4px 0 0"
+                                                    }}
+                                                />
 
-                                                    <strong>
+                                                <div
+                                                    title={`Saving: ₹${formatAmount(month.saving)}`}
+                                                    style={{
+                                                        width: "10px",
+                                                        height: `${savingHeight}px`,
+                                                        backgroundColor: "#0d6efd",
+                                                        borderRadius: "4px 4px 0 0"
+                                                    }}
+                                                />
+                                            </div>
 
-                                                        {
-                                                            row.monthName
-                                                        }
+                                            <div
+                                                className="fw-semibold mt-2"
+                                                style={{
+                                                    fontSize: "13px"
+                                                }}
+                                            >
+                                                {month.name}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
 
-                                                    </strong>
+                            <div className="d-flex justify-content-center gap-4 mt-3 flex-wrap">
+                                <div className="d-flex align-items-center gap-2">
+                                    <span
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            backgroundColor: "#198754",
+                                            borderRadius: "2px"
+                                        }}
+                                    />
+                                    <span className="small">
+                                        Income
+                                    </span>
+                                </div>
 
+                                <div className="d-flex align-items-center gap-2">
+                                    <span
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            backgroundColor: "#dc3545",
+                                            borderRadius: "2px"
+                                        }}
+                                    />
+                                    <span className="small">
+                                        Expense
+                                    </span>
+                                </div>
+
+                                <div className="d-flex align-items-center gap-2">
+                                    <span
+                                        style={{
+                                            width: "12px",
+                                            height: "12px",
+                                            backgroundColor: "#0d6efd",
+                                            borderRadius: "2px"
+                                        }}
+                                    />
+                                    <span className="small">
+                                        Saving
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="table-responsive mt-4">
+                                <table className="table table-bordered align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th className="text-end">
+                                                Income
+                                            </th>
+                                            <th className="text-end">
+                                                Expense
+                                            </th>
+                                            <th className="text-end">
+                                                Saving
+                                            </th>
+                                            <th className="text-end">
+                                                Debt
+                                            </th>
+                                            <th className="text-end">
+                                                Pending Debt
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {monthlyData.map(month => (
+                                            <tr key={month.id}>
+                                                <td className="fw-semibold">
+                                                    {month.name}
                                                 </td>
 
-
-                                                <td
-                                                    className="
-                                                        text-end
-                                                        text-success
-                                                        fw-semibold
-                                                    "
-                                                >
-
-                                                    {
-                                                        formatCurrency(
-                                                            row.income
-                                                        )
-                                                    }
-
+                                                <td className="text-end text-success">
+                                                    ₹{formatAmount(
+                                                        month.income
+                                                    )}
                                                 </td>
 
-
-                                                <td
-                                                    className="
-                                                        text-end
-                                                        text-danger
-                                                        fw-semibold
-                                                    "
-                                                >
-
-                                                    {
-                                                        formatCurrency(
-                                                            row.expense
-                                                        )
-                                                    }
-
+                                                <td className="text-end text-danger">
+                                                    ₹{formatAmount(
+                                                        month.expense
+                                                    )}
                                                 </td>
 
-
-                                                <td
-                                                    className="
-                                                        text-end
-                                                        text-primary
-                                                        fw-semibold
-                                                    "
-                                                >
-
-                                                    {
-                                                        formatCurrency(
-                                                            row.saving
-                                                        )
-                                                    }
-
+                                                <td className="text-end text-primary">
+                                                    ₹{formatAmount(
+                                                        month.saving
+                                                    )}
                                                 </td>
 
-
-                                                <td
-                                                    className="
-                                                        text-end
-                                                        text-warning
-                                                        fw-semibold
-                                                    "
-                                                >
-
-                                                    {
-                                                        formatCurrency(
-                                                            row.debt
-                                                        )
-                                                    }
-
+                                                <td className="text-end text-warning">
+                                                    ₹{formatAmount(
+                                                        month.debt
+                                                    )}
                                                 </td>
 
-
-                                                <td
-                                                    className="
-                                                        text-end
-                                                        text-info
-                                                        fw-semibold
-                                                    "
-                                                >
-
-                                                    {
-                                                        formatCurrency(
-                                                            row.pendingDebt
-                                                        )
-                                                    }
-
+                                                <td className="text-end text-info">
+                                                    ₹{formatAmount(
+                                                        month.pendingDebt
+                                                    )}
                                                 </td>
-
                                             </tr>
+                                        ))}
+                                    </tbody>
 
-                                        )
-                                    )}
+                                    <tfoot>
+                                        <tr className="fw-bold">
+                                            <td>
+                                                Total
+                                            </td>
 
-                                </tbody>
+                                            <td className="text-end text-success">
+                                                ₹{formatAmount(
+                                                    totals.income
+                                                )}
+                                            </td>
 
-                            </table>
+                                            <td className="text-end text-danger">
+                                                ₹{formatAmount(
+                                                    totals.expense
+                                                )}
+                                            </td>
 
+                                            <td className="text-end text-primary">
+                                                ₹{formatAmount(
+                                                    totals.saving
+                                                )}
+                                            </td>
+
+                                            <td className="text-end text-warning">
+                                                ₹{formatAmount(
+                                                    totals.debt
+                                                )}
+                                            </td>
+
+                                            <td className="text-end text-info">
+                                                ₹{formatAmount(
+                                                    totals.pendingDebt
+                                                )}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
                         </div>
-
                     </div>
-
                 </div>
-
-            )}
-
-        </div>
-
-    );
-
-};
-
-
-/*
-|--------------------------------------------------------------------------
-| SUMMARY CARD
-|--------------------------------------------------------------------------
-*/
-
-const SummaryCard = ({
-    title,
-    value,
-    className
-}) => {
-
-    return (
-
-        <div
-            className="
-                col-12
-                col-sm-6
-                col-lg-4
-                col-xl
-            "
-        >
-
-            <div
-                className="
-                    card
-                    shadow-sm
-                    h-100
-                "
-            >
-
-                <div
-                    className="
-                        card-body
-                    "
-                >
-
-                    <div
-                        className="
-                            text-muted
-                            small
-                            mb-1
-                        "
-                    >
-
-                        {title}
-
-                    </div>
-
-
-                    <div
-                        className={`
-                            fs-5
-                            fw-bold
-                            ${className}
-                        `}
-                    >
-
-                        {
-                            formatCurrency(
-                                value
-                            )
-                        }
-
-                    </div>
-
-                </div>
-
             </div>
-
         </div>
-
     );
-
 };
-
 
 export default DashboardChart;
