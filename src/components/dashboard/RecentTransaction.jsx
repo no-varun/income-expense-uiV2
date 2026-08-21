@@ -8,10 +8,9 @@ const RecentTransaction = ({
     transactions = []
 }) => {
 
-
     /*
     |--------------------------------------------------------------------------
-    | Format Amount
+    | FORMAT AMOUNT
     |--------------------------------------------------------------------------
     */
 
@@ -32,7 +31,7 @@ const RecentTransaction = ({
 
     /*
     |--------------------------------------------------------------------------
-    | Format Date
+    | FORMAT DATE
     |--------------------------------------------------------------------------
     */
 
@@ -72,7 +71,7 @@ const RecentTransaction = ({
 
     /*
     |--------------------------------------------------------------------------
-    | Amount Class
+    | AMOUNT CLASS
     |--------------------------------------------------------------------------
     */
 
@@ -85,9 +84,6 @@ const RecentTransaction = ({
 
             case "Expense":
                 return "text-danger";
-
-            case "Saving":
-                return "text-info";
 
             case "Debt":
                 return "text-warning";
@@ -102,7 +98,7 @@ const RecentTransaction = ({
 
     /*
     |--------------------------------------------------------------------------
-    | Amount Prefix
+    | AMOUNT PREFIX
     |--------------------------------------------------------------------------
     */
 
@@ -114,9 +110,6 @@ const RecentTransaction = ({
                 return "+";
 
             case "Expense":
-                return "-";
-
-            case "Saving":
                 return "-";
 
             case "Debt":
@@ -132,11 +125,11 @@ const RecentTransaction = ({
 
     /*
     |--------------------------------------------------------------------------
-    | Empty State
+    | EMPTY STATE
     |--------------------------------------------------------------------------
     */
 
-    if (!transactions.length) {
+    if (!Array.isArray(transactions) || !transactions.length) {
 
         return (
 
@@ -145,9 +138,7 @@ const RecentTransaction = ({
                 <div className="card-header bg-white py-3">
 
                     <h5 className="mb-0">
-
                         Recent Transactions
-
                     </h5>
 
                 </div>
@@ -170,6 +161,12 @@ const RecentTransaction = ({
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="card border-0 shadow-sm mt-4">
@@ -181,7 +178,11 @@ const RecentTransaction = ({
 
             <div className="card-header bg-white py-3">
 
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                ">
 
                     <div>
 
@@ -219,7 +220,12 @@ const RecentTransaction = ({
 
                 <div className="table-responsive">
 
-                    <table className="table table-hover align-middle mb-0">
+                    <table className="
+                        table
+                        table-hover
+                        align-middle
+                        mb-0
+                    ">
 
                         <thead className="table-light">
 
@@ -249,6 +255,10 @@ const RecentTransaction = ({
                                     Amount
                                 </th>
 
+                                <th className="text-end">
+                                    Pending
+                                </th>
+
                             </tr>
 
                         </thead>
@@ -257,29 +267,38 @@ const RecentTransaction = ({
                         <tbody>
 
                             {transactions.map(
-                                (item) => {
+                                (item, index) => {
 
                                     const type =
-                                        item.type || "-";
+                                        item?.type || "-";
+
+
+                                    const pendingAmount =
+                                        Number(
+                                            item?.pendingAmount || 0
+                                        );
 
 
                                     return (
 
                                         <tr
                                             key={
-                                                item._id
+                                                item?._id ||
+                                                index
                                             }
                                         >
 
 
-                                            {/* DATE */}
+                                            {/* =================================================
+                                                DATE
+                                            ================================================== */}
 
                                             <td>
 
                                                 <span className="text-nowrap">
 
                                                     {formatDate(
-                                                        item.date
+                                                        item?.date
                                                     )}
 
                                                 </span>
@@ -287,41 +306,58 @@ const RecentTransaction = ({
                                             </td>
 
 
-                                            {/* TITLE */}
+                                            {/* =================================================
+                                                TITLE
+                                            ================================================== */}
 
                                             <td>
 
                                                 <div className="fw-semibold">
 
                                                     {
-                                                        item.title ||
+                                                        item?.title ||
                                                         "-"
                                                     }
 
                                                 </div>
 
+
+                                                {item?.note && (
+
+                                                    <small className="text-muted">
+
+                                                        {
+                                                            item.note
+                                                        }
+
+                                                    </small>
+
+                                                )}
+
                                             </td>
 
 
-                                            {/* ACCOUNT */}
+                                            {/* =================================================
+                                                ACCOUNT
+                                            ================================================== */}
 
                                             <td>
 
-                                                {item.account ? (
+                                                {item?.account ? (
 
                                                     <div>
 
                                                         <div className="fw-semibold">
 
                                                             {
-                                                                item.account.name ||
+                                                                item.account?.name ||
                                                                 "-"
                                                             }
 
                                                         </div>
 
 
-                                                        {item.account.bank && (
+                                                        {item.account?.bank && (
 
                                                             <small className="text-muted">
 
@@ -348,7 +384,9 @@ const RecentTransaction = ({
                                             </td>
 
 
-                                            {/* CATEGORY */}
+                                            {/* =================================================
+                                                CATEGORY
+                                            ================================================== */}
 
                                             <td>
 
@@ -356,13 +394,13 @@ const RecentTransaction = ({
                                                     className="badge"
                                                     style={
                                                         getCategoryBadgeStyle(
-                                                            item.category
+                                                            item?.category
                                                         )
                                                     }
                                                 >
 
                                                     {
-                                                        item.category?.name ||
+                                                        item?.category?.name ||
                                                         "-"
                                                     }
 
@@ -371,7 +409,9 @@ const RecentTransaction = ({
                                             </td>
 
 
-                                            {/* TYPE */}
+                                            {/* =================================================
+                                                TYPE
+                                            ================================================== */}
 
                                             <td>
 
@@ -390,12 +430,16 @@ const RecentTransaction = ({
                                             </td>
 
 
-                                            {/* AMOUNT */}
+                                            {/* =================================================
+                                                AMOUNT
+                                            ================================================== */}
 
                                             <td
-                                                className={`text-end fw-bold ${getAmountClass(
-                                                    type
-                                                )}`}
+                                                className={`
+                                                    text-end
+                                                    fw-bold
+                                                    ${getAmountClass(type)}
+                                                `}
                                             >
 
                                                 {
@@ -406,8 +450,52 @@ const RecentTransaction = ({
 
                                                 ₹{" "}
 
-                                                {formatAmount(
-                                                    item.amount
+                                                {
+                                                    formatAmount(
+                                                        item?.amount
+                                                    )
+                                                }
+
+                                            </td>
+
+
+                                            {/* =================================================
+                                                PENDING DEBT
+                                            ================================================== */}
+
+                                            <td className="text-end">
+
+                                                {type === "Debt" ? (
+
+                                                    <span
+                                                        className={`
+                                                            fw-semibold
+                                                            ${
+                                                                pendingAmount > 0
+                                                                    ? "text-danger"
+                                                                    : "text-success"
+                                                            }
+                                                        `}
+                                                    >
+
+                                                        ₹{" "}
+
+                                                        {
+                                                            formatAmount(
+                                                                pendingAmount
+                                                            )
+                                                        }
+
+                                                    </span>
+
+                                                ) : (
+
+                                                    <span className="text-muted">
+
+                                                        -
+
+                                                    </span>
+
                                                 )}
 
                                             </td>
@@ -422,6 +510,34 @@ const RecentTransaction = ({
                         </tbody>
 
                     </table>
+
+                </div>
+
+            </div>
+
+
+            {/* =====================================================
+                FOOTER
+            ====================================================== */}
+
+            <div className="card-footer bg-white">
+
+                <div className="
+                    d-flex
+                    justify-content-between
+                    align-items-center
+                    small
+                    text-muted
+                ">
+
+                    <span>
+                        Showing latest transactions
+                    </span>
+
+                    <span>
+                        Saving is tracked through accounts,
+                        transfers and investments.
+                    </span>
 
                 </div>
 

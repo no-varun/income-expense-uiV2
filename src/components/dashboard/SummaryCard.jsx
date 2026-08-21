@@ -1,12 +1,14 @@
 const SummaryCard = ({
     title,
-    value,
-    bg = "bg-primary"
+    value = 0,
+    bg = "bg-primary",
+    prefix = "₹",
+    suffix = ""
 }) => {
 
     /*
     |--------------------------------------------------------------------------
-    | SAFE VALUE
+    | SAFE NUMBER
     |--------------------------------------------------------------------------
     */
 
@@ -20,9 +22,13 @@ const SummaryCard = ({
             return 0;
         }
 
+
         /*
-         * If value is already a number
-         */
+        |--------------------------------------------------------------------------
+        | NUMBER
+        |--------------------------------------------------------------------------
+        */
+
         if (typeof input === "number") {
 
             return Number.isFinite(input)
@@ -31,16 +37,12 @@ const SummaryCard = ({
 
         }
 
+
         /*
-         * Convert string safely
-         *
-         * Supports:
-         *
-         * "58141.55"
-         * "58,141.55"
-         * "₹58,141.55"
-         * "-₹54,560.78"
-         */
+        |--------------------------------------------------------------------------
+        | STRING
+        |--------------------------------------------------------------------------
+        */
 
         if (typeof input === "string") {
 
@@ -52,42 +54,27 @@ const SummaryCard = ({
                     .trim();
 
 
-            const negative =
-                cleaned.startsWith("-");
-
-
-            const numericString =
-                cleaned.replace(
-                    /[^0-9.]/g,
-                    ""
-                );
-
-
-            const number =
-                Number(
-                    numericString
-                );
-
-
-            if (
-                !Number.isFinite(number)
-            ) {
-
+            if (!cleaned) {
                 return 0;
-
             }
 
 
-            return negative
-                ? -number
-                : number;
+            const number =
+                Number(cleaned);
+
+
+            return Number.isFinite(number)
+                ? number
+                : 0;
 
         }
 
 
         /*
-         * Anything else
-         */
+        |--------------------------------------------------------------------------
+        | OTHER
+        |--------------------------------------------------------------------------
+        */
 
         const number =
             Number(input);
@@ -102,7 +89,7 @@ const SummaryCard = ({
 
     /*
     |--------------------------------------------------------------------------
-    | FORMAT
+    | NUMERIC VALUE
     |--------------------------------------------------------------------------
     */
 
@@ -111,6 +98,12 @@ const SummaryCard = ({
             value
         );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMATTED VALUE
+    |--------------------------------------------------------------------------
+    */
 
     const formattedValue =
         numericValue.toLocaleString(
@@ -143,6 +136,8 @@ const SummaryCard = ({
                 `}
             >
 
+                {/* TITLE */}
+
                 <div
                     className="
                         small
@@ -156,6 +151,8 @@ const SummaryCard = ({
                 </div>
 
 
+                {/* VALUE */}
+
                 <div
                     className="
                         fw-bold
@@ -163,7 +160,11 @@ const SummaryCard = ({
                     "
                 >
 
-                    ₹{formattedValue}
+                    {prefix}
+
+                    {formattedValue}
+
+                    {suffix}
 
                 </div>
 
