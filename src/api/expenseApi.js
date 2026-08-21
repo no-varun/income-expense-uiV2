@@ -7,7 +7,9 @@ import axios from "./axios";
 |--------------------------------------------------------------------------
 */
 
-export const getExpenses = async (params = {}) => {
+export const getExpenses = async (
+    params = {}
+) => {
 
     const response = await axios.get(
         "/expense",
@@ -26,7 +28,9 @@ export const getExpenses = async (params = {}) => {
 |--------------------------------------------------------------------------
 */
 
-export const getExpense = async (id) => {
+export const getExpense = async (
+    id
+) => {
 
     const response = await axios.get(
         `/expense/${id}`
@@ -49,9 +53,8 @@ export const createExpense = async (data) => {
         data
     );
 
-    return response.data;
+    return response;
 };
-
 
 /*
 |--------------------------------------------------------------------------
@@ -69,7 +72,7 @@ export const updateExpense = async (
         data
     );
 
-    return response.data;
+    return response;
 };
 
 
@@ -79,13 +82,15 @@ export const updateExpense = async (
 |--------------------------------------------------------------------------
 */
 
-export const deleteExpense = async (id) => {
+export const deleteExpense = async (
+    id
+) => {
 
     const response = await axios.delete(
         `/expense/${id}`
     );
 
-    return response.data;
+    return response;
 };
 
 

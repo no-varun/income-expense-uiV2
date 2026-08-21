@@ -30,7 +30,8 @@ const ExpenseForm = ({
     loading = false
 }) => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
 
 
     /*
@@ -51,6 +52,12 @@ const ExpenseForm = ({
     const [accounts, setAccounts] =
         useState([]);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
 
     const [categoriesLoading, setCategoriesLoading] =
         useState(false);
@@ -99,7 +106,7 @@ const ExpenseForm = ({
 
     /*
     |--------------------------------------------------------------------------
-    | GET ROWS
+    | RESPONSE ROWS
     |--------------------------------------------------------------------------
     */
 
@@ -135,17 +142,6 @@ const ExpenseForm = ({
 
         if (
             Array.isArray(
-                payload?.data?.data
-            )
-        ) {
-
-            return payload.data.data;
-
-        }
-
-
-        if (
-            Array.isArray(
                 payload?.data?.rows
             )
         ) {
@@ -173,215 +169,280 @@ const ExpenseForm = ({
 
     /*
     |--------------------------------------------------------------------------
-    | LOAD CATEGORIES
+    | CATEGORIES
     |--------------------------------------------------------------------------
     */
 
     useEffect(() => {
 
-        const loadCategories = async () => {
+        const load =
+            async () => {
+
+                try {
+
+                    setCategoriesLoading(
+                        true
+                    );
+
+
+                    const response =
+                        await getCategories({
+
+                            limit: 100,
+
+                            type: "EXPENSE"
+
+                        });
+
+
+                    console.log(
+                        "CATEGORY RESPONSE:",
+                        response
+                    );
+
+
+                    setCategories(
+                        getRows(response)
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "CATEGORY ERROR:",
+                        error
+                    );
+
+                    setCategories([]);
+
+                } finally {
+
+                    setCategoriesLoading(
+                        false
+                    );
+
+                }
+
+            };
+
+
+        load();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHOPS
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const load =
+            async () => {
+
+                try {
+
+                    setShopsLoading(
+                        true
+                    );
+
+
+                    const response =
+                        await getShops({
+
+                            limit: 100,
+
+                            status: true
+
+                        });
+
+
+                    console.log(
+                        "SHOP RESPONSE:",
+                        response
+                    );
+
+
+                    setShops(
+                        getRows(response)
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "SHOP ERROR:",
+                        error
+                    );
+
+                    setShops([]);
+
+                } finally {
+
+                    setShopsLoading(
+                        false
+                    );
+
+                }
+
+            };
+
+
+        load();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACCOUNTS
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const load =
+            async () => {
+
+                try {
+
+                    setAccountsLoading(
+                        true
+                    );
+
+
+                    const response =
+                        await getAccounts({
+
+                            limit: 100,
+
+                            status: true
+
+                        });
+
+
+                    console.log(
+                        "ACCOUNT RESPONSE:",
+                        response
+                    );
+
+
+                    const rows =
+                        getRows(response);
+
+
+                    console.log(
+                        "ACCOUNT ROWS:",
+                        rows
+                    );
+
+
+                    setAccounts(
+                        rows
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "ACCOUNT ERROR:",
+                        error
+                    );
+
+                    setAccounts([]);
+
+                } finally {
+
+                    setAccountsLoading(
+                        false
+                    );
+
+                }
+
+            };
+
+
+        load();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ITEMS
+    |--------------------------------------------------------------------------
+    */
+
+    const loadItems =
+        async (
+            categoryId
+        ) => {
+
+            if (
+                !categoryId
+            ) {
+
+                setItems([]);
+
+                return;
+
+            }
+
 
             try {
 
-                setCategoriesLoading(true);
+                setItemsLoading(
+                    true
+                );
 
 
                 const response =
-                    await getCategories({
+                    await getItems({
+
                         limit: 100,
+
+                        status: true,
+
+                        category:
+                            categoryId,
+
                         type: "EXPENSE"
-                    });
 
-
-                setCategories(
-                    getRows(response)
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Category load error:",
-                    error
-                );
-
-                setCategories([]);
-
-            } finally {
-
-                setCategoriesLoading(false);
-
-            }
-
-        };
-
-
-        loadCategories();
-
-    }, []);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD SHOPS
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        const loadShops = async () => {
-
-            try {
-
-                setShopsLoading(true);
-
-
-                const response =
-                    await getShops({
-                        limit: 100,
-                        status: true
-                    });
-
-
-                setShops(
-                    getRows(response)
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Shop load error:",
-                    error
-                );
-
-                setShops([]);
-
-            } finally {
-
-                setShopsLoading(false);
-
-            }
-
-        };
-
-
-        loadShops();
-
-    }, []);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD ACCOUNTS
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        const loadAccounts = async () => {
-
-            try {
-
-                setAccountsLoading(true);
-
-
-                const response =
-                    await getAccounts({
-                        limit: 100,
-                        status: true
                     });
 
 
                 console.log(
-                    "Account Response:",
+                    "ITEM RESPONSE:",
                     response
                 );
 
 
-                setAccounts(
+                setItems(
                     getRows(response)
                 );
 
             } catch (error) {
 
                 console.error(
-                    "Account load error:",
+                    "ITEM ERROR:",
                     error
                 );
 
-                setAccounts([]);
+                setItems([]);
 
             } finally {
 
-                setAccountsLoading(false);
+                setItemsLoading(
+                    false
+                );
 
             }
 
         };
 
 
-        loadAccounts();
-
-    }, []);
-
-
     /*
     |--------------------------------------------------------------------------
-    | LOAD ITEMS
-    |--------------------------------------------------------------------------
-    */
-
-    const loadItems = async (
-        categoryId
-    ) => {
-
-        if (!categoryId) {
-
-            setItems([]);
-
-            return;
-
-        }
-
-
-        try {
-
-            setItemsLoading(true);
-
-
-            const response =
-                await getItems({
-                    limit: 100,
-                    status: true,
-                    category: categoryId,
-                    type: "EXPENSE"
-                });
-
-
-            setItems(
-                getRows(response)
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Item load error:",
-                error
-            );
-
-            setItems([]);
-
-        } finally {
-
-            setItemsLoading(false);
-
-        }
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT DATA
+    | INITIAL VALUES
     |--------------------------------------------------------------------------
     */
 
@@ -389,7 +450,9 @@ const ExpenseForm = ({
 
         if (
             !initialValues ||
-            Object.keys(initialValues).length === 0
+            Object.keys(
+                initialValues
+            ).length === 0
         ) {
 
             return;
@@ -444,7 +507,9 @@ const ExpenseForm = ({
 
             date:
                 initialValues.date
-                    ? initialValues.date.substring(
+                    ? String(
+                        initialValues.date
+                    ).substring(
                         0,
                         10
                     )
@@ -459,15 +524,13 @@ const ExpenseForm = ({
         });
 
 
-        if (categoryId) {
+        if (
+            categoryId
+        ) {
 
             loadItems(
                 categoryId
             );
-
-        } else {
-
-            setItems([]);
 
         }
 
@@ -476,7 +539,7 @@ const ExpenseForm = ({
 
     /*
     |--------------------------------------------------------------------------
-    | HANDLE CHANGE
+    | CHANGE
     |--------------------------------------------------------------------------
     */
 
@@ -494,20 +557,25 @@ const ExpenseForm = ({
             name === "category"
         ) {
 
-            setForm(prev => ({
+            setForm(
+                prev => ({
 
-                ...prev,
+                    ...prev,
 
-                category: value,
+                    category:
+                        value,
 
-                title: ""
+                    title:
+                        ""
 
-            }));
+                })
+            );
 
 
             await loadItems(
                 value
             );
+
 
             return;
 
@@ -518,28 +586,36 @@ const ExpenseForm = ({
             name === "shopType"
         ) {
 
-            setForm(prev => ({
+            setForm(
+                prev => ({
 
-                ...prev,
+                    ...prev,
 
-                shopType: value,
+                    shopType:
+                        value,
 
-                shop: ""
+                    shop:
+                        ""
 
-            }));
+                })
+            );
+
 
             return;
 
         }
 
 
-        setForm(prev => ({
+        setForm(
+            prev => ({
 
-            ...prev,
+                ...prev,
 
-            [name]: value
+                [name]:
+                    value
 
-        }));
+            })
+        );
 
     };
 
@@ -585,14 +661,45 @@ const ExpenseForm = ({
     |--------------------------------------------------------------------------
     */
 
-    const handleSubmit = (
+    const handleSubmit = async (
         event
     ) => {
 
         event.preventDefault();
 
 
-        if (!form.category) {
+        console.log(
+            "========================================"
+        );
+
+        console.log(
+            "EXPENSE FORM SUBMIT HIT"
+        );
+
+        console.log(
+            "FORM:",
+            form
+        );
+
+        console.log(
+            "ON SUBMIT:",
+            onSubmit
+        );
+
+        console.log(
+            "========================================"
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CATEGORY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.category
+        ) {
 
             alert(
                 "Please select Category"
@@ -603,40 +710,15 @@ const ExpenseForm = ({
         }
 
 
-        if (!form.account) {
+        /*
+        |--------------------------------------------------------------------------
+        | ITEM
+        |--------------------------------------------------------------------------
+        */
 
-            alert(
-                "Please select Account"
-            );
-
-            return;
-
-        }
-
-
-        if (!form.shopType) {
-
-            alert(
-                "Please select Shop Type"
-            );
-
-            return;
-
-        }
-
-
-        if (!form.shop) {
-
-            alert(
-                "Please select Shop"
-            );
-
-            return;
-
-        }
-
-
-        if (!form.title) {
+        if (
+            !form.title
+        ) {
 
             alert(
                 "Please select Item"
@@ -647,9 +729,42 @@ const ExpenseForm = ({
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | ACCOUNT
+        |--------------------------------------------------------------------------
+        */
+
         if (
-            !form.amount ||
-            Number(form.amount) <= 0
+            !form.account
+        ) {
+
+            alert(
+                "Please select Account"
+            );
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMOUNT
+        |--------------------------------------------------------------------------
+        */
+
+        const amount =
+            Number(
+                form.amount
+            );
+
+
+        if (
+            !Number.isFinite(
+                amount
+            ) ||
+            amount <= 0
         ) {
 
             alert(
@@ -663,19 +778,62 @@ const ExpenseForm = ({
 
         /*
         |--------------------------------------------------------------------------
-        | ACCOUNT BASED PAYLOAD
+        | DATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !form.date
+        ) {
+
+            alert(
+                "Please select Date"
+            );
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CALLBACK
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            typeof onSubmit !==
+            "function"
+        ) {
+
+            console.error(
+                "onSubmit is not a function"
+            );
+
+            alert(
+                "Unable to submit expense."
+            );
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAYLOAD
         |--------------------------------------------------------------------------
         */
 
         const payload = {
 
             title:
-                form.title,
+                String(
+                    form.title
+                ).trim(),
 
             amount:
-                Number(
-                    form.amount
-                ),
+                amount,
 
             category:
                 form.category,
@@ -683,31 +841,61 @@ const ExpenseForm = ({
             account:
                 form.account,
 
+            /*
+             * These are optional according
+             * to the response you showed.
+             */
+
             shopType:
-                form.shopType,
+                form.shopType || "",
 
             shop:
-                form.shop,
+                form.shop || "",
 
             paymentMode:
-                form.paymentMode,
+                form.paymentMode ||
+                "Cash",
 
             date:
                 form.date,
 
             note:
-                form.note
+                String(
+                    form.note ||
+                    ""
+                ).trim()
 
         };
 
 
         console.log(
-            "Expense Payload:",
+            "========================================"
+        );
+
+        console.log(
+            "FINAL EXPENSE PAYLOAD:",
             payload
         );
 
+        console.log(
+            "CALLING PARENT onSubmit NOW"
+        );
 
-        onSubmit(
+        console.log(
+            "========================================"
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DO NOT CATCH HERE
+        |--------------------------------------------------------------------------
+        |
+        | Parent AddExpense handles success/error.
+        |
+        */
+
+        await onSubmit(
             payload
         );
 
@@ -720,8 +908,6 @@ const ExpenseForm = ({
 
             <div className="card border-0 shadow-sm">
 
-                {/* HEADER */}
-
                 <div className="card-header bg-white border-bottom px-4 py-3">
 
                     <div className="d-flex justify-content-between align-items-center">
@@ -730,9 +916,10 @@ const ExpenseForm = ({
 
                             <h4 className="mb-1 fw-bold">
 
-                                {initialValues?._id
-                                    ? "Edit Expense"
-                                    : "Add Expense"
+                                {
+                                    initialValues?._id
+                                        ? "Edit Expense"
+                                        : "Add Expense"
                                 }
 
                             </h4>
@@ -754,7 +941,9 @@ const ExpenseForm = ({
                                     "/expense"
                                 )
                             }
-                            disabled={loading}
+                            disabled={
+                                loading
+                            }
                         >
 
                             ← Back
@@ -766,18 +955,16 @@ const ExpenseForm = ({
                 </div>
 
 
-                {/* BODY */}
-
                 <div className="card-body p-4">
 
                     <form
                         onSubmit={
                             handleSubmit
                         }
+                        noValidate
                     >
 
                         <div className="row g-4">
-
 
                             {/* CATEGORY */}
 
@@ -786,7 +973,6 @@ const ExpenseForm = ({
                                 <label className="form-label fw-semibold">
 
                                     Category
-
                                     <span className="text-danger ms-1">
                                         *
                                     </span>
@@ -804,16 +990,17 @@ const ExpenseForm = ({
                                         handleChange
                                     }
                                     disabled={
-                                        categoriesLoading
+                                        categoriesLoading ||
+                                        loading
                                     }
-                                    required
                                 >
 
                                     <option value="">
 
-                                        {categoriesLoading
-                                            ? "Loading categories..."
-                                            : "Select Category"
+                                        {
+                                            categoriesLoading
+                                                ? "Loading categories..."
+                                                : "Select Category"
                                         }
 
                                     </option>
@@ -871,18 +1058,19 @@ const ExpenseForm = ({
                                     }
                                     disabled={
                                         !form.category ||
-                                        itemsLoading
+                                        itemsLoading ||
+                                        loading
                                     }
-                                    required
                                 >
 
                                     <option value="">
 
-                                        {itemsLoading
-                                            ? "Loading items..."
-                                            : !form.category
-                                                ? "Select category first"
-                                                : "Select Item"
+                                        {
+                                            itemsLoading
+                                                ? "Loading items..."
+                                                : !form.category
+                                                    ? "Select category first"
+                                                    : "Select Item"
                                         }
 
                                     </option>
@@ -939,16 +1127,17 @@ const ExpenseForm = ({
                                         handleChange
                                     }
                                     disabled={
-                                        accountsLoading
+                                        accountsLoading ||
+                                        loading
                                     }
-                                    required
                                 >
 
                                     <option value="">
 
-                                        {accountsLoading
-                                            ? "Loading accounts..."
-                                            : "Select Account"
+                                        {
+                                            accountsLoading
+                                                ? "Loading accounts..."
+                                                : "Select Account"
                                         }
 
                                     </option>
@@ -976,18 +1165,6 @@ const ExpenseForm = ({
                                     )}
 
                                 </select>
-
-
-                                {!accountsLoading &&
-                                    accounts.length === 0 && (
-
-                                        <div className="text-danger small mt-1">
-
-                                            No accounts found.
-
-                                        </div>
-
-                                    )}
 
                             </div>
 
@@ -1027,7 +1204,9 @@ const ExpenseForm = ({
                                         min="0"
                                         step="0.01"
                                         placeholder="Enter amount"
-                                        required
+                                        disabled={
+                                            loading
+                                        }
                                     />
 
                                 </div>
@@ -1043,10 +1222,6 @@ const ExpenseForm = ({
 
                                     Shop Type
 
-                                    <span className="text-danger ms-1">
-                                        *
-                                    </span>
-
                                 </label>
 
 
@@ -1059,7 +1234,9 @@ const ExpenseForm = ({
                                     onChange={
                                         handleChange
                                     }
-                                    required
+                                    disabled={
+                                        loading
+                                    }
                                 >
 
                                     <option value="">
@@ -1087,10 +1264,6 @@ const ExpenseForm = ({
 
                                     Shop
 
-                                    <span className="text-danger ms-1">
-                                        *
-                                    </span>
-
                                 </label>
 
 
@@ -1105,18 +1278,21 @@ const ExpenseForm = ({
                                     }
                                     disabled={
                                         !form.shopType ||
-                                        shopsLoading
+                                        shopsLoading ||
+                                        loading
                                     }
-                                    required
                                 >
 
                                     <option value="">
 
-                                        {shopsLoading
-                                            ? "Loading shops..."
-                                            : !form.shopType
-                                                ? "Select shop type first"
-                                                : "Select Shop"
+                                        {
+                                            shopsLoading
+                                                ? "Loading shops..."
+                                                : !form.shopType
+                                                    ? "Select shop type first"
+                                                    : filteredShops.length === 0
+                                                        ? "No shops found"
+                                                        : "Select Shop"
                                         }
 
                                     </option>
@@ -1167,6 +1343,9 @@ const ExpenseForm = ({
                                     }
                                     onChange={
                                         handleChange
+                                    }
+                                    disabled={
+                                        loading
                                     }
                                 >
 
@@ -1232,7 +1411,9 @@ const ExpenseForm = ({
                                     onChange={
                                         handleChange
                                     }
-                                    required
+                                    disabled={
+                                        loading
+                                    }
                                 />
 
                             </div>
@@ -1260,6 +1441,9 @@ const ExpenseForm = ({
                                     }
                                     rows="3"
                                     placeholder="Optional note"
+                                    disabled={
+                                        loading
+                                    }
                                 />
 
                             </div>
@@ -1280,7 +1464,9 @@ const ExpenseForm = ({
                                         "/expense"
                                     )
                                 }
-                                disabled={loading}
+                                disabled={
+                                    loading
+                                }
                             >
 
                                 Cancel
@@ -1292,14 +1478,14 @@ const ExpenseForm = ({
                                 type="submit"
                                 className="btn btn-primary px-4"
                                 disabled={
-                                    loading ||
-                                    accountsLoading
+                                    loading
                                 }
                             >
 
                                 {loading ? (
 
                                     <>
+
                                         <span
                                             className="spinner-border spinner-border-sm me-2"
                                         />

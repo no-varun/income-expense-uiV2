@@ -15,7 +15,7 @@ export const createInvestment = async (payload) => {
             payload
         );
 
-    return response.data;
+    return response;
 
 };
 
@@ -36,7 +36,7 @@ export const getInvestments = async (params = {}) => {
             }
         );
 
-    return response.data;
+    return response;
 
 };
 
@@ -76,7 +76,7 @@ export const updateInvestment = async (
             payload
         );
 
-    return response.data;
+    return response;
 
 };
 
@@ -96,7 +96,7 @@ export const deleteInvestment = async (
             `/investments/${id}`
         );
 
-    return response.data;
+    return response;
 
 };
 
@@ -114,6 +114,6 @@ export const getInvestmentSummary = async () => {
             "/investments/summary"
         );
 
-    return response.data;
+    return response;
 
 };

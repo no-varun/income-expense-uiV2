@@ -8,7 +8,7 @@ export const createIncome = async (data) => {
         data
     );
 
-    return response.data;
+    return response;
 
 };
 
@@ -48,7 +48,7 @@ export const getIncomes = async (params = {}) => {
         }
     );
 
-    return response.data;
+    return response;
 
 };
 
@@ -59,7 +59,7 @@ export const getIncomeById = async (id) => {
         `/income/${id}`
     );
 
-    return response.data;
+    return response;
 
 };
 
@@ -74,7 +74,7 @@ export const updateIncome = async (
         data
     );
 
-    return response.data;
+    return response;
 
 };
 
@@ -85,6 +85,6 @@ export const deleteIncome = async (id) => {
         `/income/${id}`
     );
 
-    return response.data;
+    return response;
 
 };
