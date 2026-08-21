@@ -85,11 +85,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             icon: <FaWallet />
         },
 
-        {
-            title: "Saving",
-            path: "/saving",
-            icon: <FaSave />
-        },
+        // {
+        //     title: "Saving",
+        //     path: "/saving",
+        //     icon: <FaSave />
+        // },
 
         {
             title: "Debts",
