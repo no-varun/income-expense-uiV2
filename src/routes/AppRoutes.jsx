@@ -65,6 +65,9 @@ import AddTransfer from "../pages/transfer/AddTransfer";
 import InvestmentList from "../pages/investment/InvestmentList";
 import AddInvestment from "../pages/investment/AddInvestment";
 import EditInvestment from "../pages/investment/EditInvestment";
+import MilkManage from "../pages/milk/MilkManage";
+import AddMilk from "../pages/milk/AddMilk";
+import EditMilk from "../pages/milk/EditMilk";
 const AppRoutes = () => {
 
     return (
@@ -264,6 +267,29 @@ const AppRoutes = () => {
                         <Route
                             path="/investments/edit/:id"
                             element={<EditInvestment />}
+                        />
+
+
+
+                        <Route
+                            path="/milk"
+                            element={
+                                <MilkManage />
+                            }
+                        />
+
+                        <Route
+                            path="/milk/add"
+                            element={
+                                <AddMilk />
+                            }
+                        />
+
+                        <Route
+                            path="/milk/edit/:id"
+                            element={
+                                <EditMilk />
+                            }
                         />
                         {/* Reports */}
                         <Route
