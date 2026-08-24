@@ -191,159 +191,45 @@ const ExpenseList = () => {
 
     const loadCategories = useCallback(
         async () => {
-
             try {
-
-                const response =
-                    await getCategories({
-                        limit: 100,
-                        type: "EXPENSE"
-                    });
-
-
-                console.log(
-                    "Category Response:",
-                    response
-                );
-
-
-                const payload =
-                    normalizeResponse(
-                        response
-                    );
-
-
+                const response = await getCategories({ limit: 100, type: "EXPENSE" });
+                console.log("Category Response:", response);
+                const payload = normalizeResponse(response);
                 let rows = [];
-
-
-                if (
-                    Array.isArray(payload)
-                ) {
-
+                if (Array.isArray(payload)) {
                     rows = payload;
-
+                } else if (Array.isArray(payload?.data)) {
+                    rows = payload.data;
+                } else if (Array.isArray(payload?.data?.rows)) {
+                    rows = payload.data.rows;
                 }
-
-                else if (
-                    Array.isArray(
-                        payload?.data
-                    )
-                ) {
-
-                    rows =
-                        payload.data;
-
-                }
-
-                else if (
-                    Array.isArray(
-                        payload?.data?.data
-                    )
-                ) {
-
-                    rows =
-                        payload.data.data;
-
-                }
-
-
-                setCategories(
-                    rows
-                );
-
+                setCategories(rows);
             } catch (error) {
-
-                console.error(
-                    "Category Error:",
-                    error
-                );
-
+                console.error("Category Error:", error);
                 setCategories([]);
-
             }
-
         },
         []
     );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOAD SHOPS
-    |--------------------------------------------------------------------------
-    */
-
     const loadShops = useCallback(
         async () => {
-
             try {
-
-                const response =
-                    await getShops({
-                        limit: 100,
-                        status: true
-                    });
-
-
-                console.log(
-                    "Shop Response:",
-                    response
-                );
-
-
-                const payload =
-                    normalizeResponse(
-                        response
-                    );
-
+                const response = await getShops({ limit: 100, status: true });
+                console.log("Shop Response:", response);
+                const payload = normalizeResponse(response);
 
                 let rows = [];
-
-
-                if (
-                    Array.isArray(payload)
-                ) {
-
+                if (Array.isArray(payload)) {
                     rows = payload;
-
+                } else if (Array.isArray(payload?.data)) {
+                    rows = payload.data;
+                } else if (Array.isArray(payload?.data?.rows)) {
+                    rows = payload.data.rows;
                 }
-
-                else if (
-                    Array.isArray(
-                        payload?.data
-                    )
-                ) {
-
-                    rows =
-                        payload.data;
-
-                }
-
-                else if (
-                    Array.isArray(
-                        payload?.data?.data
-                    )
-                ) {
-
-                    rows =
-                        payload.data.data;
-
-                }
-
-
-                setShops(
-                    rows
-                );
-
+                setShops(rows);
             } catch (error) {
-
-                console.error(
-                    "Shop Error:",
-                    error
-                );
-
+                console.error("Shop Error:", error);
                 setShops([]);
-
             }
 
         },
@@ -2294,7 +2180,7 @@ const ExpenseList = () => {
                                             <td>
 
                                                 {item.shopType ===
-                                                "ONLINE" ? (
+                                                    "ONLINE" ? (
 
                                                     <span className="badge bg-primary">
 
@@ -2303,7 +2189,7 @@ const ExpenseList = () => {
                                                     </span>
 
                                                 ) : item.shopType ===
-                                                "OFFLINE" ? (
+                                                    "OFFLINE" ? (
 
                                                     <span className="badge bg-success">
 

@@ -235,38 +235,11 @@ const IncomeList = () => {
                         payload.data || {};
 
 
-                    const rows =
-                        Array.isArray(
-                            result.rows
-                        )
-
-                            ? result.rows
-
-                            : Array.isArray(
-                                result.data
-                            )
-
-                                ? result.data
-
-                                : Array.isArray(
-                                    result
-                                )
-
-                                    ? result
-
-                                    : [];
-
-
-                    setCategories(
-                        rows
-                    );
-
+                    const rows = Array.isArray(result.rows) ? result.rows : Array.isArray(result.data) ? result.data : Array.isArray(result) ? result : [];
+                    setCategories(rows);
                 } else {
-
                     setCategories([]);
-
                 }
-
             } catch (error) {
 
                 console.error(
