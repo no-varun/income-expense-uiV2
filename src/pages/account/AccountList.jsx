@@ -1,258 +1,94 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-    FaEdit,
-    FaTrash,
-    FaPlus,
-    FaSearch,
-    FaSync
-} from "react-icons/fa";
-
-import {
-    getAccounts,
-    deleteAccount
-} from "../../api/accountApi";
+import { FaEdit, FaTrash, FaPlus, FaSearch, FaSync } from "react-icons/fa";
+import { getAccounts, deleteAccount } from "../../api/accountApi";
 
 const AccountList = () => {
-
     const [accounts, setAccounts] = useState([]);
-
     const [loading, setLoading] = useState(true);
-
     const [deleting, setDeleting] = useState(null);
-
     const [search, setSearch] = useState("");
-
     const [bank, setBank] = useState("");
-
     const [accountType, setAccountType] = useState("");
-
     const [status, setStatus] = useState("");
-
     const [page, setPage] = useState(1);
-
     const [limit] = useState(10);
-
     const [total, setTotal] = useState(0);
-
-
     const totalPages = Math.ceil(total / limit);
-
-
     const loadAccounts = async () => {
-
         try {
-
             setLoading(true);
-
-            const response = await getAccounts({
-
-                page,
-
-                limit,
-
-                search,
-
-                bank,
-
-                accountType,
-
-                status
-
-            });
-
-
+            const response = await getAccounts({ page, limit, search, bank, accountType, status });
             if (response.success) {
-
-                setAccounts(
-                    response.data?.rows || []
-                );
-
-                setTotal(
-                    response.data?.total || 0
-                );
-
+                setAccounts(response.data?.rows || []);
+                setTotal(response.data?.total || 0);
             } else {
-
                 setAccounts([]);
-
                 setTotal(0);
-
             }
-
         } catch (error) {
-
-            console.error(
-                "Get Accounts Error:",
-                error
-            );
-
-            alert(
-                error.response?.data?.message ||
-                "Unable to load accounts."
-            );
-
+            console.error("Get Accounts Error:", error);
+            alert(error.response?.data?.message || "Unable to load accounts.");
         } finally {
-
             setLoading(false);
-
         }
 
     };
 
 
-    useEffect(() => {
-
-        loadAccounts();
-
-    }, [
-        page,
-        search,
-        bank,
-        accountType,
-        status
-    ]);
-
-
+    useEffect(() => { loadAccounts(); }, [page, search, bank, accountType, status]);
     const handleDelete = async (id) => {
 
-        const confirmDelete = window.confirm(
-            "Are you sure you want to delete this account?"
-        );
-
+        const confirmDelete = window.confirm("Are you sure you want to delete this account?");
         if (!confirmDelete) {
-
             return;
-
         }
-
-
         try {
-
             setDeleting(id);
-
-            const response =
-                await deleteAccount(id);
-
-
+            const response = await deleteAccount(id);
             if (response.success) {
-
-                alert(
-                    "Account deleted successfully."
-                );
-
-                /*
-                 * If the current page becomes empty
-                 * after deletion, move to previous page.
-                 */
-                if (
-                    accounts.length === 1 &&
-                    page > 1
-                ) {
-
+                alert("Account deleted successfully.");
+                if (accounts.length === 1 && page > 1) {
                     setPage(page - 1);
-
                 } else {
-
                     loadAccounts();
-
                 }
-
             } else {
-
-                alert(
-                    response.message ||
-                    "Unable to delete account."
-                );
-
+                alert(response.message || "Unable to delete account.");
             }
-
         } catch (error) {
-
-            console.error(
-                "Delete Account Error:",
-                error
-            );
-
-            alert(
-                error.response?.data?.message ||
-                "Unable to delete account."
-            );
-
+            console.error("Delete Account Error:", error);
+            alert(error.response?.data?.message || "Unable to delete account.");
         } finally {
-
             setDeleting(null);
-
         }
-
     };
-
-
     const handleSearch = (e) => {
-
         setSearch(e.target.value);
-
         setPage(1);
-
     };
-
-
     const handleBankChange = (e) => {
-
         setBank(e.target.value);
-
         setPage(1);
-
     };
-
-
     const handleAccountTypeChange = (e) => {
-
         setAccountType(e.target.value);
-
         setPage(1);
-
     };
-
-
     const handleStatusChange = (e) => {
-
         setStatus(e.target.value);
-
         setPage(1);
-
     };
-
-
     const handleReset = () => {
-
         setSearch("");
-
         setBank("");
-
         setAccountType("");
-
         setStatus("");
-
         setPage(1);
-
     };
-
-
     const formatAmount = (amount) => {
-
-        return Number(amount || 0).toLocaleString(
-            "en-IN",
-            {
-                style: "currency",
-                currency: "INR",
-                maximumFractionDigits: 2
-            }
-        );
-
+        return Number(amount || 0).toLocaleString("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 });
     };
-
-
     return (
 
         <div className="container-fluid">
@@ -621,7 +457,7 @@ const AccountList = () => {
                                                                     page -
                                                                     1
                                                                 ) *
-                                                                    limit +
+                                                                limit +
                                                                 index +
                                                                 1
                                                             }
@@ -764,7 +600,7 @@ const AccountList = () => {
                                                                     {
 
                                                                         deleting ===
-                                                                        account._id
+                                                                            account._id
 
                                                                             ?
 
