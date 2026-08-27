@@ -398,7 +398,7 @@ const ExpenseForm = ({
                 const response =
                     await getItems({
 
-                        limit: 100,
+                        limit: 500,
 
                         status: true,
 
