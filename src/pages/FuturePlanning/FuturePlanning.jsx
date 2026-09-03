@@ -451,9 +451,6 @@ const FuturePlanning = () => {
                                         Month
                                     </th>
 
-                                    <th className="text-center">
-                                        Milestone
-                                    </th>
 
                                     <th className="text-end">
                                         FD1
@@ -486,7 +483,9 @@ const FuturePlanning = () => {
                                     <th className="text-end">
                                         Note
                                     </th>
-
+                                    <th className="text-center">
+                                        Milestone
+                                    </th>
                                     <th
                                         className="text-center"
                                         style={{
