@@ -1,23 +1,36 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import {FaTachometerAlt,FaTags,FaBoxOpen,FaMoneyBillWave,FaWallet,FaChartBar,FaChartPie,FaUser,FaSignOutAlt,FaTimes,FaStore,FaUniversity,FaExchangeAlt,FaChartLine,FaGlassWhiskey} from "react-icons/fa";
+import {
+    FaTachometerAlt,
+    FaTags,
+    FaBoxOpen,
+    FaMoneyBillWave,
+    FaWallet,
+    FaChartBar,
+    FaChartPie,
+    FaUser,
+    FaSignOutAlt,
+    FaTimes,
+    FaStore,
+    FaUniversity,
+    FaExchangeAlt,
+    FaChartLine,
+    FaGlassWhiskey,
+    FaCalendarAlt
+} from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
-
 
 const Sidebar = ({
     sidebarOpen,
     setSidebarOpen
 }) => {
 
-    const { logout } =
-        useAuth();
+    const { logout } = useAuth();
 
-    const navigate =
-        useNavigate();
+    const navigate = useNavigate();
 
     const [chartOpen, setChartOpen] =
         useState(false);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -80,17 +93,15 @@ const Sidebar = ({
             path: "/expense",
             icon: <FaWallet />
         },
-
-        /*
-        |--------------------------------------------------------------------------
-        | MILK
-        |--------------------------------------------------------------------------
-        */
-
         {
             title: "Milk",
             path: "/milk",
             icon: <FaGlassWhiskey />
+        },
+        {
+            title: "Future Planning",
+            path: "/future-planning",
+            icon: <FaCalendarAlt />
         },
 
         {
@@ -112,14 +123,6 @@ const Sidebar = ({
         }
 
     ];
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGOUT
-    |--------------------------------------------------------------------------
-    */
-
     const handleLogout = () => {
 
         logout();
@@ -133,20 +136,15 @@ const Sidebar = ({
 
     };
 
-
     return (
 
         <>
 
-            {/* =========================================================
-                MOBILE OVERLAY
-            ========================================================= */}
-
+            {/* =========================================================MOBILE OVERLAY========================================================= */}
             {
                 sidebarOpen && (
 
                     <div
-
                         className="
                             d-lg-none
                             position-fixed
@@ -155,32 +153,26 @@ const Sidebar = ({
                             w-100
                             h-100
                         "
-
                         style={{
                             background:
                                 "rgba(0,0,0,0.5)",
-
                             zIndex: 1040
                         }}
-
                         onClick={() =>
                             setSidebarOpen(
                                 false
                             )
                         }
-
                     />
 
                 )
             }
-
 
             {/* =========================================================
                 SIDEBAR
             ========================================================= */}
 
             <aside
-
                 className={`
                     sidebar
                     bg-dark
@@ -188,13 +180,8 @@ const Sidebar = ({
                     d-flex
                     flex-column
                     shadow
-                    ${
-                        sidebarOpen
-                            ? "sidebar-open"
-                            : ""
-                    }
+                    ${sidebarOpen ? "sidebar-open" : ""}
                 `}
-
             >
 
                 {/* =====================================================
@@ -204,21 +191,17 @@ const Sidebar = ({
                 <div className="d-lg-none text-end p-3">
 
                     <button
-
                         type="button"
-
                         className="
                             btn
                             btn-outline-light
                             btn-sm
                         "
-
                         onClick={() =>
                             setSidebarOpen(
                                 false
                             )
                         }
-
                     >
 
                         <FaTimes />
@@ -226,7 +209,6 @@ const Sidebar = ({
                     </button>
 
                 </div>
-
 
                 {/* =====================================================
                     LOGO
@@ -241,19 +223,14 @@ const Sidebar = ({
                 >
 
                     <h4 className="fw-bold mb-0">
-
                         💰 Income Tracker
-
                     </h4>
 
                     <small>
-
                         Admin Panel
-
                     </small>
 
                 </div>
-
 
                 {/* =====================================================
                     MENU
@@ -286,22 +263,18 @@ const Sidebar = ({
                                     >
 
                                         <NavLink
-
                                             to={
                                                 item.path
                                             }
-
                                             end={
                                                 item.path ===
                                                 "/"
                                             }
-
                                             onClick={() =>
                                                 setSidebarOpen(
                                                     false
                                                 )
                                             }
-
                                             className={({
                                                 isActive
                                             }) =>
@@ -312,21 +285,19 @@ const Sidebar = ({
                                                     align-items-center
                                                     px-4
                                                     py-3
-                                                    ${
-                                                        isActive
-                                                            ? `
+                                                    ${isActive
+                                                    ? `
                                                                 bg-primary
                                                                 text-white
                                                                 fw-bold
                                                             `
-                                                            : `
+                                                    : `
                                                                 text-light
                                                             `
-                                                    }
+                                                }
                                                 `
 
                                             }
-
                                         >
 
                                             <span
@@ -354,7 +325,6 @@ const Sidebar = ({
                             )
                         }
 
-
                         {/* =================================================
                             CHARTS
                         ================================================= */}
@@ -364,9 +334,7 @@ const Sidebar = ({
                         >
 
                             <button
-
                                 type="button"
-
                                 className="
                                     btn
                                     text-light
@@ -375,13 +343,11 @@ const Sidebar = ({
                                     px-4
                                     py-3
                                 "
-
                                 onClick={() =>
                                     setChartOpen(
                                         !chartOpen
                                     )
                                 }
-
                             >
 
                                 <FaChartPie
@@ -404,7 +370,6 @@ const Sidebar = ({
 
                             </button>
 
-
                             {
                                 chartOpen && (
 
@@ -415,262 +380,182 @@ const Sidebar = ({
                                         "
                                     >
 
-                                        {/* DAILY */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/daily"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Daily Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* WEEKLY */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/weekly"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 This Week Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* WEEK WISE */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/week-wise"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Week Wise Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* MONTHLY */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/monthly"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Monthly Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* YEARLY */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/yearly"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Yearly Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* CATEGORY */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/category"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Category Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* TITLE TYPE */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/titleType"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Item Wise Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* PAYMENT MODE */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/payment-mode"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Payment Mode Chart
-
                                             </NavLink>
 
                                         </li>
 
-
-                                        {/* DASHBOARD */}
-
                                         <li>
 
                                             <NavLink
-
                                                 to="/charts/dashboard"
-
                                                 className="
                                                     nav-link
                                                     text-light
                                                     ps-5
                                                 "
-
                                                 onClick={() =>
                                                     setSidebarOpen(
                                                         false
                                                     )
                                                 }
-
                                             >
-
                                                 Dashboard Chart
-
                                             </NavLink>
 
                                         </li>
@@ -686,7 +571,6 @@ const Sidebar = ({
 
                 </div>
 
-
                 {/* =========================================================
                     LOGOUT
                 ========================================================= */}
@@ -699,19 +583,15 @@ const Sidebar = ({
                 >
 
                     <button
-
                         type="button"
-
                         className="
                             btn
                             btn-danger
                             w-100
                         "
-
                         onClick={
                             handleLogout
                         }
-
                     >
 
                         <FaSignOutAlt

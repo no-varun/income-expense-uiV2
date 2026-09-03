@@ -68,6 +68,7 @@ import EditInvestment from "../pages/investment/EditInvestment";
 import MilkManage from "../pages/milk/MilkManage";
 import AddMilk from "../pages/milk/AddMilk";
 import EditMilk from "../pages/milk/EditMilk";
+import FuturePlanning from "../pages/FuturePlanning/FuturePlanning";
 const AppRoutes = () => {
 
     return (
@@ -296,7 +297,10 @@ const AppRoutes = () => {
                             path="/reports"
                             element={<Reports />}
                         />
-
+                        <Route
+                            path="/future-planning"
+                            element={<FuturePlanning />}
+                        />
 
                         {/* Charts */}
 
