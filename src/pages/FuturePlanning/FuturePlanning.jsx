@@ -327,31 +327,21 @@ const FuturePlanning = () => {
     */
 
     const formatMonth = (value) => {
+    if (!value) {
+        return "-";
+    }
 
-        if (!value) {
-            return "-";
-        }
+    const date = new Date(value);
 
-        const date =
-            new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return "-";
+    }
 
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-            return "-";
-        }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
-        return date.toLocaleDateString(
-            "en-IN",
-            {
-                month: "short",
-                year: "numeric"
-            }
-        );
-
-    };
+    return `${year}-${month}-01`;
+};
 
 
     return (
