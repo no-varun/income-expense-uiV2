@@ -64,17 +64,35 @@ const FuturePlanning = () => {
             setLoading(true);
             setError("");
 
-            const response = await getFuturePlannings({ page, limit });
-            console.log("Future Planning Response:", response);
-            if (response &&
+            const response =
+                await getFuturePlannings({
+                    page,
+                    limit
+                });
+
+            // console.log(
+            //     "Future Planning Response:",
+            //     response
+            // );
+
+            if (
+                response &&
                 response.success === true
             ) {
 
-                const data = response.data || {};
-                setRows(Array.isArray(data.rows) ? data.rows : []);
+                const data =
+                    response.data || {};
+
+                setRows(
+                    Array.isArray(data.rows)
+                        ? data.rows
+                        : []
+                );
 
                 setTotal(
-                    Number(data.total || 0)
+                    Number(
+                        data.total || 0
+                    )
                 );
 
                 setTotalPages(
@@ -84,32 +102,48 @@ const FuturePlanning = () => {
                 );
 
                 setTotals({
-                    fd1: Number(
-                        data.totals?.fd1 || 0
-                    ),
-                    fd2: Number(
-                        data.totals?.fd2 || 0
-                    ),
-                    rd1: Number(
-                        data.totals?.rd1 || 0
-                    ),
-                    rd2: Number(
-                        data.totals?.rd2 || 0
-                    ),
-                    balance1: Number(
-                        data.totals?.balance1 || 0
-                    ),
-                    balance2: Number(
-                        data.totals?.balance2 || 0
-                    ),
-                    total: Number(
-                        data.totals?.total || 0
-                    )
+
+                    fd1:
+                        Number(
+                            data.totals?.fd1 || 0
+                        ),
+
+                    fd2:
+                        Number(
+                            data.totals?.fd2 || 0
+                        ),
+
+                    rd1:
+                        Number(
+                            data.totals?.rd1 || 0
+                        ),
+
+                    rd2:
+                        Number(
+                            data.totals?.rd2 || 0
+                        ),
+
+                    balance1:
+                        Number(
+                            data.totals?.balance1 || 0
+                        ),
+
+                    balance2:
+                        Number(
+                            data.totals?.balance2 || 0
+                        ),
+
+                    total:
+                        Number(
+                            data.totals?.total || 0
+                        )
+
                 });
 
             } else {
 
                 setRows([]);
+
                 setError(
                     response?.message ||
                     "Unable to fetch future planning."
@@ -137,6 +171,7 @@ const FuturePlanning = () => {
             setLoading(false);
 
         }
+
     };
 
 
@@ -203,10 +238,10 @@ const FuturePlanning = () => {
             const response =
                 await deleteFuturePlanning(id);
 
-            console.log(
-                "Delete Future Planning Response:",
-                response
-            );
+            // console.log(
+            //     "Delete Future Planning Response:",
+            //     response
+            // );
 
             if (
                 response &&
@@ -416,6 +451,10 @@ const FuturePlanning = () => {
                                         Month
                                     </th>
 
+                                    <th className="text-center">
+                                        Milestone
+                                    </th>
+
                                     <th className="text-end">
                                         FD1
                                     </th>
@@ -443,9 +482,11 @@ const FuturePlanning = () => {
                                     <th className="text-end">
                                         Total
                                     </th>
+
                                     <th className="text-end">
                                         Note
                                     </th>
+
                                     <th
                                         className="text-center"
                                         style={{
@@ -467,7 +508,7 @@ const FuturePlanning = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="9"
+                                            colSpan="11"
                                             className="
                                                 text-center
                                                 py-5
@@ -483,7 +524,7 @@ const FuturePlanning = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="9"
+                                            colSpan="11"
                                             className="
                                                 text-center
                                                 py-5
@@ -515,7 +556,6 @@ const FuturePlanning = () => {
                                                         }
                                                     </strong>
                                                 </td>
-
 
                                                 <td className="text-end">
                                                     ₹
@@ -585,7 +625,30 @@ const FuturePlanning = () => {
                                                         )
                                                     }
                                                 </td>
-                                                <td className="text-end fw-bold">{item.note}</td>
+
+
+                                                <td className="text-end fw-bold">
+                                                    {
+                                                        item.note || "-"
+                                                    }
+                                                </td>
+                                                <td className="text-center">
+
+                                                    {item.isMileStone ? (
+
+                                                        <span className="badge bg-success">
+                                                            Yes
+                                                        </span>
+
+                                                    ) : (
+
+                                                        <span className="badge bg-secondary">
+                                                            No
+                                                        </span>
+
+                                                    )}
+
+                                                </td>
 
                                                 <td>
 
@@ -643,7 +706,7 @@ const FuturePlanning = () => {
 
                             </tbody>
 
-                            {/* 
+                            {/*
                             {rows.length > 0 && (
 
                                 <tfoot
@@ -655,6 +718,8 @@ const FuturePlanning = () => {
                                         <th>
                                             Total
                                         </th>
+
+                                        <th></th>
 
                                         <th className="text-end">
                                             ₹
@@ -721,11 +786,14 @@ const FuturePlanning = () => {
 
                                         <th></th>
 
+                                        <th></th>
+
                                     </tr>
 
                                 </tfoot>
 
-                            )} */}
+                            )}
+                            */}
 
                         </table>
 

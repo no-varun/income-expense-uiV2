@@ -29,7 +29,8 @@ const FuturePlanningForm = ({
             rd2: "",
             balance1: "",
             balance2: "",
-            note: ""
+            note: "",
+            isMileStone: false
         });
 
 
@@ -59,7 +60,8 @@ const FuturePlanningForm = ({
                 rd2: "",
                 balance1: "",
                 balance2: "",
-                note: ""
+                note: "",
+                isMileStone: false
             });
 
             return;
@@ -123,7 +125,10 @@ const FuturePlanningForm = ({
                             data.balance2 ?? "",
 
                         note:
-                            data.note || ""
+                            data.note || "",
+
+                        isMileStone:
+                            data.isMileStone ?? false
 
                     });
 
@@ -180,6 +185,28 @@ const FuturePlanningForm = ({
             (current) => ({
                 ...current,
                 [name]: value
+            })
+        );
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MILESTONE CHANGE
+    |--------------------------------------------------------------------------
+    */
+
+    const handleMilestoneChange = (event) => {
+
+        const {
+            checked
+        } = event.target;
+
+        setForm(
+            (current) => ({
+                ...current,
+                isMileStone: checked
             })
         );
 
@@ -266,7 +293,10 @@ const FuturePlanningForm = ({
                 number(form.balance2),
 
             note:
-                form.note.trim()
+                form.note.trim(),
+
+            isMileStone:
+                Boolean(form.isMileStone)
 
         };
 
@@ -330,9 +360,11 @@ const FuturePlanningForm = ({
                 );
 
                 if (onSuccess) {
+
                     onSuccess(
                         response
                     );
+
                 }
 
                 return;
@@ -680,6 +712,42 @@ const FuturePlanningForm = ({
                                     }
                                     readOnly
                                 />
+
+                            </div>
+
+
+                            <div
+                                className="
+                                    col-12
+                                    col-md-4
+                                "
+                            >
+
+                                <div
+                                    className="form-check mt-4"
+                                >
+
+                                    <input
+                                        type="checkbox"
+                                        name="isMileStone"
+                                        id="isMileStone"
+                                        className="form-check-input"
+                                        checked={
+                                            form.isMileStone
+                                        }
+                                        onChange={
+                                            handleMilestoneChange
+                                        }
+                                    />
+
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="isMileStone"
+                                    >
+                                        Is Milestone
+                                    </label>
+
+                                </div>
 
                             </div>
 

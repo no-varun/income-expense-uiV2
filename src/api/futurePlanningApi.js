@@ -29,7 +29,7 @@ export const getFuturePlanning = async (id) => {
         `/futurePlanning/${id}`
     );
 
-    return response.data;
+    return response;
 };
 
 
@@ -45,7 +45,7 @@ export const createFuturePlanning = async (data) => {
         data
     );
 
-    return response.data;
+    return response;
 };
 
 
@@ -64,7 +64,7 @@ export const updateFuturePlanning = async (
         data
     );
 
-    return response.data;
+    return response;
 };
 
 
@@ -79,5 +79,5 @@ export const deleteFuturePlanning = async (id) => {
         `/futurePlanning/${id}`
     );
 
-    return response.data;
+    return response;
 };
