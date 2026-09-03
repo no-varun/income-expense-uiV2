@@ -337,10 +337,17 @@ const FuturePlanning = () => {
         return "-";
     }
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const startDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        1
+    );
 
-    return `${year}-${month}-01`;
+    return startDate.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
 };
 
 
