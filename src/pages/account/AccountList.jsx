@@ -220,7 +220,14 @@ const AccountList = () => {
                                 <option value="Cash">
                                     Cash
                                 </option>
+                                <option value="AmazonPay">
+                                    AmazonPay
+                                </option>
 
+                                <option value="Meeso">
+                                    Meeso
+                                </option>
+                                
                                 <option value="Other">
                                     Other
                                 </option>
