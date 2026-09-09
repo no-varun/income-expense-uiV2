@@ -51,7 +51,7 @@ export const createDebt = async (data) => {
         data
     );
 
-    return response.data;
+    return response;
 
 };
 

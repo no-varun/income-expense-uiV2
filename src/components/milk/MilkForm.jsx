@@ -7,6 +7,9 @@ import {
     useNavigate
 } from "react-router-dom";
 
+import MilkForm
+    from "../../components/milk/MilkForm";
+
 
 const MilkForm = ({
     initialValues = {},
@@ -17,6 +20,12 @@ const MilkForm = ({
     const navigate =
         useNavigate();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
 
     const [form, setForm] =
         useState({
@@ -33,7 +42,13 @@ const MilkForm = ({
             date:
                 new Date()
                     .toISOString()
-                    .split("T")[0]
+                    .split("T")[0],
+
+            paid:
+                false,
+
+            onLeave:
+                false
 
         });
 
@@ -82,11 +97,19 @@ const MilkForm = ({
                     )
                     : new Date()
                         .toISOString()
-                        .split("T")[0]
+                        .split("T")[0],
+
+            paid:
+                initialValues.paid === true,
+
+            onLeave:
+                initialValues.onLeave === true
 
         });
 
-    }, [initialValues]);
+    }, [
+        initialValues
+    ]);
 
 
     /*
@@ -101,7 +124,9 @@ const MilkForm = ({
 
         const {
             name,
-            value
+            value,
+            type,
+            checked
         } = event.target;
 
 
@@ -111,7 +136,9 @@ const MilkForm = ({
                 ...prev,
 
                 [name]:
-                    value
+                    type === "checkbox"
+                        ? checked
+                        : value
 
             })
         );
@@ -222,7 +249,13 @@ const MilkForm = ({
             price,
 
             date:
-                form.date
+                form.date,
+
+            paid:
+                form.paid === true,
+
+            onLeave:
+                form.onLeave === true
 
         };
 
@@ -259,6 +292,12 @@ const MilkForm = ({
         );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="card border-0 shadow-sm">
@@ -278,6 +317,7 @@ const MilkForm = ({
                             }
 
                         </h4>
+
 
                         <div className="text-muted small">
 
@@ -321,6 +361,7 @@ const MilkForm = ({
 
                     <div className="row g-4">
 
+
                         {/* TITLE */}
 
                         <div className="col-12 col-md-6">
@@ -358,6 +399,7 @@ const MilkForm = ({
                             <label className="form-label fw-semibold">
 
                                 Quantity
+
                                 <span className="text-danger ms-1">
                                     *
                                 </span>
@@ -404,6 +446,7 @@ const MilkForm = ({
                             <label className="form-label fw-semibold">
 
                                 Price / Litre
+
                                 <span className="text-danger ms-1">
                                     *
                                 </span>
@@ -449,6 +492,7 @@ const MilkForm = ({
                             <label className="form-label fw-semibold">
 
                                 Date
+
                                 <span className="text-danger ms-1">
                                     *
                                 </span>
@@ -470,6 +514,96 @@ const MilkForm = ({
                                     loading
                                 }
                             />
+
+                        </div>
+
+
+                        {/* PAID */}
+
+                        <div className="col-12 col-md-6">
+
+                            <div className="form-check form-switch">
+
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="paid"
+                                    name="paid"
+                                    checked={
+                                        form.paid === true
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                />
+
+
+                                <label
+                                    className="form-check-label fw-semibold"
+                                    htmlFor="paid"
+                                >
+
+                                    Paid
+
+                                </label>
+
+                            </div>
+
+
+                            <div className="text-muted small mt-1">
+
+                                Mark this milk record as paid.
+
+                            </div>
+
+                        </div>
+
+
+                        {/* ON LEAVE */}
+
+                        <div className="col-12 col-md-6">
+
+                            <div className="form-check form-switch">
+
+                                <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="onLeave"
+                                    name="onLeave"
+                                    checked={
+                                        form.onLeave === true
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        loading
+                                    }
+                                />
+
+
+                                <label
+                                    className="form-check-label fw-semibold"
+                                    htmlFor="onLeave"
+                                >
+
+                                    On Leave
+
+                                </label>
+
+                            </div>
+
+
+                            <div className="text-muted small mt-1">
+
+                                Mark this day as a milk leave.
+
+                            </div>
 
                         </div>
 
@@ -542,23 +676,25 @@ const MilkForm = ({
                             }
                         >
 
-                            {loading ? (
+                            {
+                                loading ? (
 
-                                <>
+                                    <>
 
-                                    <span className="spinner-border spinner-border-sm me-2" />
+                                        <span className="spinner-border spinner-border-sm me-2" />
 
-                                    Saving...
+                                        Saving...
 
-                                </>
+                                    </>
 
-                            ) : (
+                                ) : (
 
-                                initialValues?._id
-                                    ? "Update Milk"
-                                    : "Save Milk"
+                                    initialValues?._id
+                                        ? "Update Milk"
+                                        : "Save Milk"
 
-                            )}
+                                )
+                            }
 
                         </button>
 

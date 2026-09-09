@@ -12,7 +12,8 @@ import MilkForm
     from "../../components/milk/MilkForm";
 
 import {
-    getMilkById, updateMilk
+    getMilkById,
+    updateMilk
 } from "../../api/milkManageApi";
 
 
@@ -38,7 +39,7 @@ const EditMilk = () => {
 
     /*
     |--------------------------------------------------------------------------
-    | LOAD
+    | LOAD MILK
     |--------------------------------------------------------------------------
     */
 
@@ -58,7 +59,6 @@ const EditMilk = () => {
                         await getMilkById(
                             id
                         );
-
 
 
                     if (
@@ -81,9 +81,32 @@ const EditMilk = () => {
                     }
 
 
-                    setMilk(
-                        response.data
-                    );
+                    const data =
+                        response?.data || {};
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | NORMALIZE BOOLEAN VALUES
+                    |--------------------------------------------------------------------------
+                    |
+                    | Ensure paid and onLeave are always
+                    | actual Boolean values.
+                    |
+                    */
+
+                    setMilk({
+
+                        ...data,
+
+                        paid:
+                            data?.paid === true,
+
+                        onLeave:
+                            data?.onLeave === true
+
+                    });
+
 
                 } catch (error) {
 
@@ -97,6 +120,8 @@ const EditMilk = () => {
 
                         error?.response?.data?.message ||
 
+                        error?.message ||
+
                         "Unable to fetch milk record."
 
                     );
@@ -105,6 +130,7 @@ const EditMilk = () => {
                     navigate(
                         "/milk"
                     );
+
 
                 } finally {
 
@@ -125,12 +151,15 @@ const EditMilk = () => {
 
         }
 
-    }, [id, navigate]);
+    }, [
+        id,
+        navigate
+    ]);
 
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE
+    | UPDATE MILK
     |--------------------------------------------------------------------------
     */
 
@@ -145,11 +174,31 @@ const EditMilk = () => {
             );
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | ENSURE BOOLEAN VALUES
+            |--------------------------------------------------------------------------
+            */
+
+            const requestPayload = {
+
+                ...payload,
+
+                paid:
+                    payload?.paid === true,
+
+                onLeave:
+                    payload?.onLeave === true
+
+            };
+
+
             const response =
                 await updateMilk(
                     id,
-                    payload
+                    requestPayload
                 );
+
 
             if (
                 response?.success === true
@@ -179,6 +228,7 @@ const EditMilk = () => {
                 "Unable to update milk record."
             );
 
+
         } catch (error) {
 
             console.error(
@@ -197,6 +247,7 @@ const EditMilk = () => {
 
             );
 
+
         } finally {
 
             setSaving(
@@ -207,6 +258,12 @@ const EditMilk = () => {
 
     };
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOADING
+    |--------------------------------------------------------------------------
+    */
 
     if (
         loading
@@ -220,7 +277,13 @@ const EditMilk = () => {
 
                     <div
                         className="spinner-border"
-                    />
+                        role="status"
+                    >
+                        <span className="visually-hidden">
+                            Loading...
+                        </span>
+                    </div>
+
 
                     <div className="mt-2 text-muted">
 
@@ -237,20 +300,30 @@ const EditMilk = () => {
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <div className="container-fluid px-4 py-3">
 
             <MilkForm
+
                 initialValues={
                     milk
                 }
+
                 onSubmit={
                     handleSubmit
                 }
+
                 loading={
                     saving
                 }
+
             />
 
         </div>
