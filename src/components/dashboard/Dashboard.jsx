@@ -5,7 +5,8 @@ import RecentTransaction from "../../components/dashboard/RecentTransaction";
 
 import {
     getSummary,
-    getRecentTransactions
+    getRecentTransactions,
+    totalDebtItemWise
 } from "../../api/dashboardApi";
 
 
@@ -13,6 +14,11 @@ const Dashboard = () => {
 
     const [summary, setSummary] = useState({});
     const [transactions, setTransactions] = useState([]);
+    const [debtSummary, setDebtSummary] = useState({
+        totalDebt: 0,
+        totalPendingAmount: 0,
+        items: []
+    });
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -76,12 +82,15 @@ const Dashboard = () => {
 
             const [
                 summaryResponse,
-                transactionResponse
+                transactionResponse,
+                debtResponse
             ] = await Promise.all([
 
                 getSummary(),
 
-                getRecentTransactions()
+                getRecentTransactions(),
+
+                totalDebtItemWise()
 
             ]);
 
@@ -189,6 +198,20 @@ const Dashboard = () => {
             setTransactions(
                 transactionData
             );
+
+            const debtData =
+                debtResponse?.data &&
+                typeof debtResponse.data === "object"
+                    ? debtResponse.data
+                    : debtResponse || {};
+
+            setDebtSummary({
+                totalDebt: Number(debtData.totalDebt || 0),
+                totalPendingAmount: Number(debtData.totalPendingAmount || 0),
+                items: Array.isArray(debtData.items)
+                    ? debtData.items
+                    : []
+            });
 
 
         } catch (err) {
@@ -910,10 +933,9 @@ const Dashboard = () => {
                                                         className={`
                                                             text-end
                                                             fw-bold
-                                                            ${
-                                                                profitLoss >= 0
-                                                                    ? "text-success"
-                                                                    : "text-danger"
+                                                            ${profitLoss >= 0
+                                                                ? "text-success"
+                                                                : "text-danger"
                                                             }
                                                         `}
                                                     >
@@ -1183,7 +1205,7 @@ const Dashboard = () => {
                     </h4>
 
                     <div className="text-muted small mb-4">
-                        Outstanding financial liabilities
+                        Outstanding debt position
                     </div>
 
 
@@ -1192,9 +1214,7 @@ const Dashboard = () => {
                         <SummaryCard
                             title="Total Debt"
                             value={
-                                Number(
-                                    summary?.totalDebt || 0
-                                )
+                                debtSummary.totalDebt
                             }
                             bg="bg-warning"
                         />
@@ -1203,12 +1223,64 @@ const Dashboard = () => {
                         <SummaryCard
                             title="Pending Debt"
                             value={
-                                Number(
-                                    summary?.totalPendingDebt || 0
-                                )
+                                debtSummary.totalPendingAmount
                             }
                             bg="bg-danger"
                         />
+
+                    </div>
+
+                    <div className="table-responsive mt-4">
+
+                        <table className="table table-hover align-middle mb-0">
+
+                            <thead className="table-light">
+
+                                <tr>
+                                    <th>Item</th>
+                                    <th className="text-center">Records</th>
+                                    <th className="text-end">Total Debt</th>
+                                    <th className="text-end">Pending Amount</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {debtSummary.items.length > 0 ? (
+
+                                    debtSummary.items.map((item, index) => (
+
+                                        <tr key={item?._id || index}>
+                                            <td className="fw-semibold">
+                                                {item?._id || "Untitled debt"}
+                                            </td>
+                                            <td className="text-center">
+                                                {Number(item?.totalItems || 0)}
+                                            </td>
+                                            <td className="text-end">
+                                                {"Rs. "}{formatAmount(item?.totalDebt)}
+                                            </td>
+                                            <td className="text-end text-danger fw-semibold">
+                                                {"Rs. "}{formatAmount(item?.totalPendingAmount)}
+                                            </td>
+                                        </tr>
+
+                                    ))
+
+                                ) : (
+
+                                    <tr>
+                                        <td colSpan="4" className="text-center text-muted py-4">
+                                            No debt items found.
+                                        </td>
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+                        </table>
 
                     </div>
 
@@ -1262,6 +1334,88 @@ const Dashboard = () => {
 
                     </div>
 
+
+                    <div className="table-responsive d-none">
+
+                        <table className="table table-hover align-middle mb-0">
+
+                            <thead className="table-light">
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Bank</th>
+                                    <th>Type</th>
+                                    <th className="text-end">Cash Balance</th>
+                                    <th className="text-end">Minimum Balance</th>
+                                    <th className="text-end">Invested</th>
+                                    <th className="text-end">Current Value</th>
+                                    <th className="text-end">P/L</th>
+                                    <th className="text-center">Investments</th>
+                                    <th className="text-end">Total Value</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {accounts.length > 0 ? (
+                                    accounts.map((account, index) => {
+                                        const balance = Number(account?.balance || 0);
+                                        const minimumBalance = Number(account?.minimumBalance || 0);
+                                        const investmentAmount = Number(account?.investmentAmount || 0);
+                                        const investmentCurrentValue = Number(account?.investmentCurrentValue || 0);
+                                        const investmentProfitLoss = Number(account?.investmentProfitLoss || 0);
+                                        const totalBalance = Number(
+                                            account?.totalBalance ??
+                                            balance + investmentCurrentValue
+                                        );
+                                        const belowMinimum =
+                                            minimumBalance > 0 && balance < minimumBalance;
+
+                                        return (
+                                            <tr key={account?._id || index}>
+                                                <td className="fw-semibold">{account?.name || "Unnamed account"}</td>
+                                                <td>{formatBankName(account?.bank)}</td>
+                                                <td>{account?.accountType || "Account"}</td>
+                                                <td className={
+                                                    `text-end fw-semibold ${belowMinimum ? "text-danger" : "text-success"}`
+                                                }>
+                                                    {"Rs. "}{formatAmount(balance)}
+                                                </td>
+                                                <td className="text-end">
+                                                    {minimumBalance > 0
+                                                        ? `${belowMinimum ? "Rs. " : "Rs. "}${formatAmount(minimumBalance)}`
+                                                        : "-"}
+                                                </td>
+                                                <td className="text-end">{"Rs. "}{formatAmount(investmentAmount)}</td>
+                                                <td className="text-end">{"Rs. "}{formatAmount(investmentCurrentValue)}</td>
+                                                <td className={
+                                                    `text-end fw-semibold ${investmentProfitLoss >= 0 ? "text-success" : "text-danger"}`
+                                                }>
+                                                    {investmentProfitLoss > 0 ? "+" : ""}
+                                                    {"Rs. "}{formatAmount(investmentProfitLoss)}
+                                                </td>
+                                                <td className="text-center">
+                                                    {Number(account?.investmentCount || 0)}
+                                                </td>
+                                                <td className="text-end fw-bold text-primary">
+                                                    {"Rs. "}{formatAmount(totalBalance)}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                ) : (
+                                    <tr>
+                                        <td colSpan="10" className="text-center text-muted py-4">
+                                            No accounts found.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <div>
 
                     {accounts.length > 0 ? (
 
@@ -1333,10 +1487,9 @@ const Dashboard = () => {
                                                     card
                                                     h-100
                                                     shadow-sm
-                                                    ${
-                                                        belowMinimum
-                                                            ? "border-danger"
-                                                            : "border-0"
+                                                    ${belowMinimum
+                                                        ? "border-danger"
+                                                        : "border-0"
                                                     }
                                                 `}
                                             >
@@ -1407,10 +1560,9 @@ const Dashboard = () => {
                                                             className={`
                                                                 fs-4
                                                                 fw-bold
-                                                                ${
-                                                                    belowMinimum
-                                                                        ? "text-danger"
-                                                                        : "text-success"
+                                                                ${belowMinimum
+                                                                    ? "text-danger"
+                                                                    : "text-success"
                                                                 }
                                                             `}
                                                         >
@@ -1689,6 +1841,8 @@ const Dashboard = () => {
                         </div>
 
                     )}
+
+                    </div>
 
                 </div>
 
@@ -2000,11 +2154,7 @@ const Dashboard = () => {
                 RECENT TRANSACTIONS
             ========================================================= */}
 
-            <RecentTransaction
-                transactions={
-                    transactions
-                }
-            />
+            <RecentTransaction transactions={transactions} />
 
         </div>
 

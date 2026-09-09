@@ -82,3 +82,6 @@ export const getRecentTransactions = async () => {
     return response.data;
 
 };
+export const totalDebtItemWise = async () => {
+    return axios.get("/dashboard/total-debt-item-wise");
+};

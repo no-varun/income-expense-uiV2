@@ -10,7 +10,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 
 // Dashboard
-import Dashboard from "../pages/dashboard/Dashboard";
+import Dashboard from "../components/dashboard/Dashboard";
 
 // Category
 import CategoryList from "../pages/category/CategoryList";
