@@ -7,10 +7,6 @@ import {
     useNavigate
 } from "react-router-dom";
 
-import MilkForm
-    from "../../components/milk/MilkForm";
-
-
 const MilkForm = ({
     initialValues = {},
     onSubmit,
@@ -80,7 +76,9 @@ const MilkForm = ({
                 "Milk",
 
             quantity:
-                initialValues.quantity ??
+                initialValues.onLeave === true
+                    ? 0
+                    : initialValues.quantity ??
                 "",
 
             price:
@@ -130,18 +128,21 @@ const MilkForm = ({
         } = event.target;
 
 
-        setForm(
-            prev => ({
+        setForm(prev => {
 
+            if (name === "onLeave") {
+                return {
+                    ...prev,
+                    onLeave: checked,
+                    quantity: checked ? 0 : prev.quantity
+                };
+            }
+
+            return {
                 ...prev,
-
-                [name]:
-                    type === "checkbox"
-                        ? checked
-                        : value
-
-            })
-        );
+                [name]: type === "checkbox" ? checked : value
+            };
+        });
 
     };
 
@@ -181,11 +182,11 @@ const MilkForm = ({
             !Number.isFinite(
                 quantity
             ) ||
-            quantity <= 0
+            (!form.onLeave && quantity <= 0)
         ) {
 
             alert(
-                "Quantity must be greater than 0."
+                "Quantity must be greater than 0 unless this is an on-leave day."
             );
 
             return;
@@ -423,7 +424,8 @@ const MilkForm = ({
                                     step="0.01"
                                     placeholder="Enter quantity"
                                     disabled={
-                                        loading
+                                        loading ||
+                                        form.onLeave
                                     }
                                 />
 
