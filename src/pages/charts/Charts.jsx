@@ -18,6 +18,8 @@ const Charts = () => {
     const [error, setError] = useState("");
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState(new Date().getMonth() + 1);
+    const [sortBy, setSortBy] = useState("item");
+    const [order, setOrder] = useState("asc");
 
     const getChartType = () => {
         const path = location.pathname.toLowerCase();
@@ -81,8 +83,8 @@ const Charts = () => {
             let response;
 
             if (chartType === "titleType") {
-                console.log("CALLING TITLE TYPE API:", year, month);
-                response = await getTitleTypeChart(year, month);
+                console.log("CALLING TITLE TYPE API:", year, month, sortBy, order);
+                response = await getTitleTypeChart(year, month, sortBy, order);
             } else if (chartType === "daily") {
                 console.log("CALLING DAILY API:", month, year);
                 response = await getDailyChart(month, year);
@@ -299,7 +301,7 @@ const Charts = () => {
         } finally {
             setLoading(false);
         }
-    }, [chartType, year, month]);
+    }, [chartType, year, month, sortBy, order]);
 
     useEffect(() => {
         loadChart();
@@ -471,6 +473,34 @@ return (
                         })}
                     </select>
                 </div>
+
+                {chartType === "titleType" && (
+                    <>
+                        <div style={{ width: 140 }}>
+                            <label className="form-label mb-1">Sort by</label>
+                            <select
+                                className="form-select"
+                                value={sortBy}
+                                onChange={e => setSortBy(e.target.value)}
+                            >
+                                <option value="item">Item</option>
+                                <option value="amount">Amount</option>
+                            </select>
+                        </div>
+
+                        <div style={{ width: 150 }}>
+                            <label className="form-label mb-1">Order</label>
+                            <select
+                                className="form-select"
+                                value={order}
+                                onChange={e => setOrder(e.target.value)}
+                            >
+                                <option value="asc">Ascending</option>
+                                <option value="desc">Descending</option>
+                            </select>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
 

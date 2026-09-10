@@ -166,7 +166,9 @@ export const getDashboardChart = async (year = "all") => {
 };
 export const getTitleTypeChart = async (
     year = "all",
-    month = "all"
+    month = "all",
+    sortBy = "item",
+    order = "asc"
 ) => {
 
     return await axios.get(
@@ -174,7 +176,9 @@ export const getTitleTypeChart = async (
         {
             params: {
                 year,
-                month
+                month,
+                sortBy,
+                order
             }
         }
     );
