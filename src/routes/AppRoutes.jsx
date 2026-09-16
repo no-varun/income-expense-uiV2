@@ -69,6 +69,13 @@ import MilkManage from "../pages/milk/MilkManage";
 import AddMilk from "../pages/milk/AddMilk";
 import EditMilk from "../pages/milk/EditMilk";
 import FuturePlanning from "../pages/FuturePlanning/FuturePlanning";
+
+// PreciousItems
+import PreciousItemList from "../pages/preciousItem/PreciousItemList";
+import AddPreciousItem from "../pages/preciousItem/AddPreciousItem";
+import EditpreciousItem from "../pages/preciousItem/EditPreciousItem";
+import EditPreciousItem from "../pages/preciousItem/EditPreciousItem";
+
 const AppRoutes = () => {
 
     return (
@@ -142,6 +149,23 @@ const AppRoutes = () => {
                             path="/shops/edit/:id"
                             element={<EditShop />}
                         />
+                         {/* PreciousItem */}
+
+                        <Route
+                            path="/preciousItem"
+                            element={<PreciousItemList />}
+                        />
+
+                        <Route
+                            path="/preciousItem/add"
+                            element={<AddPreciousItem />}
+                        />
+
+                        <Route
+                            path="/preciousItem/edit/:id"
+                            element={<EditPreciousItem />}
+                        />
+
 
                         {/* Items */}
 
