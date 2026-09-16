@@ -40,11 +40,9 @@ const MilkManage = () => {
         });
 
 
-    const [page, setPage] =
-        useState(1);
+    const [page, setPage] = useState(1);
 
-    const [limit] =
-        useState(10);
+    const [limit] = useState(new Date().getDate());
 
     const [totalPages, setTotalPages] =
         useState(1);
@@ -203,12 +201,12 @@ const MilkManage = () => {
                         paid === "true";
 
                 }
-                if (onLeave !== "" &&!override.clearOnLeave) {
-                    params.onLeave =onLeave === "true";
+                if (onLeave !== "" && !override.clearOnLeave) {
+                    params.onLeave = onLeave === "true";
                 }
 
 
-                console.log("GET MILK PARAMS:",params
+                console.log("GET MILK PARAMS:", params
                 );
 
 
@@ -379,14 +377,14 @@ const MilkManage = () => {
                     Number.isFinite(
                         pages
                     ) &&
-                    pages > 0
+                        pages > 0
                         ? pages
                         : 1
                 );
 
 
             } catch (
-                error
+            error
             ) {
 
                 console.error(
@@ -596,7 +594,7 @@ const MilkManage = () => {
 
 
             } catch (
-                error
+            error
             ) {
 
                 console.error(
@@ -1201,7 +1199,7 @@ const MilkManage = () => {
 
                                                         {
                                                             deleting ===
-                                                            item._id
+                                                                item._id
 
                                                                 ? "Deleting..."
 
