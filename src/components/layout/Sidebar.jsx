@@ -103,7 +103,11 @@ const Sidebar = ({
             path: "/future-planning",
             icon: <FaCalendarAlt />
         },
-
+        {
+            title: "Precious Item",
+            path: "/preciousItem",
+            icon: <FaCalendarAlt />
+        },
         {
             title: "Debts",
             path: "/debt",
