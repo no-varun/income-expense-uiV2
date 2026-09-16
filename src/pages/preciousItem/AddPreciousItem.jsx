@@ -53,7 +53,7 @@ const AddPreciousItem = () => {
 
                 <h3>
 
-                    Add Shop
+                    Add PreciousItem
 
                 </h3>
 

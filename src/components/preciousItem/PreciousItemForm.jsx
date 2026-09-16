@@ -6,7 +6,8 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
     const [form, setForm] = useState({
         name: "",
         type: "OFFLINE",
-        description: ""
+        description: "",
+        location:""
     });
     /*
      * =========================
@@ -19,7 +20,8 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
             setForm({
                 name: initialValues.name || "",
                 type: initialValues.type || "OFFLINE",
-                description: initialValues.description || ""
+                description: initialValues.description || "",
+                location: initialValues.location || ""
             });
         }
 
@@ -59,12 +61,12 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) {
-            alert("Shop name is required.");
+            alert("PreciousItem name is required.");
             return;
         }
 
         if (!form.type) {
-            alert("Shop type is required.");
+            alert("PreciousItem type is required.");
             return;
         }
 
@@ -99,7 +101,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
             <div className="card-header d-flex justify-content-between align-items-center">
 
                 <h5 className="mb-0">
-                    Shop Details
+                    PreciousItem Details
                 </h5>
 
 
@@ -107,7 +109,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                     type="button"
                     className="btn btn-secondary btn-sm"
                     onClick={() =>
-                        navigate("/shops")
+                        navigate("/preciousItem")
                     }
                 >
 
@@ -131,7 +133,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
 
                         <label className="form-label">
 
-                            Shop Name
+                            PreciousItem Name
 
                         </label>
 
@@ -142,7 +144,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                             name="name"
                             value={form.name}
                             onChange={handleChange}
-                            placeholder="Enter shop name"
+                            placeholder="Enter PreciousItem name"
                             required
                         />
 
@@ -155,7 +157,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
 
                         <label className="form-label">
 
-                            Shop Type
+                            PreciousItem Type
 
                         </label>
 
@@ -168,9 +170,9 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                             required
                         >
 
-                            <option value="ONLINE">On line</option>
+                            <option value="GOLD">GOLD</option>
 
-                            <option value="OFFLINE">Off Line</option>
+                            <option value="SILVER">SILVER</option>
 
                         </select>
 
@@ -182,12 +184,8 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                     <div className="mb-3">
 
                         <label className="form-label">
-
                             Description
-
                         </label>
-
-
                         <textarea
                             className="form-control"
                             rows="4"
@@ -198,9 +196,25 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                         />
 
                     </div>
+                    {/* ================= location ================= */}
 
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Location
+                        </label>
+                        <textarea
+                            className="form-control"
+                            rows="4"
+                            name="location"
+                            value={form.location}
+                            onChange={handleChange}
+                            placeholder="Enter location"
+                        />
+
+                    </div>
                     {/* ================= SUBMIT ================= */}
-                    <button type="submit" className="btn btn-primary" disabled={loading}> {loading ? "Please wait..." : "Save Shop"}</button>
+                    <button type="submit" className="btn btn-primary" disabled={loading}> {loading ? "Please wait..." : "Save PreciousItem"}</button>
 
                 </form>
 

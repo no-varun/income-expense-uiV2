@@ -7,7 +7,7 @@ import Pagination from "../../components/common/Pagination";
 
 const PreciousItemList = () => {
 
-    const [preciousItem, setShop] = useState([]);
+    const [preciousItem, setpreciousItem] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [page, setPage] = useState(1);
@@ -30,7 +30,7 @@ const PreciousItemList = () => {
      * =========================
      */
 
-    const loadShop = useCallback(async () => {
+    const loadpreciousItem = useCallback(async () => {
 
         try {
 
@@ -56,7 +56,7 @@ const PreciousItemList = () => {
                     response.data ||
                     [];
 
-                setShop(
+                setpreciousItem(
                     Array.isArray(rows)
                         ? rows
                         : []
@@ -70,7 +70,7 @@ const PreciousItemList = () => {
 
             } else {
 
-                setShop([]);
+                setpreciousItem([]);
                 setTotal(0);
 
             }
@@ -79,7 +79,7 @@ const PreciousItemList = () => {
 
             console.error(error);
 
-            setShop([]);
+            setpreciousItem([]);
             setTotal(0);
 
             alert(
@@ -108,9 +108,9 @@ const PreciousItemList = () => {
 
     useEffect(() => {
 
-        loadShop();
+        loadpreciousItem();
 
-    }, [loadShop]);
+    }, [loadpreciousItem]);
 
 
     /*
@@ -159,7 +159,7 @@ const PreciousItemList = () => {
     const handleDelete = async (id) => {
 
         const confirmDelete = window.confirm(
-            "Are you sure you want to delete this shop?"
+            "Are you sure you want to delete this preciousItem?"
         );
 
         if (!confirmDelete) {
@@ -191,7 +191,7 @@ const PreciousItemList = () => {
 
                 } else {
 
-                    loadShop();
+                    loadpreciousItem();
 
                 }
 
@@ -250,7 +250,7 @@ const PreciousItemList = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <h3 className="mb-0">
-                    Shop List
+                    preciousItem List
                 </h3>
 
 
@@ -259,7 +259,7 @@ const PreciousItemList = () => {
                     className="btn btn-primary"
                 >
 
-                    + Add Shop
+                    + Add preciousItem
 
                 </Link>
 
@@ -405,7 +405,13 @@ const PreciousItemList = () => {
                                 <th>
                                     Type
                                 </th>
+                                <th>
+                                    Description
+                                </th>
 
+                                <th>
+                                    Location
+                                </th>
                                 <th width="180">
                                     Action
                                 </th>
@@ -443,7 +449,7 @@ const PreciousItemList = () => {
                                             className="text-center"
                                         >
 
-                                            No Shop Found
+                                            No preciousItem Found
 
                                         </td>
 
@@ -482,21 +488,7 @@ const PreciousItemList = () => {
 
                                                 <td>
 
-                                                    <span
-                                                        className={`
-                                                            badge
-                                                            ${item.type === "INCOME"
-                                                                ? "bg-success"
-                                                                : item.type === "EXPENSE"
-                                                                    ? "bg-danger"
-                                                                    : item.type === "SAVING"
-                                                                        ? "bg-warning text-dark"
-                                                                        : item.type === "DEBT"
-                                                                            ? "bg-info"
-                                                                            : "bg-secondary"
-                                                            }
-                                                        `}
-                                                    >
+                                                    <span className={`badge${item.type === "GOLD" ? "bg-success" : "bg-secondary"}`}>
 
                                                         {
                                                             item.type
@@ -505,6 +497,23 @@ const PreciousItemList = () => {
                                                     </span>
 
                                                 </td>
+                                                <td>
+
+                                                    {
+                                                        item.description
+                                                    }
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    {
+                                                        item.location
+                                                    }
+
+                                                </td>
+
 
                                                 <td>
 
