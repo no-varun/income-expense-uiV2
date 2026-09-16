@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 import { getPreciousItems, deletePreciousItem } from "../../api/preciousItemApi";
-
 import Pagination from "../../components/common/Pagination";
+import { aesDecrypt } from "../../utils/helpers";
 
+let secretKey = "n63expe6oc4dahmi";
 const PreciousItemList = () => {
 
     const [preciousItem, setpreciousItem] = useState([]);
@@ -46,16 +46,27 @@ const PreciousItemList = () => {
                 })
 
             });
-
-
+            console.log("getPreciousItems list:",response)
             if (response.success) {
-
-                const rows =
-                    response.data?.rows ||
-                    response.data?.data ||
-                    response.data ||
-                    [];
-
+                let rows = [];
+                const rawData = response.data?.rows ?? response.data?.data ?? response.data;
+                if (Array.isArray(rawData)) {
+                    rows = rawData;
+                } else if (typeof rawData === "string") {
+                    try {
+                        const decrypted = aesDecrypt(secretKey, rawData);
+                        if (decrypted) {
+                            const parsed = JSON.parse(decrypted);
+                            rows = Array.isArray(parsed) ? parsed : [];
+                        } else {
+                            const parsed = JSON.parse(rawData);
+                            rows = Array.isArray(parsed) ? parsed : [];
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse preciousItem data:", e);
+                        rows = [];
+                    }
+                }
                 setpreciousItem(
                     Array.isArray(rows)
                         ? rows
@@ -429,7 +440,7 @@ const PreciousItemList = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="5"
+                                            colSpan="6"
                                             className="text-center"
                                         >
 
@@ -444,7 +455,7 @@ const PreciousItemList = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="5"
+                                            colSpan="6"
                                             className="text-center"
                                         >
 
@@ -487,7 +498,7 @@ const PreciousItemList = () => {
 
                                                 <td>
 
-                                                    <span className={`badge${item.type === "GOLD" ? "bg-success" : "bg-secondary"}`}>
+                                                    <span className={`badge ${item.type === "GOLD" ? "bg-success" : "bg-secondary"}`}>
 
                                                         {
                                                             item.type
