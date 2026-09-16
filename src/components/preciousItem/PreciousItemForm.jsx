@@ -5,7 +5,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
     const navigate = useNavigate();
     const [form, setForm] = useState({
         name: "",
-        type: "OFFLINE",
+        type: "GOLD",
         description: "",
         location:""
     });
@@ -19,7 +19,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
         if (Object.keys(initialValues).length > 0) {
             setForm({
                 name: initialValues.name || "",
-                type: initialValues.type || "OFFLINE",
+                type: initialValues.type || "GOLD",
                 description: initialValues.description || "",
                 location: initialValues.location || ""
             });

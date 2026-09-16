@@ -250,7 +250,7 @@ const PreciousItemList = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
 
                 <h3 className="mb-0">
-                    preciousItem List
+                    PreciousItem List
                 </h3>
 
 
@@ -259,7 +259,7 @@ const PreciousItemList = () => {
                     className="btn btn-primary"
                 >
 
-                    + Add preciousItem
+                    + Add PreciousItem
 
                 </Link>
 
@@ -303,10 +303,9 @@ const PreciousItemList = () => {
 
                                 </option>
 
-                                <option value="ONLINE">On line</option>
+                                <option value="GOLD">GOLD</option>
 
-                                <option value="OFFLINE">Off Line</option>
-
+                                <option value="SILVER">SILVER</option>
 
                             </select>
 
