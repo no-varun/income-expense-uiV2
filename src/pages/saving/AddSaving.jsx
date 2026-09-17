@@ -29,29 +29,8 @@ const AddSaving = () => {
         try {
 
             setLoading(true);
-
-            console.log(
-                "Create Saving Payload:",
-                formData
-            );
-
-
-            const response =
-                await createSaving(
-                    formData
-                );
-
-
-            console.log(
-                "Create Saving Response:",
-                response
-            );
-
-
-            if (
-                response?.success
-            ) {
-
+            const response = await createSaving(formData);
+            if (response?.success) {
                 alert(
                     response.message ||
                     "Saving created successfully."
@@ -75,10 +54,10 @@ const AddSaving = () => {
 
         } catch (error) {
 
-            console.error(
-                "Create Saving Error:",
-                error
-            );
+            // console.error(
+                // "Create Saving Error:",
+                // error
+            // );
 
 
             alert(

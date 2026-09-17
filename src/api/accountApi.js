@@ -94,32 +94,9 @@ export const getAccount = async (id) => {
 */
 
 export const createAccount = async (data) => {
-
-    const response = await axios.post(
-        "/accounts",
-        data
-    );
-
-    console.log(
-        "CREATE ACCOUNT RAW RESPONSE:",
-        response
-    );
-
-
-    const result =
-        normalizeResponse(
-            response
-        );
-
-
-    console.log(
-        "CREATE ACCOUNT NORMALIZED RESPONSE:",
-        result
-    );
-
-
+    const response = await axios.post("/accounts", data);
+    const result = normalizeResponse(response);
     return result;
-
 };
 
 

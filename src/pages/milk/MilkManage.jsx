@@ -206,8 +206,6 @@ const MilkManage = () => {
                 }
 
 
-                console.log("GET MILK PARAMS:", params
-                );
 
 
                 const response =
@@ -216,10 +214,6 @@ const MilkManage = () => {
                     );
 
 
-                console.log(
-                    "GET MILK RESPONSE:",
-                    response
-                );
 
 
                 if (
@@ -387,10 +381,10 @@ const MilkManage = () => {
             error
             ) {
 
-                console.error(
-                    "GET MILK ERROR:",
-                    error
-                );
+                // console.error(
+                    // "GET MILK ERROR:",
+                    // error
+                // );
 
 
                 setRows([]);
@@ -597,10 +591,10 @@ const MilkManage = () => {
             error
             ) {
 
-                console.error(
-                    "DELETE MILK ERROR:",
-                    error
-                );
+                // console.error(
+                    // "DELETE MILK ERROR:",
+                    // error
+                // );
 
 
                 alert(

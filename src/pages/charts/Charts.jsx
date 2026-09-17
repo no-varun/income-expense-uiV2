@@ -60,10 +60,6 @@ const Charts = () => {
     };
 
     const chartType = getChartType();
-
-    console.log("CHART TYPE:", chartType);
-    console.log("CHART DATA:", data);
-
     const loadChart = useCallback(async () => {
         try {
             setLoading(true);
@@ -83,41 +79,25 @@ const Charts = () => {
             let response;
 
             if (chartType === "titleType") {
-                console.log("CALLING TITLE TYPE API:", year, month, sortBy, order);
                 response = await getTitleTypeChart(year, month, sortBy, order);
             } else if (chartType === "daily") {
-                console.log("CALLING DAILY API:", month, year);
                 response = await getDailyChart(month, year);
             } else if (chartType === "monthly") {
-                console.log("CALLING MONTHLY API:", year);
                 response = await getMonthlyChart(year);
             } else if (chartType === "weekly") {
-                console.log("CALLING WEEKLY API");
                 response = await getWeeklyChart();
             } else if (chartType === "yearly") {
-                console.log("CALLING YEARLY API");
                 response = await getYearlyChart();
             } else if (chartType === "weekWise") {
-                console.log("CALLING WEEK WISE API:", month, year);
                 response = await getWeekWiseExpenseChart(month, year);
             } else if (chartType === "category") {
-                console.log("CALLING CATEGORY API:", year, month);
                 response = await getCategoryChart(year, month);
             } else if (chartType === "paymentMode") {
-                console.log("CALLING PAYMENT MODE API:", year, month);
                 response = await getPaymentModeChart(year, month);
             } else if (chartType === "dashboard") {
-                console.log("CALLING DASHBOARD API:", year);
                 response = await getDashboardChart(year);
             }
-
-            console.log("Chart Type:", chartType);
-            console.log("Chart Response:", response);
-
             const apiResponse = response?.data ?? response;
-
-            console.log("API Response:", apiResponse);
-
             if (apiResponse?.success === false) {
                 setError(
                     apiResponse?.message ||
@@ -151,16 +131,9 @@ const Charts = () => {
                     dashboardData = dashboardData.data;
                 }
 
-                if (
-                    !dashboardData ||
-                    typeof dashboardData !== "object" ||
-                    Array.isArray(dashboardData)
-                ) {
+                if (!dashboardData || typeof dashboardData !== "object" || Array.isArray(dashboardData)) {
                     dashboardData = {};
                 }
-
-                console.log("DASHBOARD DATA:", dashboardData);
-
                 setData(dashboardData);
                 return;
             }
@@ -223,20 +196,12 @@ const Charts = () => {
                     paymentModeData &&
                     typeof paymentModeData === "object"
                 ) {
-                    console.log(
-                        "PAYMENT MODE DATA:",
-                        paymentModeData
-                    );
 
                     setData(paymentModeData);
                     return;
                 }
 
                 if (Array.isArray(paymentModeData)) {
-                    console.log(
-                        "PAYMENT MODE ARRAY DATA:",
-                        paymentModeData
-                    );
 
                     setData(paymentModeData);
                     return;
@@ -288,10 +253,10 @@ const Charts = () => {
 
             setData([]);
         } catch (error) {
-            console.error(
-                "Chart Load Error:",
-                error
-            );
+            // console.error(
+            // "Chart Load Error:",
+            // error
+            // );
 
             setError(
                 error?.response?.data?.message ||
@@ -430,83 +395,83 @@ const Charts = () => {
         return null;
     };
 
-return (
-    <div className="container-fluid px-3 px-md-4 py-3" style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
-        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-            <div>
-                <h3 className="mb-1">{getTitle()}</h3>
-                <div className="text-muted">View and analyse your financial data.</div>
-            </div>
-
-            <div className="d-flex align-items-end gap-3 flex-nowrap">
-                {(chartType === "daily" || chartType === "weekWise" || chartType === "titleType") && (
-                    <div style={{ width: 180 }}>
-                        <label className="form-label mb-1">Month</label>
-                        <select className="form-select" value={month} onChange={e => setMonth(Number(e.target.value))}>
-                            <option value={1}>January</option>
-                            <option value={2}>February</option>
-                            <option value={3}>March</option>
-                            <option value={4}>April</option>
-                            <option value={5}>May</option>
-                            <option value={6}>June</option>
-                            <option value={7}>July</option>
-                            <option value={8}>August</option>
-                            <option value={9}>September</option>
-                            <option value={10}>October</option>
-                            <option value={11}>November</option>
-                            <option value={12}>December</option>
-                        </select>
-                    </div>
-                )}
-
-                <div style={{ width: 130 }}>
-                    <label className="form-label mb-1">Year</label>
-                    <select className="form-select" value={year} onChange={e => setYear(Number(e.target.value))}>
-                        {Array.from({ length: 7 }, (_, index) => {
-                            const itemYear = new Date().getFullYear() - index;
-
-                            return (
-                                <option key={itemYear} value={itemYear}>
-                                    {itemYear}
-                                </option>
-                            );
-                        })}
-                    </select>
+    return (
+        <div className="container-fluid px-3 px-md-4 py-3" style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}>
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h3 className="mb-1">{getTitle()}</h3>
+                    <div className="text-muted">View and analyse your financial data.</div>
                 </div>
 
-                {chartType === "titleType" && (
-                    <>
-                        <div style={{ width: 140 }}>
-                            <label className="form-label mb-1">Sort by</label>
-                            <select
-                                className="form-select"
-                                value={sortBy}
-                                onChange={e => setSortBy(e.target.value)}
-                            >
-                                <option value="item">Item</option>
-                                <option value="amount">Amount</option>
+                <div className="d-flex align-items-end gap-3 flex-nowrap">
+                    {(chartType === "daily" || chartType === "weekWise" || chartType === "titleType") && (
+                        <div style={{ width: 180 }}>
+                            <label className="form-label mb-1">Month</label>
+                            <select className="form-select" value={month} onChange={e => setMonth(Number(e.target.value))}>
+                                <option value={1}>January</option>
+                                <option value={2}>February</option>
+                                <option value={3}>March</option>
+                                <option value={4}>April</option>
+                                <option value={5}>May</option>
+                                <option value={6}>June</option>
+                                <option value={7}>July</option>
+                                <option value={8}>August</option>
+                                <option value={9}>September</option>
+                                <option value={10}>October</option>
+                                <option value={11}>November</option>
+                                <option value={12}>December</option>
                             </select>
                         </div>
+                    )}
 
-                        <div style={{ width: 150 }}>
-                            <label className="form-label mb-1">Order</label>
-                            <select
-                                className="form-select"
-                                value={order}
-                                onChange={e => setOrder(e.target.value)}
-                            >
-                                <option value="asc">Ascending</option>
-                                <option value="desc">Descending</option>
-                            </select>
-                        </div>
-                    </>
-                )}
+                    <div style={{ width: 130 }}>
+                        <label className="form-label mb-1">Year</label>
+                        <select className="form-select" value={year} onChange={e => setYear(Number(e.target.value))}>
+                            {Array.from({ length: 7 }, (_, index) => {
+                                const itemYear = new Date().getFullYear() - index;
+
+                                return (
+                                    <option key={itemYear} value={itemYear}>
+                                        {itemYear}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+
+                    {chartType === "titleType" && (
+                        <>
+                            <div style={{ width: 140 }}>
+                                <label className="form-label mb-1">Sort by</label>
+                                <select
+                                    className="form-select"
+                                    value={sortBy}
+                                    onChange={e => setSortBy(e.target.value)}
+                                >
+                                    <option value="item">Item</option>
+                                    <option value="amount">Amount</option>
+                                </select>
+                            </div>
+
+                            <div style={{ width: 150 }}>
+                                <label className="form-label mb-1">Order</label>
+                                <select
+                                    className="form-select"
+                                    value={order}
+                                    onChange={e => setOrder(e.target.value)}
+                                >
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
 
-        {renderChart()}
-    </div>
-);
+            {renderChart()}
+        </div>
+    );
 };
 
 export default Charts;

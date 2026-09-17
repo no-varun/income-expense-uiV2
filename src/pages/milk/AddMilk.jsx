@@ -16,7 +16,7 @@ const AddMilk = () => {
             }
             alert(response?.message || "Unable to create milk record.");
         } catch (error) {
-            console.error("CREATE MILK ERROR:", error);
+            // console.error("CREATE MILK ERROR:", error);
             alert(error?.response?.data?.message || error?.message || "Unable to create milk record.");
         } finally {
             setLoading(false);

@@ -194,12 +194,6 @@ const InvestmentList = () => {
                 await getAccounts();
 
 
-            console.log(
-                "Account API Response:",
-                response
-            );
-
-
             if (
                 response?.success === true
             ) {
@@ -229,19 +223,19 @@ const InvestmentList = () => {
 
                 setAccounts([]);
 
-                console.error(
-                    response?.message ||
-                    "Unable to load accounts."
-                );
+                // console.error(
+                    // response?.message ||
+                    // "Unable to load accounts."
+                // );
 
             }
 
         } catch (error) {
 
-            console.error(
-                "Get Accounts Error:",
-                error
-            );
+            // console.error(
+                // "Get Accounts Error:",
+                // error
+            // );
 
             setAccounts([]);
 
@@ -293,17 +287,11 @@ const InvestmentList = () => {
                 params.dateTo = dateTo;
             }
 
-            console.log(
-                "Investment List Params:",
-                params
-            );
+
 
             const response = await getInvestments(params);
 
-            console.log(
-                "Investment List Response:",
-                response
-            );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -336,10 +324,7 @@ const InvestmentList = () => {
                     ? result.rows
                     : [];
 
-            console.log(
-                "Investment Rows:",
-                rows
-            );
+
 
             setInvestments(rows);
 
@@ -351,10 +336,10 @@ const InvestmentList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Investments Error:",
-                error
-            );
+            // console.error(
+                // "Get Investments Error:",
+                // error
+            // );
 
             setInvestments([]);
 
@@ -387,10 +372,6 @@ const InvestmentList = () => {
             const response =
                 await getInvestmentSummary();
 
-            console.log(
-                "Investment Summary Response:",
-                response
-            );
 
 
             /*
@@ -474,10 +455,10 @@ const InvestmentList = () => {
 
             if (!summaryData) {
 
-                console.error(
-                    "Invalid Investment Summary Response:",
-                    response
-                );
+                // console.error(
+                    // "Invalid Investment Summary Response:",
+                    // response
+                // );
 
                 setSummary({
 
@@ -538,10 +519,10 @@ const InvestmentList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Investment Summary Error:",
-                error
-            );
+            // console.error(
+                // "Get Investment Summary Error:",
+                // error
+            // );
 
 
             setSummary({
@@ -696,13 +677,6 @@ const InvestmentList = () => {
                     id
                 );
 
-
-            console.log(
-                "Delete Investment Response:",
-                response
-            );
-
-
             if (
                 response?.success === true
             ) {
@@ -746,10 +720,10 @@ const InvestmentList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Delete Investment Error:",
-                error
-            );
+            // console.error(
+                // "Delete Investment Error:",
+                // error
+            // );
 
 
             alert(

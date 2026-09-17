@@ -166,10 +166,10 @@ const IncomeForm = ({
 
             } catch (error) {
 
-                console.error(
-                    "Category fetch error:",
-                    error
-                );
+                // console.error(
+                    // "Category fetch error:",
+                    // error
+                // );
 
                 setCategories([]);
 
@@ -210,10 +210,6 @@ const IncomeForm = ({
                     });
 
 
-                console.log(
-                    "Accounts API Response:",
-                    response
-                );
 
 
                 const rows =
@@ -222,10 +218,7 @@ const IncomeForm = ({
                     );
 
 
-                console.log(
-                    "Accounts:",
-                    rows
-                );
+              
 
 
                 setAccounts(
@@ -234,12 +227,6 @@ const IncomeForm = ({
 
 
             } catch (error) {
-
-                console.error(
-                    "Account fetch error:",
-                    error
-                );
-
                 setAccounts([]);
 
             } finally {
@@ -313,10 +300,10 @@ const IncomeForm = ({
 
         } catch (error) {
 
-            console.error(
-                "Item fetch error:",
-                error
-            );
+            // console.error(
+                // "Item fetch error:",
+                // error
+            // );
 
             setItems([]);
 

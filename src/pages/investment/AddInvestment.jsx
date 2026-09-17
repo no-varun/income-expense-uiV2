@@ -148,11 +148,6 @@ const AddInvestment = () => {
             const response =
                 await getAccounts();
 
-            console.log(
-                "Account API Response:",
-                response
-            );
-
 
             /*
             |--------------------------------------------------------------------------
@@ -193,10 +188,6 @@ const AddInvestment = () => {
                         : [];
 
 
-            console.log(
-                "Account Rows:",
-                rows
-            );
 
 
             setAccounts(rows);
@@ -204,10 +195,10 @@ const AddInvestment = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Accounts Error:",
-                error
-            );
+            // console.error(
+                // "Get Accounts Error:",
+                // error
+            // );
 
             setAccounts([]);
 
@@ -659,14 +650,6 @@ const AddInvestment = () => {
                 form.maturityDate;
 
         }
-
-
-        console.log(
-            "Create Investment Payload:",
-            payload
-        );
-
-
         try {
 
             setSaving(true);
@@ -684,10 +667,7 @@ const AddInvestment = () => {
                 );
 
 
-            console.log(
-                "Create Investment Response:",
-                response
-            );
+         
 
 
             /*
@@ -760,10 +740,6 @@ const AddInvestment = () => {
                     "Investment created successfully.";
 
 
-                console.log(
-                    "Investment Created Successfully:",
-                    response
-                );
 
 
                 alert(message);
@@ -802,10 +778,10 @@ const AddInvestment = () => {
                 "Unable to create investment.";
 
 
-            console.error(
-                "Create Investment Failed:",
-                response
-            );
+            // console.error(
+                // "Create Investment Failed:",
+                // response
+            // );
 
 
             alert(errorMessage);
@@ -813,10 +789,10 @@ const AddInvestment = () => {
 
         } catch (error) {
 
-            console.error(
-                "Create Investment Error:",
-                error
-            );
+            // console.error(
+                // "Create Investment Error:",
+                // error
+            // );
 
 
             /*

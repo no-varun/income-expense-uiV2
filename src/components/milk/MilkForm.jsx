@@ -259,18 +259,7 @@ const MilkForm = ({
                 form.onLeave === true
 
         };
-
-
-        console.log(
-            "MILK PAYLOAD:",
-            payload
-        );
-
-
-        await onSubmit(
-            payload
-        );
-
+        await onSubmit(payload);
     };
 
 

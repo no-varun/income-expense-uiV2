@@ -35,10 +35,7 @@ const AddDebt = () => {
             setLoading(true);
 
 
-            console.log(
-                "Create Debt Payload:",
-                data
-            );
+
 
 
             const response =
@@ -47,10 +44,6 @@ const AddDebt = () => {
                 );
 
 
-            console.log(
-                "Create Debt Response:",
-                response
-            );
 
 
             if (
@@ -80,10 +73,10 @@ const AddDebt = () => {
 
         } catch (error) {
 
-            console.error(
-                "Create Debt Error:",
-                error
-            );
+            // console.error(
+            // "Create Debt Error:",
+            // error
+            // );
 
 
             alert(

@@ -56,7 +56,7 @@ const EditAccount = () => {
                     const decrypted = aesDecrypt(SECRET_KEY, account);
                     account = decrypted ? JSON.parse(decrypted) : JSON.parse(account);
                 } catch (e) {
-                    console.error("Failed to parse account data:", e);
+                    // console.error("Failed to parse account data:", e);
                 }
             }
 
@@ -88,10 +88,10 @@ const EditAccount = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Account Error:",
-                error
-            );
+            // console.error(
+                // "Get Account Error:",
+                // error
+            // );
 
             alert(
                 error.response?.data?.message ||
@@ -231,10 +231,10 @@ const EditAccount = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Account Error:",
-                error
-            );
+            // console.error(
+                // "Update Account Error:",
+                // error
+            // );
 
             alert(
                 error.response?.data?.message ||

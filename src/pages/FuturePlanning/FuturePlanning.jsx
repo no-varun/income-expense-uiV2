@@ -70,11 +70,7 @@ const FuturePlanning = () => {
                     limit
                 });
 
-            // console.log(
-            //     "Future Planning Response:",
-            //     response
-            // );
-
+       
             if (
                 response &&
                 response.success === true
@@ -153,10 +149,10 @@ const FuturePlanning = () => {
 
         } catch (err) {
 
-            console.error(
-                "Future Planning Error:",
-                err
-            );
+            // console.error(
+                // "Future Planning Error:",
+                // err
+            // );
 
             setRows([]);
 
@@ -235,14 +231,7 @@ const FuturePlanning = () => {
 
         try {
 
-            const response =
-                await deleteFuturePlanning(id);
-
-            // console.log(
-            //     "Delete Future Planning Response:",
-            //     response
-            // );
-
+            const response =await deleteFuturePlanning(id);
             if (
                 response &&
                 response.success === true
@@ -266,10 +255,10 @@ const FuturePlanning = () => {
 
         } catch (err) {
 
-            console.error(
-                "Delete Future Planning Error:",
-                err
-            );
+            // console.error(
+                // "Delete Future Planning Error:",
+                // err
+            // );
 
             alert(
                 err?.response?.data?.message ||

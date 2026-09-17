@@ -48,10 +48,10 @@ const AddIncome = () => {
 
         } catch (error) {
 
-            console.error(
-                "Create Income Error:",
-                error
-            );
+            // console.error(
+                // "Create Income Error:",
+                // error
+            // );
 
 
             alert(

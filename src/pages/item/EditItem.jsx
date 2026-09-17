@@ -28,7 +28,7 @@ const EditItem = () => {
                         const decrypted = aesDecrypt(SECRET_KEY, itemData);
                         itemData = decrypted ? JSON.parse(decrypted) : JSON.parse(itemData);
                     } catch (e) {
-                        console.error("Failed to parse item data:", e);
+                        // console.error("Failed to parse item data:", e);
                     }
                 }
                 setInitialValues(itemData && typeof itemData === "object" ? itemData : {});

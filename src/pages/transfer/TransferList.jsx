@@ -95,10 +95,10 @@ const TransferList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Active Accounts Error:",
-                error
-            );
+            // console.error(
+                // "Get Active Accounts Error:",
+                // error
+            // );
 
             setAccounts([]);
 
@@ -198,10 +198,10 @@ const TransferList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Transfers Error:",
-                error
-            );
+            // console.error(
+                // "Get Transfers Error:",
+                // error
+            // );
 
             alert(
                 error.response?.data?.message ||
@@ -397,10 +397,10 @@ const TransferList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Delete Transfer Error:",
-                error
-            );
+            // console.error(
+                // "Delete Transfer Error:",
+                // error
+            // );
 
             alert(
                 error.response?.data?.message ||

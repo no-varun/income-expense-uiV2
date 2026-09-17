@@ -84,21 +84,7 @@ const Dashboard = () => {
                 getRecentTransactions()
 
             ]);
-
-
-            console.log(
-                "Dashboard Summary Response:",
-                summaryResponse
-            );
-
-
-            console.log(
-                "Recent Transactions Response:",
-                transactionResponse
-            );
-
-
-            /*
+           /*
             |--------------------------------------------------------------------------
             | PARSE SUMMARY
             |--------------------------------------------------------------------------
@@ -145,13 +131,6 @@ const Dashboard = () => {
                 }
 
             }
-
-
-            console.log(
-                "Dashboard Parsed Summary:",
-                summaryData
-            );
-
 
             setSummary(
                 summaryData
@@ -208,10 +187,10 @@ const Dashboard = () => {
 
         } catch (err) {
 
-            console.error(
-                "Dashboard Load Error:",
-                err
-            );
+            // console.error(
+                // "Dashboard Load Error:",
+                // err
+            // );
 
 
             setError(

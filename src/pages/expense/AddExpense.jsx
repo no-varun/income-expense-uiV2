@@ -20,23 +20,7 @@ const AddExpense = () => {
 
     const handleSubmit = async (payload) => {
 
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "ADD EXPENSE: SUBMIT START"
-        );
-
-        console.log(
-            "ADD EXPENSE: PAYLOAD",
-            payload
-        );
-
-        console.log(
-            "========================================"
-        );
-
+      
 
         try {
 
@@ -50,31 +34,6 @@ const AddExpense = () => {
             */
 
             const response =await createExpense(payload);
-
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "ADD EXPENSE: API RESPONSE",
-                response
-            );
-
-            console.log(
-                "ADD EXPENSE: SUCCESS VALUE",
-                response?.success
-            );
-
-            console.log(
-                "ADD EXPENSE: MESSAGE",
-                response?.message
-            );
-
-            console.log(
-                "========================================"
-            );
-
-
             /*
             |--------------------------------------------------------------------------
             | SUCCESS
@@ -85,10 +44,7 @@ const AddExpense = () => {
                 response?.success === true
             ) {
 
-                console.log(
-                    "ADD EXPENSE: SUCCESS"
-                );
-
+              
 
                 /*
                 |--------------------------------------------------------------------------
@@ -127,10 +83,10 @@ const AddExpense = () => {
             |--------------------------------------------------------------------------
             */
 
-            console.error(
-                "ADD EXPENSE: API RETURNED FAILURE",
-                response
-            );
+            // console.error(
+                // "ADD EXPENSE: API RETURNED FAILURE",
+                // response
+            // );
 
 
             alert(
@@ -141,23 +97,23 @@ const AddExpense = () => {
 
         } catch (error) {
 
-            console.error(
-                "========================================"
-            );
+            // console.error(
+                // "========================================"
+            // );
 
-            console.error(
-                "ADD EXPENSE: EXCEPTION",
-                error
-            );
+            // console.error(
+                // "ADD EXPENSE: EXCEPTION",
+                // error
+            // );
 
-            console.error(
-                "ADD EXPENSE: ERROR RESPONSE",
-                error?.response?.data
-            );
+            // console.error(
+                // "ADD EXPENSE: ERROR RESPONSE",
+                // error?.response?.data
+            // );
 
-            console.error(
-                "========================================"
-            );
+            // console.error(
+                // "========================================"
+            // );
 
 
             const errorResponse =

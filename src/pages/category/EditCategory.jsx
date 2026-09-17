@@ -33,7 +33,7 @@ const EditCategory = () => {
                         const decrypted = aesDecrypt(SECRET_KEY, catData);
                         catData = decrypted ? JSON.parse(decrypted) : JSON.parse(catData);
                     } catch (e) {
-                        console.error("Failed to parse category data:", e);
+                        // console.error("Failed to parse category data:", e);
                     }
                 }
                 setInitialValues(catData && typeof catData === "object" ? catData : {});

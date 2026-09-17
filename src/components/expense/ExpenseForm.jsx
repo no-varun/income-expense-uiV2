@@ -195,23 +195,12 @@ const ExpenseForm = ({
                         });
 
 
-                    console.log(
-                        "CATEGORY RESPONSE:",
-                        response
-                    );
-
 
                     setCategories(
                         getRows(response)
                     );
 
                 } catch (error) {
-
-                    console.error(
-                        "CATEGORY ERROR:",
-                        error
-                    );
-
                     setCategories([]);
 
                 } finally {
@@ -258,10 +247,7 @@ const ExpenseForm = ({
                         });
 
 
-                    console.log(
-                        "SHOP RESPONSE:",
-                        response
-                    );
+                 
 
 
                     setShops(
@@ -270,10 +256,6 @@ const ExpenseForm = ({
 
                 } catch (error) {
 
-                    console.error(
-                        "SHOP ERROR:",
-                        error
-                    );
 
                     setShops([]);
 
@@ -321,20 +303,12 @@ const ExpenseForm = ({
                         });
 
 
-                    console.log(
-                        "ACCOUNT RESPONSE:",
-                        response
-                    );
+
 
 
                     const rows =
                         getRows(response);
 
-
-                    console.log(
-                        "ACCOUNT ROWS:",
-                        rows
-                    );
 
 
                     setAccounts(
@@ -343,10 +317,7 @@ const ExpenseForm = ({
 
                 } catch (error) {
 
-                    console.error(
-                        "ACCOUNT ERROR:",
-                        error
-                    );
+                  
 
                     setAccounts([]);
 
@@ -410,10 +381,7 @@ const ExpenseForm = ({
                     });
 
 
-                console.log(
-                    "ITEM RESPONSE:",
-                    response
-                );
+             
 
 
                 setItems(
@@ -422,11 +390,7 @@ const ExpenseForm = ({
 
             } catch (error) {
 
-                console.error(
-                    "ITEM ERROR:",
-                    error
-                );
-
+            
                 setItems([]);
 
             } finally {
@@ -668,27 +632,7 @@ const ExpenseForm = ({
         event.preventDefault();
 
 
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "EXPENSE FORM SUBMIT HIT"
-        );
-
-        console.log(
-            "FORM:",
-            form
-        );
-
-        console.log(
-            "ON SUBMIT:",
-            onSubmit
-        );
-
-        console.log(
-            "========================================"
-        );
+     
 
 
         /*
@@ -806,9 +750,7 @@ const ExpenseForm = ({
             "function"
         ) {
 
-            console.error(
-                "onSubmit is not a function"
-            );
+       
 
             alert(
                 "Unable to submit expense."
@@ -866,25 +808,6 @@ const ExpenseForm = ({
                 ).trim()
 
         };
-
-
-        console.log(
-            "========================================"
-        );
-
-        console.log(
-            "FINAL EXPENSE PAYLOAD:",
-            payload
-        );
-
-        console.log(
-            "CALLING PARENT onSubmit NOW"
-        );
-
-        console.log(
-            "========================================"
-        );
-
 
         /*
         |--------------------------------------------------------------------------

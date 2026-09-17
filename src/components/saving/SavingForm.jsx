@@ -50,10 +50,7 @@ const SavingForm = ({
                     limit: 100
                 });
 
-                console.log(
-                    "Saving Category Response:",
-                    response
-                );
+          
 
                 const payload =
                     response?.data || response;
@@ -82,12 +79,6 @@ const SavingForm = ({
                 setCategories(rows);
 
             } catch (error) {
-
-                console.error(
-                    "Saving Category Error:",
-                    error
-                );
-
                 setCategories([]);
 
             }
@@ -117,11 +108,6 @@ const SavingForm = ({
                     page: 1,
                     limit: 100
                 });
-
-                console.log(
-                    "Saving Account Response:",
-                    response
-                );
 
                 const payload =
                     response?.data || response;
@@ -167,20 +153,12 @@ const SavingForm = ({
 
                 }
 
-                console.log(
-                    "Saving Accounts:",
-                    rows
-                );
 
                 setAccounts(rows);
 
             } catch (error) {
 
-                console.error(
-                    "Saving Account Error:",
-                    error
-                );
-
+               
                 setAccounts([]);
 
             } finally {
@@ -222,10 +200,7 @@ const SavingForm = ({
                 category: categoryId
             });
 
-            console.log(
-                "Saving Item Response:",
-                response
-            );
+        
 
             const payload =
                 response?.data || response;
@@ -260,10 +235,7 @@ const SavingForm = ({
 
         } catch (error) {
 
-            console.error(
-                "Saving Item Error:",
-                error
-            );
+          
 
             setItems([]);
 
@@ -507,10 +479,6 @@ const SavingForm = ({
 
         };
 
-        console.log(
-            "Saving Payload:",
-            data
-        );
 
         onSubmit(data);
 

@@ -30,7 +30,7 @@ const EditShop = () => {
                         const decrypted = aesDecrypt(SECRET_KEY, shopData);
                         shopData = decrypted ? JSON.parse(decrypted) : JSON.parse(shopData);
                     } catch (e) {
-                        console.error("Failed to parse shop data:", e);
+                        // console.error("Failed to parse shop data:", e);
                     }
                 }
                 setInitialValues(shopData && typeof shopData === "object" ? shopData : {});

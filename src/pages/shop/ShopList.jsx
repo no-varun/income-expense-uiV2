@@ -77,7 +77,7 @@ const ShopList = () => {
 
         } catch (error) {
 
-            console.error(error);
+            // console.error(error);
 
             setShop([]);
             setTotal(0);

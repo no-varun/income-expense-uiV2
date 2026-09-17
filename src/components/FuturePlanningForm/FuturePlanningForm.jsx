@@ -79,11 +79,6 @@ const FuturePlanningForm = ({
                         id
                     );
 
-                console.log(
-                    "Future Planning Detail Response:",
-                    response
-                );
-
                 if (
                     response &&
                     response.success === true
@@ -143,10 +138,10 @@ const FuturePlanningForm = ({
 
             } catch (error) {
 
-                console.error(
-                    "Future Planning Detail Error:",
-                    error
-                );
+                // console.error(
+                    // "Future Planning Detail Error:",
+                    // error
+                // );
 
                 alert(
                     error?.response?.data?.message ||
@@ -301,10 +296,7 @@ const FuturePlanningForm = ({
         };
 
 
-        console.log(
-            "Future Planning Payload:",
-            payload
-        );
+     
 
 
         try {
@@ -332,11 +324,6 @@ const FuturePlanningForm = ({
 
             }
 
-
-            console.log(
-                "Future Planning Save Response:",
-                response
-            );
 
 
             /*
@@ -383,10 +370,10 @@ const FuturePlanningForm = ({
 
         } catch (error) {
 
-            console.error(
-                "Future Planning Save Error:",
-                error
-            );
+            // console.error(
+                // "Future Planning Save Error:",
+                // error
+            // );
 
 
             alert(

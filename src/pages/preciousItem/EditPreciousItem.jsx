@@ -41,7 +41,7 @@ const EditPreciousItem = () => {
                             itemData = JSON.parse(itemData);
                         }
                     } catch (e) {
-                        console.error("Failed to parse preciousItem data:", e);
+                        // console.error("Failed to parse preciousItem data:", e);
                     }
                 }
 

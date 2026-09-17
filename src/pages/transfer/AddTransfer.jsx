@@ -132,10 +132,7 @@ const AddTransfer = () => {
                 await getAccounts();
 
 
-            console.log(
-                "TRANSFER ACCOUNT RAW RESPONSE:",
-                rawResponse
-            );
+        
 
 
             const response =
@@ -144,11 +141,7 @@ const AddTransfer = () => {
                 );
 
 
-            console.log(
-                "TRANSFER ACCOUNT RESPONSE:",
-                response
-            );
-
+          
 
             if (
                 response?.success === true
@@ -208,10 +201,7 @@ const AddTransfer = () => {
                     );
 
 
-                console.log(
-                    "TRANSFER ACCOUNTS:",
-                    rows
-                );
+              
 
 
                 setAccounts(
@@ -234,10 +224,10 @@ const AddTransfer = () => {
 
         } catch (error) {
 
-            console.error(
-                "Load Accounts Error:",
-                error
-            );
+            // console.error(
+                // "Load Accounts Error:",
+                // error
+            // );
 
 
             setAccounts([]);
@@ -298,19 +288,6 @@ const AddTransfer = () => {
             setBalance(null);
 
 
-            console.log(
-                "================================"
-            );
-
-            console.log(
-                "LOADING ACCOUNT BALANCE"
-            );
-
-            console.log(
-                "ACCOUNT ID:",
-                accountId
-            );
-
 
             const rawResponse =
                 await getAccountBalance(
@@ -318,22 +295,12 @@ const AddTransfer = () => {
                 );
 
 
-            console.log(
-                "ACCOUNT BALANCE RAW RESPONSE:",
-                rawResponse
-            );
-
 
             const response =
                 normalizeResponse(
                     rawResponse
                 );
 
-
-            console.log(
-                "ACCOUNT BALANCE NORMALIZED:",
-                response
-            );
 
 
             /*
@@ -350,11 +317,7 @@ const AddTransfer = () => {
                     response.data;
 
 
-                console.log(
-                    "ACCOUNT BALANCE DATA:",
-                    data
-                );
-
+               
 
                 if (
                     data &&
@@ -396,9 +359,7 @@ const AddTransfer = () => {
                     });
 
 
-                    console.log(
-                        "BALANCE SET SUCCESSFULLY"
-                    );
+
 
 
                     return;
@@ -406,10 +367,10 @@ const AddTransfer = () => {
                 }
 
 
-                console.error(
-                    "Balance data missing:",
-                    response
-                );
+                // console.error(
+                    // "Balance data missing:",
+                    // response
+                // );
 
 
                 alert(
@@ -428,10 +389,10 @@ const AddTransfer = () => {
             |--------------------------------------------------------------------------
             */
 
-            console.error(
-                "Balance API returned failure:",
-                response
-            );
+            // console.error(
+                // "Balance API returned failure:",
+                // response
+            // );
 
 
             setBalance(null);
@@ -445,22 +406,22 @@ const AddTransfer = () => {
 
         } catch (error) {
 
-            console.error(
-                "GET ACCOUNT BALANCE ERROR:",
-                error
-            );
+            // console.error(
+                // "GET ACCOUNT BALANCE ERROR:",
+                // error
+            // );
 
 
-            console.error(
-                "ERROR RESPONSE:",
-                error?.response
-            );
+            // console.error(
+                // "ERROR RESPONSE:",
+                // error?.response
+            // );
 
 
-            console.error(
-                "ERROR DATA:",
-                error?.response?.data
-            );
+            // console.error(
+                // "ERROR DATA:",
+                // error?.response?.data
+            // );
 
 
             setBalance(null);
@@ -911,10 +872,6 @@ const AddTransfer = () => {
         };
 
 
-        console.log(
-            "CREATE TRANSFER PAYLOAD:",
-            payload
-        );
 
 
         const response =
@@ -922,11 +879,6 @@ const AddTransfer = () => {
                 payload
             );
 
-
-        console.log(
-            "CREATE TRANSFER RESPONSE:",
-            response
-        );
 
 
         /*
@@ -961,10 +913,10 @@ const AddTransfer = () => {
         |--------------------------------------------------------------------------
         */
 
-        console.error(
-            "TRANSFER API FAILURE:",
-            response
-        );
+        // console.error(
+            // "TRANSFER API FAILURE:",
+            // response
+        // );
 
 
         alert(
@@ -975,22 +927,22 @@ const AddTransfer = () => {
 
     } catch (error) {
 
-        console.error(
-            "CREATE TRANSFER ERROR:",
-            error
-        );
+        // console.error(
+            // "CREATE TRANSFER ERROR:",
+            // error
+        // );
 
 
-        console.error(
-            "ERROR RESPONSE:",
-            error?.response
-        );
+        // console.error(
+            // "ERROR RESPONSE:",
+            // error?.response
+        // );
 
 
-        console.error(
-            "ERROR DATA:",
-            error?.response?.data
-        );
+        // console.error(
+            // "ERROR DATA:",
+            // error?.response?.data
+        // );
 
 
         alert(

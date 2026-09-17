@@ -89,13 +89,8 @@ export const getAccounts = async (
         {
             params
         }
-    );
+    )
 
-
-    console.log(
-        "GET ACCOUNTS API:",
-        response
-    );
 
 
     return normalizeResponse(
@@ -162,11 +157,6 @@ export const getAccountBalance = async (
     );
 
 
-    console.log(
-        "GET ACCOUNT BALANCE API:",
-        response
-    );
-
 
     return normalizeResponse(
         response
@@ -185,11 +175,7 @@ export const createTransfer = async (
     data
 ) => {
 
-    console.log(
-        "CREATE TRANSFER API PAYLOAD:",
-        data
-    );
-
+    
 
     const response = await axios.post(
         "/transfers",
@@ -197,10 +183,7 @@ export const createTransfer = async (
     );
 
 
-    console.log(
-        "CREATE TRANSFER API RESPONSE:",
-        response
-    );
+
 
 
     return normalizeResponse(
@@ -227,11 +210,6 @@ export const getTransfers = async (
         }
     );
 
-
-    console.log(
-        "GET TRANSFERS API RESPONSE:",
-        response
-    );
 
 
     return normalizeResponse(
@@ -264,11 +242,6 @@ export const getTransfer = async (
         `/transfers/${id}`
     );
 
-
-    console.log(
-        "GET TRANSFER API RESPONSE:",
-        response
-    );
 
 
     return normalizeResponse(
@@ -304,10 +277,7 @@ export const updateTransfer = async (
     );
 
 
-    console.log(
-        "UPDATE TRANSFER API RESPONSE:",
-        response
-    );
+
 
 
     return normalizeResponse(
@@ -334,21 +304,6 @@ export const deleteTransfer = async (
         );
 
     }
-
-
-    const response = await axios.delete(
-        `/transfers/${id}`
-    );
-
-
-    console.log(
-        "DELETE TRANSFER API RESPONSE:",
-        response
-    );
-
-
-    return normalizeResponse(
-        response
-    );
-
+    const response = await axios.delete(`/transfers/${id}`);
+    return normalizeResponse(response);
 };

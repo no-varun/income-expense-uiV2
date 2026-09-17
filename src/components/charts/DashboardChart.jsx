@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 
 const DashboardChart = ({ data }) => {
-    console.log("DASHBOARD DATA:", data);
 
     const dashboardData = useMemo(() => {
         if (!data || typeof data !== "object" || Array.isArray(data)) {

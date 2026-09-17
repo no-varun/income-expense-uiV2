@@ -59,10 +59,10 @@ const ItemList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Category fetch error:",
-                error
-            );
+            // console.error(
+                // "Category fetch error:",
+                // error
+            // );
 
         }
 
@@ -156,7 +156,7 @@ const ItemList = () => {
 
         } catch (error) {
 
-            console.error(error);
+            // console.error(error);
 
             alert(
                 error.response?.data?.message ||

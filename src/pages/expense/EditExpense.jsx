@@ -62,10 +62,6 @@ const EditExpense = () => {
                 );
 
 
-            console.log(
-                "Get Expense Response:",
-                response
-            );
 
 
             let payload =
@@ -131,10 +127,7 @@ const EditExpense = () => {
             }
 
 
-            console.log(
-                "Expense Data:",
-                expenseData
-            );
+
 
 
             if (
@@ -155,10 +148,10 @@ const EditExpense = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Expense Error:",
-                error
-            );
+            // console.error(
+                // "Get Expense Error:",
+                // error
+            // );
 
 
             setError(
@@ -221,10 +214,7 @@ const EditExpense = () => {
             setSaving(true);
 
 
-            console.log(
-                "Update Expense Payload:",
-                formData
-            );
+
 
 
             const response =
@@ -234,10 +224,6 @@ const EditExpense = () => {
                 );
 
 
-            console.log(
-                "Update Expense Response:",
-                response
-            );
 
 
             if (
@@ -270,10 +256,10 @@ const EditExpense = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Expense Error:",
-                error
-            );
+            // console.error(
+                // "Update Expense Error:",
+                // error
+            // );
 
 
             alert(

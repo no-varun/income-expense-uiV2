@@ -80,7 +80,7 @@ const CategoryList = () => {
 
         } catch (error) {
 
-            console.error(error);
+            // console.error(error);
 
             setCategories([]);
             setTotal(0);

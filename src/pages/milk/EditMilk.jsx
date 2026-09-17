@@ -110,10 +110,10 @@ const EditMilk = () => {
 
                 } catch (error) {
 
-                    console.error(
-                        "GET MILK ERROR:",
-                        error
-                    );
+                    // console.error(
+                        // "GET MILK ERROR:",
+                        // error
+                    // );
 
 
                     alert(
@@ -231,10 +231,10 @@ const EditMilk = () => {
 
         } catch (error) {
 
-            console.error(
-                "UPDATE MILK ERROR:",
-                error
-            );
+            // console.error(
+                // "UPDATE MILK ERROR:",
+                // error
+            // );
 
 
             alert(

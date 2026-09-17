@@ -65,14 +65,6 @@ const EditIncome = () => {
                 await getIncomeById(
                     id
                 );
-
-
-            console.log(
-                "Edit Income API Response:",
-                response
-            );
-
-
             /*
             |--------------------------------------------------------------------------
             | HANDLE DIFFERENT API RESPONSE FORMATS
@@ -133,10 +125,6 @@ const EditIncome = () => {
             }
 
 
-            console.log(
-                "Edit Income Payload:",
-                payload
-            );
 
 
             /*
@@ -225,11 +213,6 @@ const EditIncome = () => {
             }
 
 
-            console.log(
-                "Edit Income Data:",
-                incomeData
-            );
-
 
             /*
             |--------------------------------------------------------------------------
@@ -255,16 +238,16 @@ const EditIncome = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Income Error:",
-                error
-            );
+            // console.error(
+                // "Get Income Error:",
+                // error
+            // );
 
 
-            console.error(
-                "Get Income API Error:",
-                error?.response?.data
-            );
+            // console.error(
+                // "Get Income API Error:",
+                // error?.response?.data
+            // );
 
 
             setError(
@@ -327,11 +310,7 @@ const EditIncome = () => {
             setSaving(true);
 
 
-            console.log(
-                "Update Income Data:",
-                formData
-            );
-
+          
 
             const response =
                 await updateIncome(
@@ -343,10 +322,7 @@ const EditIncome = () => {
                 );
 
 
-            console.log(
-                "Update Income Response:",
-                response
-            );
+         
 
 
             /*
@@ -400,16 +376,16 @@ const EditIncome = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Income Error:",
-                error
-            );
+            // console.error(
+                // "Update Income Error:",
+                // error
+            // );
 
 
-            console.error(
-                "Update Income API Error:",
-                error?.response?.data
-            );
+            // console.error(
+                // "Update Income API Error:",
+                // error?.response?.data
+            // );
 
 
             alert(

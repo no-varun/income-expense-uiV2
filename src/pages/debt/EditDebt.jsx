@@ -59,31 +59,13 @@ const EditDebt = () => {
     */
 
     const loadDebt = async () => {
-
         try {
-
             setLoading(true);
-
             setError("");
+            const response =await getDebt(id);
 
 
-            console.log(
-                "Loading Debt ID:",
-                id
-            );
-
-
-            const response =
-                await getDebt(
-                    id
-                );
-
-
-            console.log(
-                "Debt API Response:",
-                response
-            );
-
+    
 
             let debtData = null;
 
@@ -137,11 +119,6 @@ const EditDebt = () => {
             }
 
 
-            console.log(
-                "Debt Data:",
-                debtData
-            );
-
 
             if (
                 debtData?._id
@@ -164,10 +141,10 @@ const EditDebt = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Debt Error:",
-                error
-            );
+            // console.error(
+                // "Get Debt Error:",
+                // error
+            // );
 
 
             setError(
@@ -219,25 +196,12 @@ const EditDebt = () => {
         try {
 
             setSaving(true);
-
-
-            console.log(
-                "Update Debt Payload:",
-                formData
-            );
-
-
             const response =
                 await updateDebt(
                     id,
                     formData
                 );
 
-
-            console.log(
-                "Update Debt Response:",
-                response
-            );
 
 
             if (
@@ -267,10 +231,10 @@ const EditDebt = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Debt Error:",
-                error
-            );
+            // console.error(
+                // "Update Debt Error:",
+                // error
+            // );
 
 
             alert(

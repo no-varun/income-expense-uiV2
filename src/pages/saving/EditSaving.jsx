@@ -42,23 +42,11 @@ const EditSaving = () => {
             setLoading(true);
 
             setError("");
-
-
-            console.log(
-                "Loading Saving ID:",
-                id
-            );
-
-
             const response =
                 await getSaving(id);
 
 
-            console.log(
-                "Saving API Response:",
-                response
-            );
-
+         
 
             /*
             |--------------------------------------------------------------------------
@@ -137,11 +125,6 @@ const EditSaving = () => {
             }
 
 
-            console.log(
-                "Saving Data:",
-                savingData
-            );
-
 
             if (
                 savingData?._id
@@ -164,10 +147,10 @@ const EditSaving = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Saving Error:",
-                error
-            );
+            // console.error(
+                // "Get Saving Error:",
+                // error
+            // );
 
 
             setError(
@@ -219,14 +202,6 @@ const EditSaving = () => {
         try {
 
             setSavingLoading(true);
-
-
-            console.log(
-                "Update Saving Payload:",
-                formData
-            );
-
-
             const response =
                 await updateSaving(
                     id,
@@ -234,17 +209,6 @@ const EditSaving = () => {
                 );
 
 
-            console.log(
-                "Update Saving Response:",
-                response
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SUPPORT BOTH RESPONSE FORMATS
-            |--------------------------------------------------------------------------
-            */
 
             const isSuccess =
                 response?.success === true ||
@@ -280,10 +244,10 @@ const EditSaving = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Saving Error:",
-                error
-            );
+            // console.error(
+                // "Update Saving Error:",
+                // error
+            // );
 
 
             alert(

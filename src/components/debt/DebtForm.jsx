@@ -228,10 +228,10 @@ const DebtForm = ({
 
                 } catch (error) {
 
-                    console.error(
-                        "Debt Category Error:",
-                        error
-                    );
+                    // console.error(
+                        // "Debt Category Error:",
+                        // error
+                    // );
 
                     setCategories([]);
 
@@ -270,13 +270,6 @@ const DebtForm = ({
 
                         });
 
-
-                    console.log(
-                        "Debt Account Response:",
-                        response
-                    );
-
-
                     if (
                         response?.success
                     ) {
@@ -299,10 +292,10 @@ const DebtForm = ({
 
                 } catch (error) {
 
-                    console.error(
-                        "Debt Account Error:",
-                        error
-                    );
+                    // console.error(
+                        // "Debt Account Error:",
+                        // error
+                    // );
 
                     setAccounts([]);
 
@@ -388,10 +381,10 @@ const DebtForm = ({
 
         } catch (error) {
 
-            console.error(
-                "Debt Item Error:",
-                error
-            );
+            // console.error(
+                // "Debt Item Error:",
+                // error
+            // );
 
             setItems([]);
 

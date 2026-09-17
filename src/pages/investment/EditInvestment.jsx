@@ -218,22 +218,11 @@ const EditInvestment = () => {
                 await getAccounts();
 
 
-            console.log(
-                "Get Accounts Response:",
-                rawResponse
-            );
-
-
             const response =
                 normalizeResponse(
                     rawResponse
                 );
 
-
-            console.log(
-                "Normalized Accounts Response:",
-                response
-            );
 
 
             if (
@@ -288,22 +277,22 @@ const EditInvestment = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Accounts Error:",
-                error
-            );
+            // console.error(
+                // "Get Accounts Error:",
+                // error
+            // );
 
 
-            console.error(
-                "Accounts Error Response:",
-                error?.response
-            );
+            // console.error(
+                // "Accounts Error Response:",
+                // error?.response
+            // );
 
 
-            console.error(
-                "Accounts Error Data:",
-                error?.response?.data
-            );
+            // console.error(
+                // "Accounts Error Data:",
+                // error?.response?.data
+            // );
 
 
             setAccounts([]);
@@ -343,23 +332,13 @@ const EditInvestment = () => {
                 );
 
 
-            console.log(
-                "Get Investment Response:",
-                rawResponse
-            );
-
-
             const response =
                 normalizeResponse(
                     rawResponse
                 );
 
 
-            console.log(
-                "Normalized Investment Response:",
-                response
-            );
-
+         
 
             if (
                 response?.success !== true
@@ -446,18 +425,7 @@ const EditInvestment = () => {
                     : investment.account;
 
 
-            console.log(
-                "Investment Account:",
-                investment.account
-            );
-
-
-            console.log(
-                "Investment Account ID:",
-                accountId
-            );
-
-
+         
             /*
             |--------------------------------------------------------------------------
             | SET FORM
@@ -507,22 +475,22 @@ const EditInvestment = () => {
 
         } catch (error) {
 
-            console.error(
-                "Get Investment Error:",
-                error
-            );
+            // console.error(
+                // "Get Investment Error:",
+                // error
+            // );
 
 
-            console.error(
-                "Investment Error Response:",
-                error?.response
-            );
+            // console.error(
+                // "Investment Error Response:",
+                // error?.response
+            // );
 
 
-            console.error(
-                "Investment Error Data:",
-                error?.response?.data
-            );
+            // console.error(
+                // "Investment Error Data:",
+                // error?.response?.data
+            // );
 
 
             alert(
@@ -948,11 +916,7 @@ const EditInvestment = () => {
             };
 
 
-            console.log(
-                "Update Investment Payload:",
-                payload
-            );
-
+    
 
             /*
             |--------------------------------------------------------------------------
@@ -967,11 +931,7 @@ const EditInvestment = () => {
                 );
 
 
-            console.log(
-                "Update Investment Raw Response:",
-                rawResponse
-            );
-
+           
 
             const response =
                 normalizeResponse(
@@ -979,10 +939,6 @@ const EditInvestment = () => {
                 );
 
 
-            console.log(
-                "Update Investment Response:",
-                response
-            );
 
 
             /*
@@ -1028,22 +984,22 @@ const EditInvestment = () => {
 
         } catch (error) {
 
-            console.error(
-                "Update Investment Error:",
-                error
-            );
+            // console.error(
+                // "Update Investment Error:",
+                // error
+            // );
 
 
-            console.error(
-                "Update Investment Error Response:",
-                error?.response
-            );
+            // console.error(
+                // "Update Investment Error Response:",
+                // error?.response
+            // );
 
 
-            console.error(
-                "Update Investment Error Data:",
-                error?.response?.data
-            );
+            // console.error(
+                // "Update Investment Error Data:",
+                // error?.response?.data
+            // );
 
 
             alert(

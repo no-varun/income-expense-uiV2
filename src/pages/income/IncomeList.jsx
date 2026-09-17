@@ -242,10 +242,10 @@ const IncomeList = () => {
                 }
             } catch (error) {
 
-                console.error(
-                    "Category load error:",
-                    error
-                );
+                // console.error(
+                    // "Category load error:",
+                    // error
+                // );
 
                 setCategories([]);
 
@@ -325,10 +325,10 @@ const IncomeList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Account load error:",
-                    error
-                );
+                // console.error(
+                    // "Account load error:",
+                    // error
+                // );
 
                 setAccounts([]);
 
@@ -354,11 +354,8 @@ const IncomeList = () => {
 
 
                 const response = await getIncomes({ page, limit, search, category, paymentMode, account, from: fromDate, to: toDate });
-
-                console.log("Income API Response:", response);
                 const result = response.data || {};
                 const incomeRows = Array.isArray(result.data) ? result?.data : [];
-                console.log("Income Rows:", incomeRows);
                 setIncomes(incomeRows);
                 setTotal(Number(result.total || 0));
                 if (result.totalAmount !== undefined) {
@@ -368,8 +365,8 @@ const IncomeList = () => {
                     setTotalAmount(calculatedAmount);
                 }
             } catch (error) {
-                console.error("Income load error:", error);
-                console.error("Income API Error:", error?.response?.data);
+                // console.error("Income load error:", error);
+                // console.error("Income API Error:", error?.response?.data);
                 setIncomes([]);
                 setTotal(0);
                 setTotalAmount(0);
@@ -522,10 +519,10 @@ const IncomeList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Delete Income Error:",
-                    error
-                );
+                // console.error(
+                    // "Delete Income Error:",
+                    // error
+                // );
 
 
                 alert(

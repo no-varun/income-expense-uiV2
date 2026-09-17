@@ -165,11 +165,6 @@ const DebtList = () => {
                 type: "DEBT"
             });
 
-            console.log(
-                "Debt Category Response:",
-                response
-            );
-
             if (response?.success) {
 
                 setCategories(
@@ -184,10 +179,7 @@ const DebtList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Debt Category Error:",
-                error
-            );
+         
 
             setCategories([]);
 
@@ -211,10 +203,7 @@ const DebtList = () => {
                 status: true
             });
 
-            console.log(
-                "Debt Account Response:",
-                response
-            );
+         
 
             if (response?.success) {
 
@@ -230,10 +219,7 @@ const DebtList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Debt Account Error:",
-                error
-            );
+           
 
             setAccounts([]);
 
@@ -272,16 +258,7 @@ const DebtList = () => {
                 delete params[key];
             }
         });
-
-        console.log("=================================");
-        console.log("DEBT REQUEST:", params);
-
         const response = await getDebts(params);
-
-        console.log("DEBT RAW RESPONSE:", response);
-        console.log("DEBT RESPONSE DATA:", response?.data);
-        console.log("DEBT RESPONSE DATA DATA:", response?.data?.data);
-
         /*
         |--------------------------------------------------------------------------
         | FIND ACTUAL API OBJECT
@@ -314,7 +291,6 @@ const DebtList = () => {
             apiData = apiData.data;
         }
 
-        console.log("DEBT API DATA:", apiData);
 
         /*
         |--------------------------------------------------------------------------
@@ -325,10 +301,6 @@ const DebtList = () => {
         if (
             apiData?.success === false
         ) {
-            console.error(
-                "Debt API returned failure:",
-                apiData
-            );
 
             setDebts([]);
             setTotal(0);
@@ -418,16 +390,6 @@ const DebtList = () => {
             rows = apiData;
         }
 
-        console.log(
-            "DEBT FINAL ROWS:",
-            rows
-        );
-
-        console.log(
-            "DEBT FINAL ROW COUNT:",
-            rows.length
-        );
-
         /*
         |--------------------------------------------------------------------------
         | SET DATA
@@ -461,23 +423,7 @@ const DebtList = () => {
         }
 
         setTotal(totalRecords);
-
-        console.log(
-            "DEBT TOTAL:",
-            totalRecords
-        );
-
     } catch (error) {
-
-        console.error(
-            "DEBT FETCH ERROR:",
-            error
-        );
-
-        console.error(
-            "DEBT ERROR RESPONSE:",
-            error?.response?.data
-        );
 
         setDebts([]);
 
@@ -659,10 +605,6 @@ const DebtList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Delete Debt Error:",
-                error
-            );
 
             alert(
                 error?.response?.data?.message ||

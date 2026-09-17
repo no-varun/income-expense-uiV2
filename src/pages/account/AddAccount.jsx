@@ -167,53 +167,7 @@ const AddAccount = () => {
 
             };
 
-
-            console.log(
-                "================================="
-            );
-
-            console.log(
-                "CREATE ACCOUNT PAYLOAD:",
-                payload
-            );
-
-
-            const response =
-                await createAccount(
-                    payload
-                );
-
-
-            console.log(
-                "CREATE ACCOUNT FINAL RESPONSE:",
-                response
-            );
-
-
-            console.log(
-                "SUCCESS VALUE:",
-                response?.success
-            );
-
-
-            console.log(
-                "MESSAGE VALUE:",
-                response?.message
-            );
-
-
-            console.log(
-                "DATA VALUE:",
-                response?.data
-            );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SUCCESS
-            |--------------------------------------------------------------------------
-            */
-
+            const response = await createAccount(payload);
             if (
                 response &&
                 response.success === true
@@ -256,26 +210,26 @@ const AddAccount = () => {
 
         } catch (error) {
 
-            console.error(
-                "================================="
-            );
+            // console.error(
+                // "================================="
+            // );
 
-            console.error(
-                "CREATE ACCOUNT ERROR:",
-                error
-            );
-
-
-            console.error(
-                "ERROR RESPONSE:",
-                error?.response
-            );
+            // console.error(
+                // "CREATE ACCOUNT ERROR:",
+                // error
+            // );
 
 
-            console.error(
-                "ERROR RESPONSE DATA:",
-                error?.response?.data
-            );
+            // console.error(
+                // "ERROR RESPONSE:",
+                // error?.response
+            // );
+
+
+            // console.error(
+                // "ERROR RESPONSE DATA:",
+                // error?.response?.data
+            // );
 
 
             const message =

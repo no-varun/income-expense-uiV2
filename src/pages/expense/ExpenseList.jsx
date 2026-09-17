@@ -193,7 +193,6 @@ const ExpenseList = () => {
         async () => {
             try {
                 const response = await getCategories({ limit: 100, type: "EXPENSE" });
-                console.log("Category Response:", response);
                 const payload = normalizeResponse(response);
                 let rows = [];
                 if (Array.isArray(payload)) {
@@ -205,7 +204,7 @@ const ExpenseList = () => {
                 }
                 setCategories(rows);
             } catch (error) {
-                console.error("Category Error:", error);
+                // console.error("Category Error:", error);
                 setCategories([]);
             }
         },
@@ -215,7 +214,6 @@ const ExpenseList = () => {
         async () => {
             try {
                 const response = await getShops({ limit: 100, status: true });
-                console.log("Shop Response:", response);
                 const payload = normalizeResponse(response);
 
                 let rows = [];
@@ -228,7 +226,7 @@ const ExpenseList = () => {
                 }
                 setShops(rows);
             } catch (error) {
-                console.error("Shop Error:", error);
+                // console.error("Shop Error:", error);
                 setShops([]);
             }
 
@@ -253,13 +251,6 @@ const ExpenseList = () => {
                         limit: 100,
                         status: true
                     });
-
-
-                console.log(
-                    "Account Response:",
-                    response
-                );
-
 
                 const payload =
                     normalizeResponse(
@@ -336,23 +327,16 @@ const ExpenseList = () => {
 
                 }
 
-
-                console.log(
-                    "Account Rows:",
-                    rows
-                );
-
-
                 setAccounts(
                     rows
                 );
 
             } catch (error) {
 
-                console.error(
-                    "Account Error:",
-                    error
-                );
+                // console.error(
+                    // "Account Error:",
+                    // error
+                // );
 
                 setAccounts([]);
 
@@ -402,17 +386,7 @@ const ExpenseList = () => {
                 };
 
 
-                console.log(
-                    "================================"
-                );
-
-                console.log(
-                    "EXPENSE REQUEST"
-                );
-
-                console.log(
-                    params
-                );
+           
 
 
                 const response =
@@ -421,17 +395,7 @@ const ExpenseList = () => {
                     );
 
 
-                console.log(
-                    "================================"
-                );
-
-                console.log(
-                    "EXPENSE API RESPONSE"
-                );
-
-                console.log(
-                    response
-                );
+      
 
 
                 /*
@@ -604,28 +568,6 @@ const ExpenseList = () => {
                 |--------------------------------------------------------------------------
                 */
 
-                console.log(
-                    "EXPENSE ROWS:",
-                    rows
-                );
-
-
-                console.log(
-                    "EXPENSE ROW COUNT:",
-                    rows.length
-                );
-
-
-                console.log(
-                    "TOTAL RECORDS:",
-                    totalRecords
-                );
-
-
-                console.log(
-                    "TOTAL PAGES:",
-                    pages
-                );
 
 
                 /*
@@ -682,25 +624,25 @@ const ExpenseList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "================================"
-                );
+                // console.error(
+                    // "================================"
+                // );
 
 
-                console.error(
-                    "EXPENSE FETCH ERROR"
-                );
+                // console.error(
+                    // "EXPENSE FETCH ERROR"
+                // );
 
 
-                console.error(
-                    error
-                );
+                // console.error(
+                    // error
+                // );
 
 
-                console.error(
-                    "ERROR RESPONSE:",
-                    error?.response?.data
-                );
+                // console.error(
+                    // "ERROR RESPONSE:",
+                    // error?.response?.data
+                // );
 
 
                 setExpenses([]);
@@ -944,10 +886,10 @@ const ExpenseList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Delete Expense Error:",
-                error
-            );
+            // console.error(
+                // "Delete Expense Error:",
+                // error
+            // );
 
 
             alert(
@@ -1054,10 +996,10 @@ const ExpenseList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Import Error:",
-                error
-            );
+            // console.error(
+                // "Import Error:",
+                // error
+            // );
 
 
             alert(
@@ -1154,10 +1096,10 @@ const ExpenseList = () => {
 
         } catch (error) {
 
-            console.error(
-                "Export Error:",
-                error
-            );
+            // console.error(
+                // "Export Error:",
+                // error
+            // );
 
 
             alert(

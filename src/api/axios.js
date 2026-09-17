@@ -86,22 +86,22 @@ axiosInstance.interceptors.response.use(
                     break;
 
                 case 403:
-                    console.error("Forbidden");
+                    // console.error("Forbidden");
                     break;
 
                 case 404:
-                    console.error("API Not Found");
+                    // console.error("API Not Found");
                     break;
 
                 case 500:
-                    console.error("Internal Server Error");
+                    // console.error("Internal Server Error");
                     break;
 
                 default:
-                    console.error(error.response.data?.message || "Something went wrong");
+                    // console.error(error.response.data?.message || "Something went wrong");
             }
         } else {
-            console.error("Network Error");
+            // console.error("Network Error");
         }
 
         return Promise.reject(error);

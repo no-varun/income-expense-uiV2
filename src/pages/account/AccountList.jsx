@@ -27,7 +27,7 @@ const AccountList = () => {
                 setTotal(0);
             }
         } catch (error) {
-            console.error("Get Accounts Error:", error);
+            // console.error("Get Accounts Error:", error);
             alert(error.response?.data?.message || "Unable to load accounts.");
         } finally {
             setLoading(false);
@@ -57,7 +57,7 @@ const AccountList = () => {
                 alert(response.message || "Unable to delete account.");
             }
         } catch (error) {
-            console.error("Delete Account Error:", error);
+            // console.error("Delete Account Error:", error);
             alert(error.response?.data?.message || "Unable to delete account.");
         } finally {
             setDeleting(null);

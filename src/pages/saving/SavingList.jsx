@@ -140,14 +140,6 @@ const SavingList = () => {
                         limit: 100,
                         type: "SAVING"
                     });
-
-
-                console.log(
-                    "Saving Category Response:",
-                    response
-                );
-
-
                 const payload =
                     response?.data ||
                     response;
@@ -205,10 +197,10 @@ const SavingList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Saving category error:",
-                    error
-                );
+                // console.error(
+                    // "Saving category error:",
+                    // error
+                // );
 
                 setCategories([]);
 
@@ -237,10 +229,7 @@ const SavingList = () => {
                     });
 
 
-                console.log(
-                    "Saving Account Response:",
-                    response
-                );
+               
 
 
                 const payload =
@@ -315,10 +304,10 @@ const SavingList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Saving account error:",
-                    error
-                );
+                // console.error(
+                    // "Saving account error:",
+                    // error
+                // );
 
                 setAccounts([]);
 
@@ -362,17 +351,7 @@ const SavingList = () => {
                 };
 
 
-                console.log(
-                    "================================"
-                );
-
-                console.log(
-                    "SAVING REQUEST"
-                );
-
-                console.log(
-                    params
-                );
+              
 
 
                 const response =
@@ -380,14 +359,6 @@ const SavingList = () => {
                         params
                     );
 
-
-                console.log(
-                    "SAVING API RESPONSE"
-                );
-
-                console.log(
-                    response
-                );
 
 
                 /*
@@ -483,11 +454,7 @@ const SavingList = () => {
                 }
 
 
-                console.log(
-                    "SAVING ROWS",
-                    rows
-                );
-
+    
 
                 setSavings(
                     rows
@@ -504,16 +471,16 @@ const SavingList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Saving load error:",
-                    error
-                );
+                // console.error(
+                    // "Saving load error:",
+                    // error
+                // );
 
 
-                console.error(
-                    "Saving error response:",
-                    error?.response?.data
-                );
+                // console.error(
+                    // "Saving error response:",
+                    // error?.response?.data
+                // );
 
 
                 setSavings([]);
@@ -638,10 +605,10 @@ const SavingList = () => {
 
             } catch (error) {
 
-                console.error(
-                    "Delete saving error:",
-                    error
-                );
+                // console.error(
+                    // "Delete saving error:",
+                    // error
+                // );
 
 
                 alert(

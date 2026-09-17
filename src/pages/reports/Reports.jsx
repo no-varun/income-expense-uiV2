@@ -91,14 +91,7 @@ const Reports = () => {
             }
 
         } catch (error) {
-
-            console.log(error);
-
-            alert(
-                error.response?.data?.message ||
-                "Unable to generate report."
-            );
-
+            alert(error.response?.data?.message || "Unable to generate report.");
         } finally {
 
             setLoading(false);

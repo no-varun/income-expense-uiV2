@@ -27,7 +27,7 @@ export const aesDecrypt = (key, payload) => {
 
         return decrypted.toString(CryptoJS.enc.Utf8);
     } catch (error) {
-        console.error("AES Decryption Error:", error);
+        // console.error("AES Decryption Error:", error);
         return "";
     }
 };
