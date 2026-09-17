@@ -46,7 +46,6 @@ const PreciousItemList = () => {
                 })
 
             });
-            console.log("getPreciousItems list:",response)
             if (response.success) {
                 let rows = [];
                 const rawData = response.data?.rows ?? response.data?.data ?? response.data;
@@ -63,15 +62,10 @@ const PreciousItemList = () => {
                             rows = Array.isArray(parsed) ? parsed : [];
                         }
                     } catch (e) {
-                        console.error("Failed to parse preciousItem data:", e);
                         rows = [];
                     }
                 }
-                setpreciousItem(
-                    Array.isArray(rows)
-                        ? rows
-                        : []
-                );
+                setpreciousItem(Array.isArray(rows)? rows: []);
 
                 setTotal(
                     response.data?.total ||
@@ -87,9 +81,6 @@ const PreciousItemList = () => {
             }
 
         } catch (error) {
-
-            console.error(error);
-
             setpreciousItem([]);
             setTotal(0);
 

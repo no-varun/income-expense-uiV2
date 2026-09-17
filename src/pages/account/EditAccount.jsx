@@ -5,6 +5,7 @@ import {
     getAccount,
     updateAccount
 } from "../../api/accountApi";
+import { aesDecrypt, SECRET_KEY } from "../../utils/helpers";
 
 const EditAccount = () => {
 
@@ -49,13 +50,21 @@ const EditAccount = () => {
 
             }
 
-            const account = response.data;
+            let account = response.data?.data ?? response.data;
+            if (typeof account === "string") {
+                try {
+                    const decrypted = aesDecrypt(SECRET_KEY, account);
+                    account = decrypted ? JSON.parse(decrypted) : JSON.parse(account);
+                } catch (e) {
+                    console.error("Failed to parse account data:", e);
+                }
+            }
 
             setForm({
 
-                name: account.name || "",
+                name: account?.name || "",
 
-                bank: account.bank || "Rbl",
+                bank: account?.bank || "Rbl",
 
                 accountType:
                     account.accountType ||

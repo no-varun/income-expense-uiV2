@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ShopForm from "../../components/shop/ShopForm";
 
 import { getShop, updateShop } from "../../api/shopApi";
+import { aesDecrypt, SECRET_KEY } from "../../utils/helpers";
 
 const EditShop = () => {
 
@@ -23,7 +24,16 @@ const EditShop = () => {
 
             if (response.success) {
 
-                setInitialValues(response.data);
+                let shopData = response.data?.data ?? response.data;
+                if (typeof shopData === "string") {
+                    try {
+                        const decrypted = aesDecrypt(SECRET_KEY, shopData);
+                        shopData = decrypted ? JSON.parse(decrypted) : JSON.parse(shopData);
+                    } catch (e) {
+                        console.error("Failed to parse shop data:", e);
+                    }
+                }
+                setInitialValues(shopData && typeof shopData === "object" ? shopData : {});
 
             } else {
 
@@ -44,9 +54,11 @@ const EditShop = () => {
 
     useEffect(() => {
 
-        loadShop();
+        if (id) {
+            loadShop();
+        }
 
-    }, []);
+    }, [id]);
 
     const handleSubmit = async (formData) => {
 

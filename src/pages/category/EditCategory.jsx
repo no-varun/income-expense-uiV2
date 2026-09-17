@@ -7,6 +7,7 @@ import {
     getCategory,
     updateCategory
 } from "../../api/categoryApi";
+import { aesDecrypt, SECRET_KEY } from "../../utils/helpers";
 
 const EditCategory = () => {
 
@@ -26,7 +27,16 @@ const EditCategory = () => {
 
             if (response.success) {
 
-                setInitialValues(response.data);
+                let catData = response.data?.data ?? response.data;
+                if (typeof catData === "string") {
+                    try {
+                        const decrypted = aesDecrypt(SECRET_KEY, catData);
+                        catData = decrypted ? JSON.parse(decrypted) : JSON.parse(catData);
+                    } catch (e) {
+                        console.error("Failed to parse category data:", e);
+                    }
+                }
+                setInitialValues(catData && typeof catData === "object" ? catData : {});
 
             } else {
 
@@ -47,9 +57,11 @@ const EditCategory = () => {
 
     useEffect(() => {
 
-        loadCategory();
+        if (id) {
+            loadCategory();
+        }
 
-    }, []);
+    }, [id]);
 
     const handleSubmit = async (formData) => {
 

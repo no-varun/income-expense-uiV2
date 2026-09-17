@@ -5,6 +5,7 @@ import {
     updateItem
 } from "../../api/itemApi";
 import ItemForm from "../../components/item/ItemForm";
+import { aesDecrypt, SECRET_KEY } from "../../utils/helpers";
 
 const EditItem = () => {
 
@@ -21,7 +22,16 @@ const EditItem = () => {
             const response = await getItem(id);
 
             if (response.success) {
-                setInitialValues(response.data);
+                let itemData = response.data?.data ?? response.data;
+                if (typeof itemData === "string") {
+                    try {
+                        const decrypted = aesDecrypt(SECRET_KEY, itemData);
+                        itemData = decrypted ? JSON.parse(decrypted) : JSON.parse(itemData);
+                    } catch (e) {
+                        console.error("Failed to parse item data:", e);
+                    }
+                }
+                setInitialValues(itemData && typeof itemData === "object" ? itemData : {});
             }
 
         } catch (error) {

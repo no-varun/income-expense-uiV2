@@ -4,6 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import PreciousItemForm from "../../components/preciousItem/PreciousItemForm";
 
 import { getPreciousItem, updatePreciousItem } from "../../api/preciousItemApi";
+import { aesDecrypt } from "../../utils/helpers";
+
+let secretKey = "n63expe6oc4dahmi";
 
 const EditPreciousItem = () => {
 
@@ -23,7 +26,36 @@ const EditPreciousItem = () => {
 
             if (response.success) {
 
-                setInitialValues(response.data);
+                let itemData =
+                    response.data?.data ??
+                    response.data?.item ??
+                    response.data?.preciousItem ??
+                    response.data;
+
+                if (typeof itemData === "string") {
+                    try {
+                        const decrypted = aesDecrypt(secretKey, itemData);
+                        if (decrypted) {
+                            itemData = JSON.parse(decrypted);
+                        } else {
+                            itemData = JSON.parse(itemData);
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse preciousItem data:", e);
+                    }
+                }
+
+                if (itemData?.rows && Array.isArray(itemData.rows)) {
+                    itemData = itemData.rows[0] || {};
+                } else if (itemData?.data && typeof itemData.data === "object") {
+                    itemData = Array.isArray(itemData.data) ? itemData.data[0] || {} : itemData.data;
+                } else if (Array.isArray(itemData)) {
+                    itemData = itemData[0] || {};
+                }
+
+                setInitialValues(
+                    itemData && typeof itemData === "object" ? itemData : {}
+                );
 
             } else {
 
@@ -44,9 +76,11 @@ const EditPreciousItem = () => {
 
     useEffect(() => {
 
-        loadPreciousItem();
+        if (id) {
+            loadPreciousItem();
+        }
 
-    }, []);
+    }, [id]);
 
     const handleSubmit = async (formData) => {
 
