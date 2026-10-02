@@ -39,10 +39,23 @@ const MilkManage = () => {
             totalRecords: 0
         });
 
+    const [page, setPage] =
+        useState(1);
 
-    const [page, setPage] = useState(1);
-
-    const [limit] = useState(new Date().getDate());
+    /*
+     * IMPORTANT:
+     * Backend will calculate the limit based on:
+     *
+     * No date filter:
+     *      current day of month
+     *
+     * Date filter:
+     *      total days in selected range
+     *
+     * Backend returns the calculated limit.
+     */
+    const [limit, setLimit] =
+        useState(new Date().getDate());
 
     const [totalPages, setTotalPages] =
         useState(1);
@@ -125,12 +138,33 @@ const MilkManage = () => {
                     page;
 
 
+                /*
+                |--------------------------------------------------------------------------
+                | API PARAMS
+                |--------------------------------------------------------------------------
+                |
+                | DO NOT SEND LIMIT HERE.
+                |
+                | Backend will calculate:
+                |
+                | No date:
+                |     current day of month
+                |
+                | 01-09-2026 -> 30-09-2026:
+                |     30
+                |
+                | 01-09-2026 -> 10-09-2026:
+                |     10
+                |
+                | 25-09-2026 -> 30-09-2026:
+                |     6
+                |
+                */
+
                 const params = {
 
                     page:
-                        currentPage,
-
-                    limit
+                        currentPage
 
                 };
 
@@ -201,12 +235,30 @@ const MilkManage = () => {
                         paid === "true";
 
                 }
-                if (onLeave !== "" && !override.clearOnLeave) {
-                    params.onLeave = onLeave === "true";
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | ON LEAVE
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    onLeave !== "" &&
+                    !override.clearOnLeave
+                ) {
+
+                    params.onLeave =
+                        onLeave === "true";
+
                 }
 
 
-
+                /*
+                |--------------------------------------------------------------------------
+                | API CALL
+                |--------------------------------------------------------------------------
+                */
 
                 const response =
                     await getMilkList(
@@ -214,7 +266,11 @@ const MilkManage = () => {
                     );
 
 
-
+                /*
+                |--------------------------------------------------------------------------
+                | INVALID RESPONSE
+                |--------------------------------------------------------------------------
+                */
 
                 if (
                     !response ||
@@ -235,17 +291,18 @@ const MilkManage = () => {
 
                     });
 
-
                     setTotalPages(
                         1
                     );
 
+                    setLimit(
+                        new Date().getDate()
+                    );
 
                     alert(
                         response?.message ||
                         "Unable to fetch milk records."
                     );
-
 
                     return;
 
@@ -255,6 +312,38 @@ const MilkManage = () => {
                 const result =
                     response.data ||
                     {};
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | UPDATE LIMIT FROM BACKEND
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    result.limit !== undefined &&
+                    result.limit !== null
+                ) {
+
+                    const backendLimit =
+                        Number(
+                            result.limit
+                        );
+
+                    if (
+                        Number.isFinite(
+                            backendLimit
+                        ) &&
+                        backendLimit > 0
+                    ) {
+
+                        setLimit(
+                            backendLimit
+                        );
+
+                    }
+
+                }
 
 
                 /*
@@ -327,10 +416,22 @@ const MilkManage = () => {
                         : 0;
 
 
+                /*
+                |--------------------------------------------------------------------------
+                | SET ROWS
+                |--------------------------------------------------------------------------
+                */
+
                 setRows(
                     milkRows
                 );
 
+
+                /*
+                |--------------------------------------------------------------------------
+                | SET SUMMARY
+                |--------------------------------------------------------------------------
+                */
 
                 setSummary({
 
@@ -361,6 +462,12 @@ const MilkManage = () => {
                 });
 
 
+                /*
+                |--------------------------------------------------------------------------
+                | TOTAL PAGES
+                |--------------------------------------------------------------------------
+                */
+
                 const pages =
                     Number(
                         result.totalPages
@@ -368,24 +475,19 @@ const MilkManage = () => {
 
 
                 setTotalPages(
+
                     Number.isFinite(
                         pages
                     ) &&
-                        pages > 0
+                    pages > 0
                         ? pages
                         : 1
+
                 );
 
-
             } catch (
-            error
+                error
             ) {
-
-                // console.error(
-                    // "GET MILK ERROR:",
-                    // error
-                // );
-
 
                 setRows([]);
 
@@ -401,11 +503,9 @@ const MilkManage = () => {
 
                 });
 
-
                 setTotalPages(
                     1
                 );
-
 
                 alert(
 
@@ -416,7 +516,6 @@ const MilkManage = () => {
                     "Unable to fetch milk records."
 
                 );
-
 
             } finally {
 
@@ -454,6 +553,10 @@ const MilkManage = () => {
     const handleSearch =
         async () => {
 
+            /*
+             * Always search from page 1.
+             */
+
             if (
                 page !== 1
             ) {
@@ -468,7 +571,9 @@ const MilkManage = () => {
 
 
             await loadMilk({
+
                 page: 1
+
             });
 
         };
@@ -492,6 +597,16 @@ const MilkManage = () => {
             setPaid("");
 
             setOnLeave("");
+
+
+            /*
+             * Reset limit to current
+             * day until backend responds.
+             */
+
+            setLimit(
+                new Date().getDate()
+            );
 
 
             if (
@@ -588,14 +703,8 @@ const MilkManage = () => {
 
 
             } catch (
-            error
+                error
             ) {
-
-                // console.error(
-                    // "DELETE MILK ERROR:",
-                    // error
-                // );
-
 
                 alert(
 
@@ -606,7 +715,6 @@ const MilkManage = () => {
                     "Unable to delete milk record."
 
                 );
-
 
             } finally {
 
@@ -653,12 +761,15 @@ const MilkManage = () => {
 
 
                 <button
+
                     className="btn btn-primary"
+
                     onClick={() =>
                         navigate(
                             "/milk/add"
                         )
                     }
+
                 >
 
                     + Add Milk
@@ -696,17 +807,22 @@ const MilkManage = () => {
 
 
                             <input
+
                                 className="form-control"
+
                                 placeholder="Search milk..."
+
                                 value={
                                     search
                                 }
+
                                 onChange={
                                     (e) =>
                                         setSearch(
                                             e.target.value
                                         )
                                 }
+
                             />
 
                         </div>
@@ -724,17 +840,22 @@ const MilkManage = () => {
 
 
                             <input
+
                                 type="date"
+
                                 className="form-control"
+
                                 value={
                                     from
                                 }
+
                                 onChange={
                                     (e) =>
                                         setFrom(
                                             e.target.value
                                         )
                                 }
+
                             />
 
                         </div>
@@ -752,17 +873,22 @@ const MilkManage = () => {
 
 
                             <input
+
                                 type="date"
+
                                 className="form-control"
+
                                 value={
                                     to
                                 }
+
                                 onChange={
                                     (e) =>
                                         setTo(
                                             e.target.value
                                         )
                                 }
+
                             />
 
                         </div>
@@ -780,16 +906,20 @@ const MilkManage = () => {
 
 
                             <select
+
                                 className="form-select"
+
                                 value={
                                     paid
                                 }
+
                                 onChange={
                                     (e) =>
                                         setPaid(
                                             e.target.value
                                         )
                                 }
+
                             >
 
                                 <option value="">
@@ -821,16 +951,20 @@ const MilkManage = () => {
 
 
                             <select
+
                                 className="form-select"
+
                                 value={
                                     onLeave
                                 }
+
                                 onChange={
                                     (e) =>
                                         setOnLeave(
                                             e.target.value
                                         )
                                 }
+
                             >
 
                                 <option value="">
@@ -855,14 +989,19 @@ const MilkManage = () => {
                         <div className="col-12 d-flex justify-content-end gap-2">
 
                             <button
+
                                 type="button"
+
                                 className="btn btn-primary px-4"
+
                                 onClick={
                                     handleSearch
                                 }
+
                                 disabled={
                                     loading
                                 }
+
                             >
 
                                 Search
@@ -871,14 +1010,19 @@ const MilkManage = () => {
 
 
                             <button
+
                                 type="button"
+
                                 className="btn btn-outline-secondary px-4"
+
                                 onClick={
                                     handleReset
                                 }
+
                                 disabled={
                                     loading
                                 }
+
                             >
 
                                 Reset
@@ -962,14 +1106,16 @@ const MilkManage = () => {
 
                         <tbody>
 
-
                             {loading ? (
 
                                 <tr>
 
                                     <td
+
                                         colSpan="9"
+
                                         className="text-center py-5"
+
                                     >
 
                                         <div className="spinner-border spinner-border-sm me-2" />
@@ -985,8 +1131,11 @@ const MilkManage = () => {
                                 <tr>
 
                                     <td
+
                                         colSpan="9"
+
                                         className="text-center py-5 text-muted"
+
                                     >
 
                                         No milk records found.
@@ -1004,9 +1153,11 @@ const MilkManage = () => {
                                     ) => (
 
                                         <tr
+
                                             key={
                                                 item._id
                                             }
+
                                         >
 
 
@@ -1163,13 +1314,17 @@ const MilkManage = () => {
 
 
                                                     <button
+
                                                         type="button"
+
                                                         className="btn btn-sm btn-outline-primary"
+
                                                         onClick={() =>
                                                             navigate(
                                                                 `/milk/edit/${item._id}`
                                                             )
                                                         }
+
                                                     >
 
                                                         Edit
@@ -1178,22 +1333,27 @@ const MilkManage = () => {
 
 
                                                     <button
+
                                                         type="button"
+
                                                         className="btn btn-sm btn-outline-danger"
+
                                                         onClick={() =>
                                                             handleDelete(
                                                                 item._id
                                                             )
                                                         }
+
                                                         disabled={
                                                             deleting ===
                                                             item._id
                                                         }
+
                                                     >
 
                                                         {
                                                             deleting ===
-                                                                item._id
+                                                            item._id
 
                                                                 ? "Deleting..."
 
@@ -1228,8 +1388,11 @@ const MilkManage = () => {
                                     <tr>
 
                                         <th
+
                                             colSpan="3"
+
                                             className="text-end"
+
                                         >
 
                                             Page Total
@@ -1324,18 +1487,23 @@ const MilkManage = () => {
 
 
                             <button
+
                                 type="button"
+
                                 className="btn btn-outline-secondary"
+
                                 disabled={
                                     page === 1 ||
                                     loading
                                 }
+
                                 onClick={() =>
                                     setPage(
                                         (p) =>
                                             p - 1
                                     )
                                 }
+
                             >
 
                                 Previous
@@ -1354,19 +1522,24 @@ const MilkManage = () => {
 
 
                             <button
+
                                 type="button"
+
                                 className="btn btn-outline-secondary"
+
                                 disabled={
                                     page ===
                                     totalPages ||
                                     loading
                                 }
+
                                 onClick={() =>
                                     setPage(
                                         (p) =>
                                             p + 1
                                     )
                                 }
+
                             >
 
                                 Next
