@@ -75,6 +75,9 @@ import PreciousItemList from "../pages/preciousItem/PreciousItemList";
 import AddPreciousItem from "../pages/preciousItem/AddPreciousItem";
 import EditpreciousItem from "../pages/preciousItem/EditPreciousItem";
 import EditPreciousItem from "../pages/preciousItem/EditPreciousItem";
+import DocumentList from "../pages/document/DocumentList";
+import AddDocument from "../pages/document/AddDocument";
+import EditDocument from "../pages/document/EditDocument";
 
 const AppRoutes = () => {
 
@@ -294,7 +297,20 @@ const AppRoutes = () => {
                             element={<EditInvestment />}
                         />
 
+                        <Route
+                            path="/documents"
+                            element={<DocumentList />}
+                        />
 
+                        <Route
+                            path="/documents/add"
+                            element={<AddDocument />}
+                        />
+
+                        <Route
+                            path="/documents/edit/:id"
+                            element={<EditDocument />}
+                        />
 
                         <Route
                             path="/milk"

@@ -16,7 +16,8 @@ import {
     FaExchangeAlt,
     FaChartLine,
     FaGlassWhiskey,
-    FaCalendarAlt
+    FaCalendarAlt,
+    FaFileAlt
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 
@@ -112,6 +113,12 @@ const Sidebar = ({
             title: "Debts",
             path: "/debt",
             icon: <FaWallet />
+        },
+
+        {
+            title: "Documents",
+            path: "/documents",
+            icon: <FaFileAlt />
         },
 
         {
