@@ -7,6 +7,13 @@ import Pagination from "../../components/common/Pagination";
 const types = ["AADHAAR", "PAN", "PASSPORT", "DRIVING_LICENSE", "VOTER_ID", "INSURANCE", "BANK", "TAX", "PROPERTY", "MEDICAL", "OTHER"];
 const formatDate = (date) => date ? new Date(date).toLocaleDateString("en-IN") : "-";
 const label = (value) => value?.replaceAll("_", " ") || "OTHER";
+const getPublicUrl = (item) => {
+    if (item.storageType === "vercel-blob" && item.blobAccess === "public") {
+        return item.blobUrl;
+    }
+
+    return item.fileUrl && !item.filePath ? item.fileUrl : "";
+};
 
 const DocumentList = () => {
     const [documents, setDocuments] = useState([]);
@@ -48,9 +55,10 @@ const DocumentList = () => {
     }, [viewer]);
 
     const handleView = async (item) => {
-        if (item.fileUrl && !item.filePath) {
+        const publicUrl = getPublicUrl(item);
+        if (publicUrl) {
             setViewer({
-                url: item.fileUrl,
+                url: publicUrl,
                 name: item.originalName || item.title,
                 mimeType: item.mimeType || "",
                 isObjectUrl: false
@@ -74,8 +82,9 @@ const DocumentList = () => {
     };
 
     const handleDownload = async (item) => {
-        if (item.fileUrl && !item.filePath) {
-            window.open(item.fileUrl, "_blank", "noopener,noreferrer");
+        const publicUrl = getPublicUrl(item);
+        if (publicUrl) {
+            window.open(publicUrl, "_blank", "noopener,noreferrer");
             return;
         }
         try {
@@ -126,7 +135,7 @@ const DocumentList = () => {
             <div className="col-md-2 d-flex gap-2"><button className="btn btn-outline-primary" type="button" title="Refresh" onClick={loadDocuments}><FaSync /></button><button className="btn btn-outline-secondary" type="button" onClick={clearFilters}>Clear</button></div>
         </div></div></div>
         <div className="card shadow-sm"><div className="table-responsive"><table className="table table-hover align-middle mb-0"><thead className="table-light"><tr><th>#</th><th>Document</th><th>Type</th><th>Number</th><th>Expiry</th><th>Status</th><th className="text-end">Actions</th></tr></thead><tbody>
-            {loading ? <tr><td colSpan="7" className="text-center py-5"><span className="spinner-border spinner-border-sm me-2" />Loading...</td></tr> : documents.length === 0 ? <tr><td colSpan="7" className="text-center text-muted py-5"><FaFileAlt className="me-2" />No documents found</td></tr> : documents.map((item, index) => <tr key={item._id}><td>{(page - 1) * limit + index + 1}</td><td><div className="fw-semibold">{item.title}</div><small className="text-muted">{item.originalName || (item.fileUrl ? "External link" : "No file")}</small></td><td><span className="badge text-bg-light border">{label(item.documentType)}</span></td><td>{item.documentNumber || "-"}</td><td>{formatDate(item.expiryDate)}</td><td><span className={`badge ${item.status ? "text-bg-success" : "text-bg-secondary"}`}>{item.status ? "Active" : "Inactive"}</span></td><td><div className="d-flex justify-content-end gap-1"><button className="btn btn-outline-secondary btn-sm" title="View" onClick={() => handleView(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl)}><FaEye /></button><button className="btn btn-outline-primary btn-sm" title="Download" onClick={() => handleDownload(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl)}><FaDownload /></button><Link className="btn btn-outline-warning btn-sm" title="Edit" to={`/documents/edit/${item._id}`}><FaEdit /></Link><button className="btn btn-outline-danger btn-sm" title="Delete" onClick={() => handleDelete(item)} disabled={deleting === item._id}><FaTrash /></button></div></td></tr>)}
+            {loading ? <tr><td colSpan="7" className="text-center py-5"><span className="spinner-border spinner-border-sm me-2" />Loading...</td></tr> : documents.length === 0 ? <tr><td colSpan="7" className="text-center text-muted py-5"><FaFileAlt className="me-2" />No documents found</td></tr> : documents.map((item, index) => <tr key={item._id}><td>{(page - 1) * limit + index + 1}</td><td><div className="fw-semibold">{item.title}</div><small className="text-muted">{item.originalName || (item.fileUrl ? "External link" : "No file")}</small></td><td><span className="badge text-bg-light border">{label(item.documentType)}</span></td><td>{item.documentNumber || "-"}</td><td>{formatDate(item.expiryDate)}</td><td><span className={`badge ${item.status ? "text-bg-success" : "text-bg-secondary"}`}>{item.status ? "Active" : "Inactive"}</span></td><td><div className="d-flex justify-content-end gap-1"><button className="btn btn-outline-secondary btn-sm" title="View" onClick={() => handleView(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaEye /></button><button className="btn btn-outline-primary btn-sm" title="Download" onClick={() => handleDownload(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaDownload /></button><Link className="btn btn-outline-warning btn-sm" title="Edit" to={`/documents/edit/${item._id}`}><FaEdit /></Link><button className="btn btn-outline-danger btn-sm" title="Delete" onClick={() => handleDelete(item)} disabled={deleting === item._id}><FaTrash /></button></div></td></tr>)}
         </tbody></table></div><div className="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2"><small className="text-muted">Showing {total ? (page - 1) * limit + 1 : 0} to {Math.min(page * limit, total)} of {total} documents</small>{total > limit && <Pagination page={page} limit={limit} total={total} onPageChange={(next) => next >= 1 && next <= totalPages && setPage(next)} />}</div></div>
         {viewer && <div className="modal d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", zIndex: 1060 }} onClick={() => setViewer(null)}><div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" onClick={(event) => event.stopPropagation()}><div className="modal-content"><div className="modal-header"><h5 className="modal-title text-truncate">{viewer.name}</h5><button className="btn-close" type="button" aria-label="Close" onClick={() => setViewer(null)} /></div><div className="modal-body bg-light p-0 d-flex justify-content-center align-items-center" style={{ minHeight: "65vh" }}>{canPreview ? isImage ? <img src={viewer.url} alt={viewer.name} className="img-fluid" style={{ maxHeight: "70vh" }} /> : <iframe title={viewer.name} src={viewer.url} className="w-100 border-0" style={{ height: "70vh" }} /> : <div className="text-center p-5"><FaFileAlt className="fs-1 text-muted mb-3" /><p className="mb-3">This file type cannot be previewed in the browser.</p><a className="btn btn-primary" href={viewer.url} download={viewer.name}>Download File</a></div>}</div><div className="modal-footer"><button className="btn btn-secondary" type="button" onClick={() => setViewer(null)}><FaTimes className="me-2" />Close</button></div></div></div></div>}
     </div>;
