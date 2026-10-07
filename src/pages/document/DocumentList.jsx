@@ -15,6 +15,9 @@ const getPublicUrl = (item) => {
     return item.fileUrl && !item.filePath ? item.fileUrl : "";
 };
 
+const getBlobUrl = (item) =>
+    item.storageType === "vercel-blob" ? item.blobUrl || "" : "";
+
 const DocumentList = () => {
     const [documents, setDocuments] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -75,6 +78,16 @@ const DocumentList = () => {
                 isObjectUrl: true
             });
         } catch (error) {
+            const blobUrl = getBlobUrl(item);
+            if (blobUrl) {
+                setViewer({
+                    url: blobUrl,
+                    name: item.originalName || item.fileName || item.title,
+                    mimeType: item.mimeType || "",
+                    isObjectUrl: false
+                });
+                return;
+            }
             alert(error?.response?.data?.message || error?.message || "Unable to open document.");
         } finally {
             setDownloading(null);
@@ -97,6 +110,11 @@ const DocumentList = () => {
             anchor.click();
             window.URL.revokeObjectURL(url);
         } catch (error) {
+            const blobUrl = getBlobUrl(item);
+            if (blobUrl) {
+                window.open(blobUrl, "_blank", "noopener,noreferrer");
+                return;
+            }
             alert(error?.response?.data?.message || error?.message || "Unable to download document.");
         } finally {
             setDownloading(null);
@@ -125,7 +143,7 @@ const DocumentList = () => {
 
     return <div className="container-fluid px-4 py-4">
         <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-            <div><h2 className="mb-1">Documents</h2><div className="text-muted">Your locally stored important documents</div></div>
+            <div><h2 className="mb-1">Documents</h2><div className="text-muted">Your stored important documents</div></div>
             <Link className="btn btn-primary" to="/documents/add"><FaPlus className="me-2" />Upload Document</Link>
         </div>
         <div className="card shadow-sm mb-4"><div className="card-body"><div className="row g-3 align-items-end">
