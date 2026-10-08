@@ -404,7 +404,7 @@ const Charts = () => {
                 </div>
 
                 <div className="d-flex align-items-end gap-3 flex-nowrap">
-                    {(chartType === "daily" || chartType === "weekWise" || chartType === "titleType") && (
+                    {(chartType === "daily" || chartType === "weekWise" || chartType === "titleType" || chartType === "category" || chartType === "paymentMode") && (
                         <div style={{ width: 180 }}>
                             <label className="form-label mb-1">Month</label>
                             <select className="form-select" value={month} onChange={e => setMonth(Number(e.target.value))}>
