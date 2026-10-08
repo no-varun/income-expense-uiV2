@@ -23,6 +23,10 @@ import {
     getAccounts
 } from "../../api/accountApi";
 
+import {
+    getDocuments
+} from "../../api/documentApi";
+
 
 const ExpenseForm = ({
     initialValues = {},
@@ -52,6 +56,9 @@ const ExpenseForm = ({
     const [accounts, setAccounts] =
         useState([]);
 
+    const [documents, setDocuments] =
+        useState([]);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -69,6 +76,9 @@ const ExpenseForm = ({
         useState(false);
 
     const [accountsLoading, setAccountsLoading] =
+        useState(false);
+
+    const [documentsLoading, setDocumentsLoading] =
         useState(false);
 
 
@@ -91,6 +101,8 @@ const ExpenseForm = ({
         shopType: "",
 
         shop: "",
+
+        document: "",
 
         paymentMode: "Cash",
 
@@ -213,6 +225,44 @@ const ExpenseForm = ({
 
             };
 
+
+        load();
+
+    }, []);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOCUMENTS
+    |--------------------------------------------------------------------------
+    */
+
+    useEffect(() => {
+
+        const load = async () => {
+
+            try {
+
+                setDocumentsLoading(true);
+
+                const response = await getDocuments({
+                    limit: 100,
+                    status: "true"
+                });
+
+                setDocuments(getRows(response));
+
+            } catch (error) {
+
+                setDocuments([]);
+
+            } finally {
+
+                setDocumentsLoading(false);
+
+            }
+
+        };
 
         load();
 
@@ -441,6 +491,11 @@ const ExpenseForm = ({
             initialValues.shop ||
             "";
 
+        const documentId =
+            initialValues.document?._id ||
+            initialValues.document ||
+            "";
+
 
         setForm({
 
@@ -464,6 +519,9 @@ const ExpenseForm = ({
 
             shop:
                 shopId,
+
+            document:
+                documentId,
 
             paymentMode:
                 initialValues.paymentMode ||
@@ -793,6 +851,9 @@ const ExpenseForm = ({
 
             shop:
                 form.shop || "",
+
+            document:
+                form.document || "",
 
             paymentMode:
                 form.paymentMode ||
@@ -1235,6 +1296,75 @@ const ExpenseForm = ({
 
                                                 {
                                                     shop.name
+                                                }
+
+                                            </option>
+
+                                        )
+                                    )}
+
+                                </select>
+
+                            </div>
+
+
+                            {/* DOCUMENT */}
+
+                            <div className="col-12 col-md-6">
+
+                                <label className="form-label fw-semibold">
+
+                                    Related Document
+
+                                </label>
+
+
+                                <select
+                                    className="form-select form-select-lg"
+                                    name="document"
+                                    value={
+                                        form.document
+                                    }
+                                    onChange={
+                                        handleChange
+                                    }
+                                    disabled={
+                                        documentsLoading ||
+                                        loading
+                                    }
+                                >
+
+                                    <option value="">
+
+                                        {
+                                            documentsLoading
+                                                ? "Loading documents..."
+                                                : "No related document"
+                                        }
+
+                                    </option>
+
+
+                                    {documents.map(
+                                        document => (
+
+                                            <option
+                                                key={
+                                                    document._id
+                                                }
+                                                value={
+                                                    document._id
+                                                }
+                                            >
+
+                                                {
+                                                    document.title
+                                                }
+
+                                                {
+                                                    document.documentNumber
+                                                        ? ` - ${document.documentNumber}`
+                                                        : ""
                                                 }
 
                                             </option>

@@ -10,6 +10,11 @@ import {
 } from "react-router-dom";
 
 import {
+    FaFileAlt,
+    FaTimes
+} from "react-icons/fa";
+
+import {
     deleteExpense,
     exportExpensesExcel,
     getExpenses,
@@ -27,6 +32,10 @@ import {
 import {
     getAccounts
 } from "../../api/accountApi";
+
+import {
+    downloadDocument
+} from "../../api/documentApi";
 
 import Pagination
     from "../../components/common/Pagination";
@@ -87,6 +96,10 @@ const ExpenseList = () => {
     const [importing, setImporting] = useState(false);
 
     const [exporting, setExporting] = useState(false);
+
+    const [documentViewer, setDocumentViewer] = useState(null);
+
+    const [viewingDocumentId, setViewingDocumentId] = useState(null);
 
 
     /*
@@ -713,6 +726,85 @@ const ExpenseList = () => {
     }, [
         loadExpenses
     ]);
+
+
+    useEffect(() => {
+
+        return () => {
+
+            if (documentViewer?.url) {
+
+                window.URL.revokeObjectURL(
+                    documentViewer.url
+                );
+
+            }
+
+        };
+
+    }, [documentViewer]);
+
+
+    const closeDocumentViewer = () => {
+
+        setDocumentViewer(null);
+
+    };
+
+
+    const handleViewDocument = async (expense) => {
+
+        const documentId =
+            expense.document?._id ||
+            expense.document;
+
+
+        if (!documentId) {
+
+            return;
+
+        }
+
+
+        try {
+
+            setViewingDocumentId(documentId);
+
+
+            const blob = await downloadDocument(documentId);
+
+
+            setDocumentViewer({
+
+                url: window.URL.createObjectURL(blob),
+
+                name:
+                    expense.document?.originalName ||
+                    expense.document?.title ||
+                    "Attached document",
+
+                mimeType:
+                    blob.type ||
+                    expense.document?.mimeType ||
+                    "",
+
+            });
+
+        } catch (error) {
+
+            alert(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Unable to open attached document."
+            );
+
+        } finally {
+
+            setViewingDocumentId(null);
+
+        }
+
+    };
 
 
     /*
@@ -2244,6 +2336,41 @@ const ExpenseList = () => {
 
                                             <td className="text-nowrap">
 
+                                                {item.document && (
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-outline-primary btn-sm me-2"
+                                                        title={
+                                                            item.document?.title ||
+                                                            "View attached document"
+                                                        }
+                                                        onClick={() =>
+                                                            handleViewDocument(
+                                                                item
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            viewingDocumentId ===
+                                                            (item.document?._id || item.document)
+                                                        }
+                                                    >
+
+                                                        {viewingDocumentId ===
+                                                        (item.document?._id || item.document) ? (
+
+                                                            <span className="spinner-border spinner-border-sm" />
+
+                                                        ) : (
+
+                                                            <FaFileAlt />
+
+                                                        )}
+
+                                                    </button>
+
+                                                )}
+
                                                 <Link
                                                     to={
                                                         `/expense/edit/${item._id}`
@@ -2334,6 +2461,107 @@ const ExpenseList = () => {
                 </div>
 
             </div>
+
+
+            {documentViewer && (
+
+                <div
+                    className="modal d-block"
+                    role="dialog"
+                    style={{
+                        backgroundColor: "rgba(0, 0, 0, 0.6)",
+                        zIndex: 1060
+                    }}
+                    onClick={
+                        closeDocumentViewer
+                    }
+                >
+
+                    <div
+                        className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+                        onClick={
+                            event => event.stopPropagation()
+                        }
+                    >
+
+                        <div className="modal-content">
+
+                            <div className="modal-header">
+
+                                <h5 className="modal-title text-truncate">
+                                    {documentViewer.name}
+                                </h5>
+
+                                <button
+                                    type="button"
+                                    className="btn-close"
+                                    aria-label="Close"
+                                    onClick={
+                                        closeDocumentViewer
+                                    }
+                                />
+
+                            </div>
+
+
+                            <div
+                                className="modal-body bg-light p-0 d-flex justify-content-center align-items-center"
+                                style={{ minHeight: "65vh" }}
+                            >
+
+                                {documentViewer.mimeType.startsWith("image/") ? (
+
+                                    <img
+                                        src={documentViewer.url}
+                                        alt={documentViewer.name}
+                                        className="img-fluid"
+                                        style={{ maxHeight: "70vh" }}
+                                    />
+
+                                ) : documentViewer.mimeType === "application/pdf" || /\.pdf$/i.test(documentViewer.name) ? (
+
+                                    <iframe
+                                        title={documentViewer.name}
+                                        src={documentViewer.url}
+                                        className="w-100 border-0"
+                                        style={{ height: "70vh" }}
+                                    />
+
+                                ) : (
+
+                                    <div className="text-center p-5 text-muted">
+                                        This document type cannot be previewed in the browser.
+                                    </div>
+
+                                )}
+
+                            </div>
+
+
+                            <div className="modal-footer">
+
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={
+                                        closeDocumentViewer
+                                    }
+                                >
+
+                                    <FaTimes className="me-2" />
+                                    Close
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
 
         </div>
 

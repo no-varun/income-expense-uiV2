@@ -454,6 +454,26 @@ const Sidebar = ({
                                         <li>
 
                                             <NavLink
+                                                to="/charts/shop-wise"
+                                                className="
+                                                    nav-link
+                                                    text-light
+                                                    ps-5
+                                                "
+                                                onClick={() =>
+                                                    setSidebarOpen(
+                                                        false
+                                                    )
+                                                }
+                                            >
+                                                Shop Wise Expense
+                                            </NavLink>
+
+                                        </li>
+
+                                        <li>
+
+                                            <NavLink
                                                 to="/charts/monthly"
                                                 className="
                                                     nav-link

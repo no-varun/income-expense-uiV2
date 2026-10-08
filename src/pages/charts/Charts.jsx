@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getDailyChart, getMonthlyChart, getWeeklyChart, getYearlyChart, getWeekWiseExpenseChart, getCategoryChart, getPaymentModeChart, getDashboardChart, getTitleTypeChart } from "../../api/chartApi";
+import { getDailyChart, getMonthlyChart, getWeeklyChart, getYearlyChart, getWeekWiseExpenseChart, getShopWiseExpenseChart, getCategoryChart, getPaymentModeChart, getDashboardChart, getTitleTypeChart } from "../../api/chartApi";
 import DashboardChart from "../../components/charts/DashboardChart";
 import DailyChart from "../../components/charts/DailyChart";
 import MonthlyChart from "../../components/charts/MonthlyChart";
@@ -10,6 +10,7 @@ import WeekWiseChart from "../../components/charts/WeekWiseExpenseChart";
 import CategoryChart from "../../components/charts/CategoryChart";
 import PaymentModeChart from "../../components/charts/PaymentModeChart";
 import TitleTypeChart from "../../components/charts/TitleTypeChart";
+import ShopWiseChart from "../../components/charts/ShopWiseChart";
 
 const Charts = () => {
     const location = useLocation();
@@ -30,6 +31,10 @@ const Charts = () => {
 
         if (path.includes("paymentmode") || path.includes("payment-mode")) {
             return "paymentMode";
+        }
+
+        if (path.includes("shop-wise")) {
+            return "shopWise";
         }
 
         if (path.includes("category")) {
@@ -90,6 +95,8 @@ const Charts = () => {
                 response = await getYearlyChart();
             } else if (chartType === "weekWise") {
                 response = await getWeekWiseExpenseChart(month, year);
+            } else if (chartType === "shopWise") {
+                response = await getShopWiseExpenseChart(month, year);
             } else if (chartType === "category") {
                 response = await getCategoryChart(year, month);
             } else if (chartType === "paymentMode") {
@@ -286,6 +293,8 @@ const Charts = () => {
                 return "Yearly Chart";
             case "weekWise":
                 return "Week Wise Chart";
+            case "shopWise":
+                return "Shop Wise Expense Chart";
             case "category":
                 return "Category Wise Chart";
             case "paymentMode":
@@ -376,6 +385,10 @@ const Charts = () => {
             );
         }
 
+        if (chartType === "shopWise") {
+            return <ShopWiseChart data={data} />;
+        }
+
         if (chartType === "category") {
             return (
                 <CategoryChart
@@ -404,7 +417,7 @@ const Charts = () => {
                 </div>
 
                 <div className="d-flex align-items-end gap-3 flex-nowrap">
-                    {(chartType === "daily" || chartType === "weekWise" || chartType === "titleType" || chartType === "category" || chartType === "paymentMode") && (
+                    {(chartType === "daily" || chartType === "weekWise" || chartType === "shopWise" || chartType === "titleType" || chartType === "category" || chartType === "paymentMode") && (
                         <div style={{ width: 180 }}>
                             <label className="form-label mb-1">Month</label>
                             <select className="form-select" value={month} onChange={e => setMonth(Number(e.target.value))}>

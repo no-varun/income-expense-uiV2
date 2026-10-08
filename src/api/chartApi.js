@@ -85,6 +85,16 @@ export const getWeekWiseExpenseChart = async (
 
 };
 
+/**
+ * Shop Wise Expense Chart
+ * GET /api/charts/shop-wise?month=8&year=2026
+ */
+export const getShopWiseExpenseChart = async (month, year) => {
+    return await axios.get("/charts/shop-wise", {
+        params: { month, year }
+    });
+};
+
 
 /**
  * Category Wise Chart
