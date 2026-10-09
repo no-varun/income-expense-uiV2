@@ -28,6 +28,21 @@ import {
 } from "../../api/documentApi";
 
 
+const toDateTimeLocal = (value = new Date()) => {
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const pad = (number) => String(number).padStart(2, "0");
+
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+};
+
+
 const ExpenseForm = ({
     initialValues = {},
     onSubmit,
@@ -107,9 +122,7 @@ const ExpenseForm = ({
         paymentMode: "Cash",
 
         date:
-            new Date()
-                .toISOString()
-                .split("T")[0],
+            toDateTimeLocal(),
 
         note: ""
 
@@ -529,15 +542,8 @@ const ExpenseForm = ({
 
             date:
                 initialValues.date
-                    ? String(
-                        initialValues.date
-                    ).substring(
-                        0,
-                        10
-                    )
-                    : new Date()
-                        .toISOString()
-                        .split("T")[0],
+                    ? toDateTimeLocal(initialValues.date)
+                    : toDateTimeLocal(),
 
             note:
                 initialValues.note ||
@@ -825,6 +831,13 @@ const ExpenseForm = ({
         |--------------------------------------------------------------------------
         */
 
+        const selectedDate = new Date(form.date);
+
+        if (Number.isNaN(selectedDate.getTime())) {
+            alert("Please select a valid date and time");
+            return;
+        }
+
         const payload = {
 
             title:
@@ -860,7 +873,7 @@ const ExpenseForm = ({
                 "Cash",
 
             date:
-                form.date,
+                selectedDate.toISOString(),
 
             note:
                 String(
@@ -1445,7 +1458,7 @@ const ExpenseForm = ({
 
                                 <label className="form-label fw-semibold">
 
-                                    Date
+                                    Date and Time
 
                                     <span className="text-danger ms-1">
                                         *
@@ -1455,9 +1468,10 @@ const ExpenseForm = ({
 
 
                                 <input
-                                    type="date"
+                                    type="datetime-local"
                                     className="form-control form-control-lg"
                                     name="date"
+                                    step="60"
                                     value={
                                         form.date
                                     }

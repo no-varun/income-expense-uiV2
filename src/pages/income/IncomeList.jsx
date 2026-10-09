@@ -870,7 +870,7 @@ const IncomeList = () => {
             }
 
 
-            return parsedDate.toLocaleDateString(
+            return parsedDate.toLocaleString(
 
                 "en-IN",
 
@@ -883,7 +883,16 @@ const IncomeList = () => {
                         "short",
 
                     year:
-                        "numeric"
+                        "numeric",
+
+                    hour:
+                        "2-digit",
+
+                    minute:
+                        "2-digit",
+
+                    hour12:
+                        true
 
                 }
 

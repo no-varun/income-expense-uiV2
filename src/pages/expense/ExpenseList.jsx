@@ -1258,6 +1258,13 @@ const ExpenseList = () => {
         item
     ) => {
 
+        const shortenAccountName = (name) =>
+            String(name || "-")
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .join(" ");
+
         /*
         |--------------------------------------------------------------------------
         | Populated account
@@ -1268,7 +1275,7 @@ const ExpenseList = () => {
             item?.account?.name
         ) {
 
-            return item.account.name;
+            return shortenAccountName(item.account.name);
 
         }
 
@@ -1298,7 +1305,7 @@ const ExpenseList = () => {
 
             if (found) {
 
-                return (
+                return shortenAccountName(
                     found.name ||
                     found.accountName ||
                     "-"
@@ -1449,12 +1456,15 @@ const ExpenseList = () => {
         }
 
 
-        return parsedDate.toLocaleDateString(
+        return parsedDate.toLocaleString(
             "en-IN",
             {
                 day: "2-digit",
                 month: "2-digit",
-                year: "numeric"
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
             }
         );
 
