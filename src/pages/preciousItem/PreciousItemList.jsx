@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPreciousItems, deletePreciousItem } from "../../api/preciousItemApi";
+import { downloadDocument } from "../../api/documentApi";
 import Pagination from "../../components/common/Pagination";
 import { aesDecrypt } from "../../utils/helpers";
+import { FaFileAlt, FaTimes } from "react-icons/fa";
 
 let secretKey = "n63expe6oc4dahmi";
 const PreciousItemList = () => {
 
     const [preciousItem, setpreciousItem] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [documentViewer, setDocumentViewer] = useState(null);
+    const [viewingDocumentId, setViewingDocumentId] = useState(null);
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -113,6 +117,41 @@ const PreciousItemList = () => {
         loadpreciousItem();
 
     }, [loadpreciousItem]);
+
+
+    useEffect(() => () => {
+        if (documentViewer?.url) {
+            window.URL.revokeObjectURL(documentViewer.url);
+        }
+    }, [documentViewer]);
+
+
+    const closeDocumentViewer = () => {
+        setDocumentViewer(null);
+    };
+
+
+    const handleViewDocument = async (item) => {
+        const documentId = item.document?._id || item.document;
+
+        if (!documentId) {
+            return;
+        }
+
+        try {
+            setViewingDocumentId(documentId);
+            const blob = await downloadDocument(documentId);
+            setDocumentViewer({
+                url: window.URL.createObjectURL(blob),
+                name: item.document?.originalName || item.document?.title || "Attached document",
+                mimeType: blob.type || item.document?.mimeType || ""
+            });
+        } catch (error) {
+            alert(error?.response?.data?.message || error?.message || "Unable to open attached document.");
+        } finally {
+            setViewingDocumentId(null);
+        }
+    };
 
 
     /*
@@ -518,6 +557,20 @@ const PreciousItemList = () => {
 
                                                 <td>
 
+                                                    {item.document && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-outline-primary btn-sm me-2"
+                                                            title={item.document?.title || "View attached document"}
+                                                            onClick={() => handleViewDocument(item)}
+                                                            disabled={viewingDocumentId === (item.document?._id || item.document)}
+                                                        >
+                                                            {viewingDocumentId === (item.document?._id || item.document)
+                                                                ? <span className="spinner-border spinner-border-sm" />
+                                                                : <FaFileAlt />}
+                                                        </button>
+                                                    )}
+
                                                     <Link
                                                         to={`/preciousItem/edit/${item._id}`}
                                                         className="btn btn-warning btn-sm me-2"
@@ -600,6 +653,45 @@ const PreciousItemList = () => {
                 </div>
 
             </div>
+
+
+            {documentViewer && (
+                <div
+                    className="modal d-block"
+                    role="dialog"
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", zIndex: 1060 }}
+                    onClick={closeDocumentViewer}
+                >
+                    <div
+                        className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+                        onClick={event => event.stopPropagation()}
+                    >
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title text-truncate">{documentViewer.name}</h5>
+                                <button type="button" className="btn-close" aria-label="Close" onClick={closeDocumentViewer} />
+                            </div>
+                            <div
+                                className="modal-body bg-light p-0 d-flex justify-content-center align-items-center"
+                                style={{ minHeight: "65vh" }}
+                            >
+                                {documentViewer.mimeType.startsWith("image/") ? (
+                                    <img src={documentViewer.url} alt={documentViewer.name} className="img-fluid" style={{ maxHeight: "70vh" }} />
+                                ) : documentViewer.mimeType === "application/pdf" || /\.pdf$/i.test(documentViewer.name) ? (
+                                    <iframe title={documentViewer.name} src={documentViewer.url} className="w-100 border-0" style={{ height: "70vh" }} />
+                                ) : (
+                                    <div className="text-center p-5 text-muted">This document type cannot be previewed in the browser.</div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={closeDocumentViewer}>
+                                    <FaTimes className="me-2" />Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getDocuments } from "../../api/documentApi";
 
 const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => {
     const navigate = useNavigate();
@@ -7,8 +8,29 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
         name: "",
         type: "GOLD",
         description: "",
-        location:""
+        location: "",
+        document: ""
     });
+
+    const [documents, setDocuments] = useState([]);
+    const [documentsLoading, setDocumentsLoading] = useState(false);
+
+    useEffect(() => {
+        const loadDocuments = async () => {
+            try {
+                setDocumentsLoading(true);
+                const response = await getDocuments({ limit: 100, status: "true" });
+                const result = response?.data?.rows !== undefined ? response.data : response;
+                setDocuments(Array.isArray(result?.rows) ? result.rows : []);
+            } catch (error) {
+                setDocuments([]);
+            } finally {
+                setDocumentsLoading(false);
+            }
+        };
+
+        loadDocuments();
+    }, []);
     /*
      * =========================
      * EDIT MODE
@@ -21,7 +43,8 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                 name: initialValues.name || "",
                 type: initialValues.type || "GOLD",
                 description: initialValues.description || "",
-                location: initialValues.location || ""
+                location: initialValues.location || "",
+                document: initialValues.document?._id || initialValues.document || ""
             });
         }
 
@@ -213,6 +236,39 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
                         />
 
                     </div>
+
+
+                    {/* ================= DOCUMENT ================= */}
+
+                    <div className="mb-3">
+
+                        <label className="form-label">
+                            Related Document
+                        </label>
+
+                        <select
+                            className="form-select"
+                            name="document"
+                            value={form.document}
+                            onChange={handleChange}
+                            disabled={documentsLoading || loading}
+                        >
+
+                            <option value="">
+                                {documentsLoading ? "Loading documents..." : "No related document"}
+                            </option>
+
+                            {documents.map(document => (
+                                <option key={document._id} value={document._id}>
+                                    {document.title}{document.documentNumber ? ` - ${document.documentNumber}` : ""}
+                                </option>
+                            ))}
+
+                        </select>
+
+                    </div>
+
+
                     {/* ================= SUBMIT ================= */}
                     <button type="submit" className="btn btn-primary" disabled={loading}> {loading ? "Please wait..." : "Save PreciousItem"}</button>
 

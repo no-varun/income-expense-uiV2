@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const documentTypes = [
     "AADHAAR", "PAN", "PASSPORT", "DRIVING_LICENSE", "VOTER_ID",
-    "INSURANCE", "BANK", "TAX", "PROPERTY", "MEDICAL", "OTHER"
+    "INSURANCE", "BANK", "TAX", "PROPERTY", "MEDICAL", "OTHER", "PRECIOUS"
 ];
 
 const DocumentForm = ({ initialValues, onSubmit, submitLabel, saving }) => {
