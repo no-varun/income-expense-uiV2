@@ -18,7 +18,7 @@ body,
 body {
     font-family: "Segoe UI", sans-serif;
     background: #f5f6fa;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 img,
@@ -78,7 +78,7 @@ a {
         margin-left 0.3s ease,
         width 0.3s ease;
 
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 
@@ -93,12 +93,25 @@ a {
 
     position: sticky;
     top: 0;
+    align-self: stretch;
+    flex: 0 0 auto;
 
     z-index: 1000;
 
     border-bottom: 1px solid #dee2e6;
 
     width: 100%;
+}
+
+.sidebar-brand {
+    height: 70px;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 
@@ -283,6 +296,577 @@ a {
     border-radius: 8px;
 }
 
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    flex: 0 0 40px;
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #64748b;
+}
+
+/* Night view */
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) {
+    color-scheme: dark;
+    background: #111827;
+    color: #e5e7eb;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) body {
+    background: #111827;
+    color: #e5e7eb;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) main {
+    color: #e5e7eb;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content {
+    background-color: #111827 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .header h4,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h1:not([class*="text-"]),
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h2:not([class*="text-"]),
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h3:not([class*="text-"]),
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h4:not([class*="text-"]),
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h5:not([class*="text-"]),
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h6:not([class*="text-"]) {
+    color: #f8fafc;
+}
+
+:root[data-theme="light"] .sidebar {
+    background-color: #fff !important;
+    color: #263244 !important;
+    border-right: 1px solid #e2e8f0;
+}
+
+:root[data-theme="light"] .sidebar .py-3.text-center {
+    border-color: #e2e8f0 !important;
+}
+
+:root[data-theme="light"] .sidebar .nav-link {
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .sidebar .nav-link:hover,
+:root[data-theme="light"] .sidebar button[aria-expanded]:hover {
+    background-color: #f1f5f9;
+    color: #1e293b !important;
+}
+
+:root[data-theme="light"] .sidebar .nav-link.active {
+    background-color: #2563eb;
+    color: #fff !important;
+}
+
+:root[data-theme="light"] .sidebar button[aria-expanded] {
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .sidebar button[aria-expanded].fw-bold {
+    color: #1d4ed8 !important;
+}
+
+:root[data-theme="light"] .sidebar .btn-outline-light {
+    color: #475569;
+    border-color: #cbd5e1;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar {
+    background-color: #111827 !important;
+    color: #e5e7eb !important;
+    border-right: 1px solid #273449;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .py-3.text-center {
+    border-color: #273449 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded] {
+    color: #cbd5e1 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link:hover,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded]:hover {
+    background-color: #1f2937;
+    color: #fff !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link.active {
+    background-color: #2563eb;
+    color: #fff !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded].fw-bold {
+    color: #93c5fd !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .header,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card-header,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card-footer,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-menu,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .modal-content,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .list-group-item {
+    background-color: #1f2937 !important;
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .header {
+    border-bottom-color: #374151 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .theme-toggle {
+    color: #e5e7eb;
+    border-color: #6b7280;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .bg-white,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .bg-light,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table-light {
+    background-color: #1f2937 !important;
+    color: #e5e7eb !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table {
+    --bs-table-color: #e5e7eb;
+    --bs-table-bg: #1f2937;
+    --bs-table-border-color: #374151;
+    --bs-table-striped-bg: #263244;
+    --bs-table-hover-bg: #2b394d;
+    --bs-table-hover-color: #fff;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table thead,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table thead th {
+    --bs-table-color: #f8fafc;
+    --bs-table-bg: #273449;
+    --bs-table-border-color: #3b4b63;
+    background-color: #273449 !important;
+    color: #f8fafc !important;
+    border-color: #3b4b63;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .text-dark,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .fw-semibold,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) label,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-label {
+    color: #e5e7eb !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .text-muted,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) small.text-muted {
+    color: #aab4c3 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-control,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-select,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .input-group-text,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) textarea,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) input {
+    background-color: #111827;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-control::placeholder,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) input::placeholder,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) textarea::placeholder {
+    color: #9ca3af;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-select option {
+    background-color: #1f2937;
+    color: #e5e7eb;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item {
+    color: #e5e7eb;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item:hover,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item:focus {
+    background-color: #374151;
+    color: #fff;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border-bottom,
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border-top {
+    border-color: #374151 !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .modal-backdrop {
+    --bs-backdrop-bg: #000;
+}
+
+:root[data-theme="ocean"] {
+    --app-bg: #0b1728;
+    --surface-bg: #11243a;
+    --surface-raised: #19314b;
+    --surface-border: #29445e;
+    --app-text: #e3f1ff;
+    --muted-text: #9fb5ca;
+    --input-bg: #0b1728;
+    --input-border: #365673;
+    --table-stripe: #142a42;
+    --table-hover: #1c3854;
+    --sidebar-bg: #081321;
+    --sidebar-hover: #14263c;
+    --sidebar-border: #1b344c;
+    --theme-accent: #0ea5e9;
+    --theme-accent-rgb: 14, 165, 233;
+}
+
+:root[data-theme="forest"] {
+    --app-bg: #101a16;
+    --surface-bg: #182720;
+    --surface-raised: #21382c;
+    --surface-border: #354d3e;
+    --app-text: #e7f4eb;
+    --muted-text: #a4b9aa;
+    --input-bg: #101a16;
+    --input-border: #405b49;
+    --table-stripe: #1c3026;
+    --table-hover: #294535;
+    --sidebar-bg: #0b1510;
+    --sidebar-hover: #1c3026;
+    --sidebar-border: #23372b;
+    --theme-accent: #22c55e;
+    --theme-accent-rgb: 34, 197, 94;
+}
+
+:root[data-theme="violet"] {
+    --app-bg: #191427;
+    --surface-bg: #241e35;
+    --surface-raised: #302644;
+    --surface-border: #463956;
+    --app-text: #f2ecff;
+    --muted-text: #b8abc9;
+    --input-bg: #191427;
+    --input-border: #504360;
+    --table-stripe: #2b2340;
+    --table-hover: #3a2f52;
+    --sidebar-bg: #120e1e;
+    --sidebar-hover: #29213b;
+    --sidebar-border: #302741;
+    --theme-accent: #a78bfa;
+    --theme-accent-rgb: 167, 139, 250;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) {
+    color-scheme: dark;
+    --bs-primary: var(--theme-accent);
+    --bs-primary-rgb: var(--theme-accent-rgb);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) body,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) main {
+    background-color: var(--app-bg) !important;
+    color: var(--app-text);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar {
+    background-color: var(--sidebar-bg) !important;
+    color: var(--app-text) !important;
+    border-color: var(--sidebar-border);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .py-3.text-center {
+    border-color: var(--sidebar-border) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded] {
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link:hover,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded]:hover {
+    background-color: var(--sidebar-hover);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar .nav-link.active {
+    background-color: var(--theme-accent);
+    color: #fff !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .sidebar button[aria-expanded].fw-bold {
+    color: var(--theme-accent) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .header,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card-header,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .card-footer,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-menu,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .modal-content,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .list-group-item,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .bg-white,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .bg-light {
+    background-color: var(--surface-bg) !important;
+    color: var(--app-text) !important;
+    border-color: var(--surface-border);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table {
+    --bs-table-color: var(--app-text);
+    --bs-table-bg: var(--surface-bg);
+    --bs-table-border-color: var(--surface-border);
+    --bs-table-striped-bg: var(--table-stripe);
+    --bs-table-hover-bg: var(--table-hover);
+    --bs-table-hover-color: #fff;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table thead,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .table thead th {
+    --bs-table-color: #fff;
+    --bs-table-bg: var(--surface-raised);
+    --bs-table-border-color: var(--surface-border);
+    background-color: var(--surface-raised) !important;
+    color: #fff !important;
+    border-color: var(--surface-border);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .text-dark,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .fw-semibold,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) label,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-label,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h1:not([class*="text-"]),
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h2:not([class*="text-"]),
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h3:not([class*="text-"]),
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h4:not([class*="text-"]),
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h5:not([class*="text-"]),
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .main-content h6:not([class*="text-"]) {
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .header h4 {
+    color: #fff;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .text-muted,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) small.text-muted {
+    color: var(--muted-text) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-control,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-select,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .input-group-text,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) textarea,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) input {
+    background-color: var(--input-bg);
+    color: var(--app-text);
+    border-color: var(--input-border);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-control::placeholder,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) input::placeholder,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) textarea::placeholder {
+    color: var(--muted-text);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .form-select option {
+    background-color: var(--surface-bg);
+    color: var(--app-text);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item {
+    color: var(--app-text);
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item:hover,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .dropdown-item:focus {
+    background-color: var(--surface-raised);
+    color: #fff;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border-bottom,
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .border-top {
+    border-color: var(--surface-border) !important;
+}
+
+:root:is([data-theme="ocean"], [data-theme="forest"], [data-theme="violet"]) .theme-toggle {
+    color: var(--app-text);
+    border-color: var(--surface-border);
+}
+
+/* Additional dark palettes */
+:root[data-theme="slate"] {
+    --app-bg: #111827;
+    --surface-bg: #1f2937;
+    --surface-raised: #374151;
+    --surface-border: #4b5563;
+    --app-text: #f1f5f9;
+    --muted-text: #b6c2d1;
+    --input-bg: #111827;
+    --input-border: #4b5563;
+    --table-stripe: #263244;
+    --table-hover: #334155;
+    --sidebar-bg: #0b1220;
+    --sidebar-hover: #1f2937;
+    --sidebar-border: #334155;
+    --theme-accent: #94a3b8;
+    --theme-accent-rgb: 148, 163, 184;
+}
+
+:root[data-theme="rose"] {
+    --app-bg: #21131b;
+    --surface-bg: #301b27;
+    --surface-raised: #472536;
+    --surface-border: #684052;
+    --app-text: #fff1f5;
+    --muted-text: #d2aebc;
+    --input-bg: #21131b;
+    --input-border: #684052;
+    --table-stripe: #3a202e;
+    --table-hover: #543044;
+    --sidebar-bg: #180d13;
+    --sidebar-hover: #301b27;
+    --sidebar-border: #472536;
+    --theme-accent: #fb7185;
+    --theme-accent-rgb: 251, 113, 133;
+}
+
+:root[data-theme="teal"] {
+    --app-bg: #0c1c1d;
+    --surface-bg: #14292a;
+    --surface-raised: #1e3b3c;
+    --surface-border: #315455;
+    --app-text: #e6fffb;
+    --muted-text: #a5c9c5;
+    --input-bg: #0c1c1d;
+    --input-border: #315455;
+    --table-stripe: #193233;
+    --table-hover: #244344;
+    --sidebar-bg: #071415;
+    --sidebar-hover: #14292a;
+    --sidebar-border: #203c3d;
+    --theme-accent: #2dd4bf;
+    --theme-accent-rgb: 45, 212, 191;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) {
+    color-scheme: dark;
+    --bs-primary: var(--theme-accent);
+    --bs-primary-rgb: var(--theme-accent-rgb);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) body,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) main {
+    background-color: var(--app-bg) !important;
+    color: var(--app-text);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .sidebar {
+    background-color: var(--sidebar-bg) !important;
+    color: var(--app-text) !important;
+    border-color: var(--sidebar-border);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .sidebar .nav-link,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .sidebar button[aria-expanded] {
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .sidebar .nav-link.active {
+    background-color: var(--theme-accent);
+    color: #111827 !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .header,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .card,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .card-header,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .card-footer,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .dropdown-menu,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .modal-content,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .list-group-item,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .bg-white,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .bg-light {
+    background-color: var(--surface-bg) !important;
+    color: var(--app-text) !important;
+    border-color: var(--surface-border);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .table {
+    --bs-table-color: var(--app-text);
+    --bs-table-bg: var(--surface-bg);
+    --bs-table-border-color: var(--surface-border);
+    --bs-table-striped-bg: var(--table-stripe);
+    --bs-table-hover-bg: var(--table-hover);
+    --bs-table-hover-color: var(--app-text);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .table thead,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .table thead th {
+    background-color: var(--surface-raised) !important;
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .form-control,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .form-select,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .input-group-text,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) textarea,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) input {
+    background-color: var(--input-bg);
+    color: var(--app-text);
+    border-color: var(--input-border);
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .text-dark,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) label,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .form-label,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h1:not([class*="text-"]),
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h2:not([class*="text-"]),
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h3:not([class*="text-"]),
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h4:not([class*="text-"]),
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h5:not([class*="text-"]),
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .main-content h6:not([class*="text-"]) {
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .text-muted {
+    color: var(--muted-text) !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .theme-menu-options .dropdown-item {
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .theme-menu-options .dropdown-item:hover,
+:root:is([data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .theme-menu-options .dropdown-item:focus {
+    background-color: var(--surface-raised) !important;
+    color: var(--app-text) !important;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"], [data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .header .theme-menu {
+    flex: 0 0 auto;
+}
+
+:root:is([data-theme="dark"], [data-theme="ocean"], [data-theme="forest"], [data-theme="violet"], [data-theme="slate"], [data-theme="rose"], [data-theme="teal"]) .header .theme-toggle {
+    background-color: var(--theme-accent, #60a5fa);
+    color: #111827;
+    border-color: var(--theme-accent, #60a5fa);
+}
+
+.header .theme-toggle:hover,
+.header .theme-toggle:focus-visible {
+    filter: brightness(1.08);
+    box-shadow: 0 0 0 0.2rem rgba(var(--theme-accent-rgb, 100, 116, 139), 0.25);
+}
+
 
 /* ==========================
    Scrollbar
@@ -322,7 +906,7 @@ a {
         width: 100%;
         min-width: 0;
 
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 }
 
@@ -366,6 +950,11 @@ a {
 
     .header {
         height: 62px;
+    }
+
+    .sidebar-brand {
+        height: 62px;
+        min-height: 62px;
     }
 
     main {
@@ -524,7 +1113,7 @@ a {
     }
 
     .header h4 {
-        max-width: 55vw;
+        max-width: 32vw;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -533,6 +1122,19 @@ a {
     .header .dropdown {
         flex: 0 0 auto;
         margin-left: 0.5rem;
+    }
+
+    .header .theme-menu-options {
+        right: 0;
+        left: auto;
+        min-width: 9.5rem;
+        margin-top: 0.5rem !important;
+        z-index: 1060;
+    }
+
+    .header .theme-menu-options .dropdown-item {
+        min-height: 44px;
+        padding: 0.65rem 0.85rem;
     }
 
     .card.shadow,

@@ -23,7 +23,7 @@ const Footer = () => {
 
                         <small className="text-muted">
 
-                            © {new Date().getFullYear()} <strong>Income Expense Tracker</strong>
+                            © {new Date().getFullYear()} <strong>Jagal & Sons</strong>
 
                         </small>
 
@@ -69,7 +69,7 @@ const Footer = () => {
 
                         <small className="text-muted me-2">
 
-                            Developed by <strong>Your Company</strong>
+                            Developed by <strong>Varun Jagal</strong>
 
                         </small>
 

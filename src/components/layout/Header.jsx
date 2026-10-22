@@ -1,14 +1,40 @@
-import { useState } from "react";
-import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { FaBars, FaUserCircle, FaSignOutAlt, FaPalette, FaCheck } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const Header = ({ sidebarOpen, setSidebarOpen }) => {
+const THEME_OPTIONS = [
+    { value: "light", label: "Light" },
+    { value: "dark", label: "Dark" },
+    { value: "ocean", label: "Ocean" },
+    { value: "forest", label: "Forest" },
+    { value: "violet", label: "Violet" },
+    { value: "slate", label: "Slate" },
+    { value: "rose", label: "Rose" },
+    { value: "teal", label: "Teal" },
+];
+
+const Header = ({ sidebarOpen, setSidebarOpen, closeMenuSignal, onHeaderMenuOpen }) => {
 
     const location = useLocation();
     const navigate = useNavigate();
     const { logout } = useAuth();
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+    const [theme, setTheme] = useState(() => {
+        const savedTheme = localStorage.getItem("income-expense-theme");
+        return THEME_OPTIONS.some((option) => option.value === savedTheme) ? savedTheme : "light";
+    });
+    const [themeMenuOpen, setThemeMenuOpen] = useState(false);
+
+    useEffect(() => {
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem("income-expense-theme", theme);
+    }, [theme]);
+
+    useEffect(() => {
+        setProfileMenuOpen(false);
+        setThemeMenuOpen(false);
+    }, [closeMenuSignal]);
 
     const handleLogout = () => {
         logout();
@@ -53,7 +79,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
         <header
             className="header bg-white shadow-sm sticky-top"
             style={{
-                height: "70px",
                 borderBottom: "1px solid #dee2e6",
                 zIndex: 1030
             }}
@@ -89,35 +114,77 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
                     {/* Right */}
 
-                    <div className="dropdown">
-                        <button
-                            type="button"
-                            className="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center"
-                            aria-expanded={profileMenuOpen}
-                            aria-label="Open profile menu"
-                            onClick={() => setProfileMenuOpen((open) => !open)}
-                        >
-                            <FaUserCircle size={38} className="text-primary me-2" />
-                            <span className="d-none d-md-block text-start">
-                                <span className="d-block fw-semibold">Welcome Admin</span>
-                                <small className="text-muted">Account menu</small>
-                            </span>
-                        </button>
+                    <div className="d-flex align-items-center gap-3">
+                        <div className="dropdown theme-menu">
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary theme-toggle"
+                                aria-expanded={themeMenuOpen}
+                                aria-label="Choose color theme"
+                                title="Choose color theme"
+                                onClick={() => {
+                                    setProfileMenuOpen(false);
+                                    setThemeMenuOpen((open) => !open);
+                                    onHeaderMenuOpen?.();
+                                }}
+                            >
+                                <FaPalette aria-hidden="true" />
+                            </button>
+                            {themeMenuOpen && (
+                                <div className="dropdown-menu dropdown-menu-end show mt-2 theme-menu-options">
+                                    {THEME_OPTIONS.map((option) => (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            className="dropdown-item d-flex align-items-center justify-content-between"
+                                            aria-pressed={theme === option.value}
+                                            onClick={() => {
+                                                setTheme(option.value);
+                                                setThemeMenuOpen(false);
+                                            }}
+                                        >
+                                            {option.label}
+                                            {theme === option.value && <FaCheck aria-hidden="true" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
-                        {profileMenuOpen && (
-                            <div className="dropdown-menu dropdown-menu-end show mt-2">
-                                <Link
-                                    to="/profile"
-                                    className="dropdown-item"
-                                    onClick={() => setProfileMenuOpen(false)}
-                                >
-                                    <FaUserCircle className="me-2" />Profile
-                                </Link>
-                                <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
-                                    <FaSignOutAlt className="me-2" />Logout
-                                </button>
-                            </div>
-                        )}
+                        <div className="dropdown">
+                            <button
+                                type="button"
+                                className="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center"
+                                aria-expanded={profileMenuOpen}
+                                aria-label="Open profile menu"
+                                onClick={() => {
+                                    setThemeMenuOpen(false);
+                                    setProfileMenuOpen((open) => !open);
+                                    onHeaderMenuOpen?.();
+                                }}
+                            >
+                                <FaUserCircle size={38} className="text-primary me-2" />
+                                <span className="d-none d-md-block text-start">
+                                    <span className="d-block fw-semibold">Welcome Admin</span>
+                                    <small className="text-muted">Account menu</small>
+                                </span>
+                            </button>
+
+                            {profileMenuOpen && (
+                                <div className="dropdown-menu dropdown-menu-end show mt-2">
+                                    <Link
+                                        to="/profile"
+                                        className="dropdown-item"
+                                        onClick={() => setProfileMenuOpen(false)}
+                                    >
+                                        <FaUserCircle className="me-2" />Profile
+                                    </Link>
+                                    <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
+                                        <FaSignOutAlt className="me-2" />Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                 </div>

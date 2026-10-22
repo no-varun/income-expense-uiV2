@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
     FaTachometerAlt,
     FaTags,
@@ -75,8 +75,9 @@ const menuGroups = [
     },
 ];
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+const Sidebar = ({ sidebarOpen, setSidebarOpen, onMenuInteract, closeGroupSignal }) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [openGroups, setOpenGroups] = useState(() =>
         Object.fromEntries(
             menuGroups
@@ -85,9 +86,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         ),
     );
 
-    const closeSidebar = () => setSidebarOpen(false);
+    useEffect(() => {
+        if (closeGroupSignal > 0) {
+            setOpenGroups(Object.fromEntries(menuGroups.map((group) => [group.title, false])));
+        }
+    }, [closeGroupSignal]);
+
+    useEffect(() => {
+        if (location.pathname === "/") {
+            setOpenGroups(Object.fromEntries(menuGroups.map((group) => [group.title, false])));
+        }
+    }, [location.pathname]);
+
+    const closeSidebar = () => {
+        onMenuInteract?.();
+        setSidebarOpen(false);
+    };
     const toggleGroup = (title) => {
-        setOpenGroups((current) => ({ ...current, [title]: !current[title] }));
+        onMenuInteract?.();
+        if (openGroups[title]) {
+            navigate("/");
+        }
+        setOpenGroups((current) => {
+            const shouldOpen = !current[title];
+            return Object.fromEntries(
+                menuGroups.map((group) => [group.title, group.title === title && shouldOpen]),
+            );
+        });
     };
     const linkClass = ({ isActive }) =>
         `nav-link d-flex align-items-center text-light ${isActive ? "bg-primary text-white fw-bold" : ""}`;
@@ -109,9 +134,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     </button>
                 </div>
 
-                <div className="py-3 text-center border-bottom">
-                    <h4 className="fw-bold mb-0">💰 Income Tracker</h4>
-                    <small>Admin Panel</small>
+                <div className="sidebar-brand py-3 text-center border-bottom">
+                    <h4 className="fw-bold mb-0">💰 Jagal & Sons</h4>
                 </div>
 
                 <div className="flex-grow-1 overflow-auto">

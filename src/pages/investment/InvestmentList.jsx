@@ -1750,18 +1750,11 @@ const InvestmentList = () => {
                                                             <td>
                                                                 {investment.account &&
                                                                     typeof investment.account === "object" ? (
-                                                                    <div>
-                                                                        <div className="fw-semibold">
-                                                                            {investment.account.name || "-"}
-                                                                        </div>
-
-                                                                        <small className="text-muted">
-                                                                            <BrandImage type="bank" value={investment.account.bank} size="2rem" />
-                                                                            {investment.account.accountType
-                                                                                ? ` • ${investment.account.accountType}`
-                                                                                : ""}
-                                                                        </small>
-                                                                    </div>
+                                                                    <BrandImage
+                                                                        type="bank"
+                                                                        value={investment.account.bank}
+                                                                        size="3rem"
+                                                                    />
                                                                 ) : (
                                                                     <span className="text-muted">
                                                                         -

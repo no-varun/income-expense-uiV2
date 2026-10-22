@@ -8,6 +8,10 @@ import Footer from "./Footer";
 const Layout = () => {
 
     const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 992);
+    const [headerMenuCloseSignal, setHeaderMenuCloseSignal] = useState(0);
+    const [sidebarGroupCloseSignal, setSidebarGroupCloseSignal] = useState(0);
+    const closeHeaderMenus = () => setHeaderMenuCloseSignal((signal) => signal + 1);
+    const closeSidebarGroups = () => setSidebarGroupCloseSignal((signal) => signal + 1);
 
     return (
 
@@ -15,13 +19,15 @@ const Layout = () => {
             className="d-flex"
             style={{
                 minHeight: "100vh",
-                overflowX: "hidden"
+                overflowX: "clip"
             }}
         >
 
             <Sidebar
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
+                onMenuInteract={closeHeaderMenus}
+                closeGroupSignal={sidebarGroupCloseSignal}
             />
 
             <div
@@ -36,6 +42,8 @@ const Layout = () => {
                 <Header
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
+                    closeMenuSignal={headerMenuCloseSignal}
+                    onHeaderMenuOpen={closeSidebarGroups}
                 />
 
                 <main
