@@ -7,6 +7,7 @@ import {
 import {
     Link
 } from "react-router-dom";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     getDebts,
@@ -1313,10 +1314,7 @@ const DebtList = () => {
 
                                                 <td>
 
-                                                    {
-                                                        item.paymentMode ||
-                                                        "-"
-                                                    }
+                                                    <BrandImage type="payment" value={item.paymentMode} size="3rem" />
 
                                                 </td>
 

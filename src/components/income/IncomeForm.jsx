@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
 import { getAccounts } from "../../api/accountApi";
+import BrandImage from "../common/BrandImage";
 
 
 const toDateTimeLocal = (value = new Date()) => {
@@ -913,6 +914,7 @@ const IncomeForm = ({
                             <label className="form-label fw-semibold">
 
                                 Payment Mode
+                                <BrandImage type="payment" value={form.paymentMode} size="2rem" className="ms-2" />
 
                                 <span className="text-danger ms-1">
                                     *
@@ -1106,7 +1108,7 @@ const IncomeForm = ({
                                                 <div className="small text-muted">
 
                                                     {
-                                                        selectedAccount.bank
+                                                        <BrandImage type="bank" value={selectedAccount.bank} size="2rem" />
                                                     }
 
                                                 </div>

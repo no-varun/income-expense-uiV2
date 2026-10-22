@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import SummaryCard from "../../components/dashboard/SummaryCard";
 import RecentTransaction from "../../components/dashboard/RecentTransaction";
+import BrandImage from "../common/BrandImage";
 
 import {
     getSummary,
@@ -41,26 +42,6 @@ const Dashboard = () => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }
-        );
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORMAT BANK
-    |--------------------------------------------------------------------------
-    */
-
-    const formatBankName = (bank) => {
-
-        if (!bank) {
-            return "-";
-        }
-
-        return (
-            bank.charAt(0).toUpperCase() +
-            bank.slice(1)
         );
 
     };
@@ -860,28 +841,8 @@ const Dashboard = () => {
                                                     </td>
 
 
-                                                    <td>
-
-                                                        <div className="fw-semibold">
-
-                                                            {
-                                                                investment.account?.name ||
-                                                                "-"
-                                                            }
-
-                                                        </div>
-
-
-                                                        <small className="text-muted">
-
-                                                            {
-                                                                formatBankName(
-                                                                    investment.account?.bank
-                                                                )
-                                                            }
-
-                                                        </small>
-
+                                                    <td className="text-center align-middle">
+                                                        <BrandImage type="bank" value={investment.account?.bank} size="2.5rem" />
                                                     </td>
 
 
@@ -1354,7 +1315,7 @@ const Dashboard = () => {
                                         return (
                                             <tr key={account?._id || index}>
                                                 <td className="fw-semibold">{account?.name || "Unnamed account"}</td>
-                                                <td>{formatBankName(account?.bank)}</td>
+                                                <td className="text-center align-middle"><BrandImage type="bank" value={account?.bank} size="2.5rem" /></td>
                                                 <td>{account?.accountType || "Account"}</td>
                                                 <td className={
                                                     `text-end fw-semibold ${belowMinimum ? "text-danger" : "text-success"}`
@@ -1481,52 +1442,9 @@ const Dashboard = () => {
 
                                                     {/* ACCOUNT HEADER */}
 
-                                                    <div
-                                                        className="
-                                                            d-flex
-                                                            justify-content-between
-                                                            align-items-start
-                                                        "
-                                                    >
-
-                                                        <div>
-
-                                                            <h5 className="mb-1">
-
-                                                                {
-                                                                    account.name
-                                                                }
-
-                                                            </h5>
-
-                                                            <div className="text-muted small">
-
-                                                                {
-                                                                    formatBankName(
-                                                                        account.bank
-                                                                    )
-                                                                }
-
-                                                            </div>
-
-                                                        </div>
-
-
-                                                        <span
-                                                            className="
-                                                                badge
-                                                                bg-light
-                                                                text-dark
-                                                            "
-                                                        >
-
-                                                            {
-                                                                account.accountType ||
-                                                                "Account"
-                                                            }
-
-                                                        </span>
-
+                                                    <div className="text-center">
+                                                        <h5 className="mb-1">{account.name}</h5>
+                                                        <BrandImage type="bank" value={account.bank} size="3rem" />
                                                     </div>
 
 
@@ -1897,7 +1815,7 @@ const Dashboard = () => {
                                         #
                                     </th>
 
-                                    <th>
+                                    <th className="text-center">
                                         Bank
                                     </th>
 
@@ -1965,18 +1883,11 @@ const Dashboard = () => {
                                                 </td>
 
 
-                                                <td>
-
-                                                    <strong>
-
-                                                        {
-                                                            formatBankName(
-                                                                item?.bank
-                                                            )
-                                                        }
-
-                                                    </strong>
-
+                                                <td className="text-center align-middle">
+                                                    <div className="d-flex flex-column align-items-center gap-1">
+                                                        <BrandImage type="bank" value={item?.bank} size="3rem" />
+                                                        <span className="small text-muted">{item?.bank || "-"}</span>
+                                                    </div>
                                                 </td>
 
 

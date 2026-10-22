@@ -15,6 +15,7 @@ import {
     getInvestmentSummary,
     deleteInvestment
 } from "../../api/investmentApi";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     getAccounts
@@ -1754,7 +1755,7 @@ const InvestmentList = () => {
                                                                         </div>
 
                                                                         <small className="text-muted">
-                                                                            {investment.account.bank || ""}
+                                                                            <BrandImage type="bank" value={investment.account.bank} size="2rem" />
                                                                             {investment.account.accountType
                                                                                 ? ` • ${investment.account.accountType}`
                                                                                 : ""}

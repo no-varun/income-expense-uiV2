@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import SummaryCard from "../../components/dashboard/SummaryCard";
 import RecentTransaction from "../../components/dashboard/RecentTransaction";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     getSummary,
@@ -35,26 +36,6 @@ const Dashboard = () => {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }
-        );
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FORMAT BANK
-    |--------------------------------------------------------------------------
-    */
-
-    const formatBankName = (bank) => {
-
-        if (!bank) {
-            return "-";
-        }
-
-        return (
-            bank.charAt(0).toUpperCase() +
-            bank.slice(1)
         );
 
     };
@@ -928,28 +909,8 @@ const Dashboard = () => {
                                                     </td>
 
 
-                                                    <td>
-
-                                                        <div className="fw-semibold">
-
-                                                            {
-                                                                investment?.account?.name ||
-                                                                "-"
-                                                            }
-
-                                                        </div>
-
-
-                                                        <small className="text-muted">
-
-                                                            {
-                                                                formatBankName(
-                                                                    investment?.account?.bank
-                                                                )
-                                                            }
-
-                                                        </small>
-
+                                                    <td className="text-center align-middle">
+                                                        <BrandImage type="bank" value={investment?.account?.bank} size="2.5rem" />
                                                     </td>
 
 
@@ -1233,12 +1194,10 @@ const Dashboard = () => {
 
                                                             </h5>
 
-                                                            <div className="text-muted small">
+                                                            <div className="text-muted small text-center">
 
                                                                 {
-                                                                    formatBankName(
-                                                                        account?.bank
-                                                                    )
+                                                                    <BrandImage type="bank" value={account?.bank} size="2.5rem" />
                                                                 }
 
                                                             </div>
@@ -1733,14 +1692,12 @@ const Dashboard = () => {
                                                     </td>
 
 
-                                                    <td>
+                                                <td className="text-center align-middle">
 
                                                         <strong>
 
                                                             {
-                                                                formatBankName(
-                                                                    item?.bank
-                                                                )
+                                                                <BrandImage type="bank" value={item?.bank} size="3rem" />
                                                             }
 
                                                         </strong>

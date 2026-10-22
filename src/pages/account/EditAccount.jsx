@@ -6,6 +6,7 @@ import {
     updateAccount
 } from "../../api/accountApi";
 import { aesDecrypt, SECRET_KEY } from "../../utils/helpers";
+import BrandImage from "../../components/common/BrandImage";
 
 const EditAccount = () => {
 
@@ -387,7 +388,7 @@ const EditAccount = () => {
 
                                         <label className="form-label">
 
-                                            Bank
+                                            Bank <BrandImage type="bank" value={form.bank} size="2rem" className="ms-2" />
 
                                             <span className="text-danger">
                                                 {" "}*

@@ -1,9 +1,20 @@
-import { FaBars, FaUserCircle } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
     const location = useLocation();
+    const navigate = useNavigate();
+    const { logout } = useAuth();
+    const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+    const handleLogout = () => {
+        logout();
+        setProfileMenuOpen(false);
+        navigate("/login", { replace: true });
+    };
 
     const getTitle = () => {
 
@@ -78,37 +89,36 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
                     {/* Right */}
 
-                    <Link
-                        to="/profile"
-                        className="text-decoration-none text-dark"
-                    >
+                    <div className="dropdown">
+                        <button
+                            type="button"
+                            className="btn btn-link text-decoration-none text-dark p-0 d-flex align-items-center"
+                            aria-expanded={profileMenuOpen}
+                            aria-label="Open profile menu"
+                            onClick={() => setProfileMenuOpen((open) => !open)}
+                        >
+                            <FaUserCircle size={38} className="text-primary me-2" />
+                            <span className="d-none d-md-block text-start">
+                                <span className="d-block fw-semibold">Welcome Admin</span>
+                                <small className="text-muted">Account menu</small>
+                            </span>
+                        </button>
 
-                        <div className="d-flex align-items-center">
-
-                            <FaUserCircle
-                                size={38}
-                                className="text-primary me-2"
-                            />
-
-                            <div className="d-none d-md-block">
-
-                                <div className="fw-semibold">
-
-                                    Welcome Admin
-
-                                </div>
-
-                                <small className="text-muted">
-
-                                    View Profile
-
-                                </small>
-
+                        {profileMenuOpen && (
+                            <div className="dropdown-menu dropdown-menu-end show mt-2">
+                                <Link
+                                    to="/profile"
+                                    className="dropdown-item"
+                                    onClick={() => setProfileMenuOpen(false)}
+                                >
+                                    <FaUserCircle className="me-2" />Profile
+                                </Link>
+                                <button type="button" className="dropdown-item text-danger" onClick={handleLogout}>
+                                    <FaSignOutAlt className="me-2" />Logout
+                                </button>
                             </div>
-
-                        </div>
-
-                    </Link>
+                        )}
+                    </div>
 
                 </div>
 

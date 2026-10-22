@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaSync } from "react-icons/fa";
 import { getAccounts, deleteAccount } from "../../api/accountApi";
+import BrandImage from "../../components/common/BrandImage";
 
 const AccountList = () => {
     const [accounts, setAccounts] = useState([]);
@@ -487,13 +488,7 @@ const AccountList = () => {
 
                                                         <td>
 
-                                                            <span className="badge bg-secondary">
-
-                                                                {
-                                                                    account.bank
-                                                                }
-
-                                                            </span>
+                                                            <BrandImage type="bank" value={account.bank} size="3rem" />
 
                                                         </td>
 

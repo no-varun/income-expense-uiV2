@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getCategories } from "../../api/categoryApi";
 import { getItems } from "../../api/itemApi";
 import { getAccounts } from "../../api/accountApi";
+import BrandImage from "../common/BrandImage";
 
 
 const SavingForm = ({
@@ -779,6 +780,7 @@ const SavingForm = ({
                             <label className="form-label">
 
                                 Payment Mode
+                                <BrandImage type="payment" value={form.paymentMode} size="2rem" className="ms-2" />
                                 <span className="text-danger">
                                     *
                                 </span>

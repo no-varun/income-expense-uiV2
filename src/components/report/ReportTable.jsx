@@ -1,7 +1,7 @@
 import {
-    getCategoryBadgeStyle,
-    getPaymentModeBadgeClass
+    getCategoryBadgeStyle
 } from "../../utils/badgeStyles";
+import BrandImage from "../common/BrandImage";
 
 const ReportTable = ({ reportType, reportData }) => {
 
@@ -189,11 +189,7 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                                 <td>
 
-                                                    <span className={getPaymentModeBadgeClass(item._id)}>
-
-                                                        {item._id || "-"}
-
-                                                    </span>
+                                                    <BrandImage type="payment" value={item._id} size="3rem" />
 
                                                 </td>
 
@@ -276,11 +272,7 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                                     <td>
 
-                                                        <span className={getPaymentModeBadgeClass(item.paymentMode)}>
-
-                                                            {item.paymentMode || "-"}
-
-                                                        </span>
+                                                        <BrandImage type="payment" value={item.paymentMode} size="3rem" />
 
                                                     </td>
 
@@ -366,11 +358,7 @@ const ReportTable = ({ reportType, reportData }) => {
 
                                                     <td>
 
-                                                        <span className={getPaymentModeBadgeClass(item.paymentMode)}>
-
-                                                            {item.paymentMode || "-"}
-
-                                                        </span>
+                                                        <BrandImage type="payment" value={item.paymentMode} size="3rem" />
 
                                                     </td>
 

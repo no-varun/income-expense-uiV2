@@ -13,6 +13,7 @@ import {
     getTransfers,
     deleteTransfer
 } from "../../api/transferApi";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     getAccounts
@@ -929,51 +930,15 @@ const TransferList = () => {
 
                                                             {/* From */}
 
-                                                            <td>
-
-                                                                <div className="fw-semibold">
-
-                                                                    {
-                                                                        transfer.fromAccount?.name ||
-                                                                        "-"
-                                                                    }
-
-                                                                </div>
-
-                                                                <small className="text-muted">
-
-                                                                    {
-                                                                        transfer.fromAccount?.bank ||
-                                                                        ""
-                                                                    }
-
-                                                                </small>
-
+                                                            <td className="text-center align-middle">
+                                                                <BrandImage type="bank" value={transfer.fromAccount?.bank} size="2.5rem" />
                                                             </td>
 
 
                                                             {/* To */}
 
-                                                            <td>
-
-                                                                <div className="fw-semibold">
-
-                                                                    {
-                                                                        transfer.toAccount?.name ||
-                                                                        "-"
-                                                                    }
-
-                                                                </div>
-
-                                                                <small className="text-muted">
-
-                                                                    {
-                                                                        transfer.toAccount?.bank ||
-                                                                        ""
-                                                                    }
-
-                                                                </small>
-
+                                                            <td className="text-center align-middle">
+                                                                <BrandImage type="bank" value={transfer.toAccount?.bank} size="2.5rem" />
                                                             </td>
 
 

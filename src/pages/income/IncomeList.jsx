@@ -16,6 +16,7 @@ import { getCategories } from "../../api/categoryApi";
 import { getAccounts } from "../../api/accountApi";
 
 import Pagination from "../../components/common/Pagination";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     getCategoryBadgeStyle
@@ -1379,7 +1380,7 @@ const IncomeList = () => {
                                     Payment
                                 </th>
 
-                                <th>
+                                <th className="text-center">
                                     Account
                                 </th>
 
@@ -1643,72 +1644,8 @@ const IncomeList = () => {
 
                                                 {/* ACCOUNT */}
 
-                                                <td>
-
-                                                    {selectedAccount ? (
-
-                                                        <div>
-
-                                                            <div className="fw-semibold">
-
-                                                                {
-                                                                    selectedAccount.name ||
-                                                                    "-"
-                                                                }
-
-                                                            </div>
-
-
-                                                            <small className="text-muted">
-
-                                                                {
-                                                                    selectedAccount.bank ||
-                                                                    ""
-                                                                }
-
-
-                                                                {selectedAccount.accountType && (
-
-                                                                    <>
-                                                                        {" · "}
-
-                                                                        {
-                                                                            selectedAccount.accountType
-                                                                        }
-
-                                                                    </>
-
-                                                                )}
-
-                                                            </small>
-
-
-                                                            {selectedAccount.isLegacy && (
-
-                                                                <div>
-
-                                                                    <small className="text-warning">
-
-                                                                        Legacy bank
-
-                                                                    </small>
-
-                                                                </div>
-
-                                                            )}
-
-                                                        </div>
-
-                                                    ) : (
-
-                                                        <span className="text-muted">
-
-                                                            Not linked
-
-                                                        </span>
-
-                                                    )}
-
+                                                <td className="text-center align-middle">
+                                                    <BrandImage type="bank" value={selectedAccount?.bank} size="2.5rem" />
                                                 </td>
 
 

@@ -2,6 +2,7 @@ import {
     getCategoryBadgeStyle,
     getTransactionTypeBadgeClass
 } from "../../utils/badgeStyles";
+import BrandImage from "../common/BrandImage";
 
 
 const RecentTransaction = ({
@@ -343,43 +344,9 @@ const RecentTransaction = ({
 
                                             <td>
 
-                                                {item?.account ? (
-
-                                                    <div>
-
-                                                        <div className="fw-semibold">
-
-                                                            {
-                                                                item.account?.name ||
-                                                                "-"
-                                                            }
-
-                                                        </div>
-
-
-                                                        {item.account?.bank && (
-
-                                                            <small className="text-muted">
-
-                                                                {
-                                                                    item.account.bank
-                                                                }
-
-                                                            </small>
-
-                                                        )}
-
-                                                    </div>
-
-                                                ) : (
-
-                                                    <span className="text-muted">
-
-                                                        -
-
-                                                    </span>
-
-                                                )}
+                                                <div className="text-center">
+                                                    <BrandImage type="bank" value={item?.account?.bank} size="2.5rem" />
+                                                </div>
 
                                             </td>
 

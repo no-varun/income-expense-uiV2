@@ -18,6 +18,7 @@ import {
 import {
     getAccounts
 } from "../../api/accountApi";
+import BrandImage from "../common/BrandImage";
 
 
 const DebtForm = ({
@@ -1183,6 +1184,7 @@ const DebtForm = ({
                                 <label className="form-label">
 
                                     Payment Mode
+                                    <BrandImage type="payment" value={form.paymentMode} size="2rem" className="ms-2" />
                                     <span className="text-danger">
                                         *
                                     </span>

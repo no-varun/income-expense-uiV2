@@ -13,6 +13,7 @@ import {
     FaFileAlt,
     FaTimes
 } from "react-icons/fa";
+import BrandImage from "../../components/common/BrandImage";
 
 import {
     deleteExpense,
@@ -1254,70 +1255,16 @@ const ExpenseList = () => {
     |--------------------------------------------------------------------------
     */
 
-    const getAccountName = (
-        item
-    ) => {
+    const getAccountBank = (item) => {
+        const accountId =
+            typeof item?.account === "string"
+                ? item.account
+                : item?.account?._id;
+        const matchedAccount = accounts.find(
+            (accountItem) => String(accountItem?._id) === String(accountId),
+        );
 
-        const shortenAccountName = (name) =>
-            String(name || "-")
-                .trim()
-                .split(/\s+/)
-                .slice(0, 2)
-                .join(" ");
-
-        /*
-        |--------------------------------------------------------------------------
-        | Populated account
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            item?.account?.name
-        ) {
-
-            return shortenAccountName(item.account.name);
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Account ID
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            typeof item?.account ===
-            "string"
-        ) {
-
-            const found =
-                accounts.find(
-                    accountItem =>
-                        String(
-                            accountItem?._id
-                        ) ===
-                        String(
-                            item.account
-                        )
-                );
-
-
-            if (found) {
-
-                return shortenAccountName(
-                    found.name ||
-                    found.accountName ||
-                    "-"
-                );
-
-            }
-
-        }
-
-
-        return "-";
-
+        return item?.account?.bank || matchedAccount?.bank || item?.bank || "";
     };
 
 
@@ -2124,7 +2071,7 @@ const ExpenseList = () => {
                                     Category
                                 </th>
 
-                                <th>
+                                                <th className="text-center">
                                     Account
                                 </th>
 
@@ -2262,14 +2209,8 @@ const ExpenseList = () => {
                                             </td>
 
 
-                                            <td>
-
-                                                {
-                                                    getAccountName(
-                                                        item
-                                                    )
-                                                }
-
+                                            <td className="text-center align-middle">
+                                                <BrandImage type="bank" value={getAccountBank(item)} size="2.5rem" />
                                             </td>
 
 
@@ -2315,10 +2256,7 @@ const ExpenseList = () => {
 
                                             <td>
 
-                                                {
-                                                    item.paymentMode ||
-                                                    "-"
-                                                }
+                                                <BrandImage type="payment" value={item.paymentMode} size="3rem" />
 
                                             </td>
 

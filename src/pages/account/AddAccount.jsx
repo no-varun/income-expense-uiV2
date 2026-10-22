@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
     createAccount
 } from "../../api/accountApi";
+import BrandImage from "../../components/common/BrandImage";
 
 
 const AddAccount = () => {
@@ -376,7 +377,7 @@ const AddAccount = () => {
 
                                 <label className="form-label">
 
-                                    Bank
+                                    Bank <BrandImage type="bank" value={form.bank} size="2rem" className="ms-2" />
 
                                     <span className="text-danger">
                                         {" "}*

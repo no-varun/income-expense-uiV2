@@ -10,6 +10,7 @@ import {
 import {
     getCategories
 } from "../../api/categoryApi";
+import BrandImage from "../common/BrandImage";
 
 import {
     getItems
@@ -1397,6 +1398,7 @@ const ExpenseForm = ({
                                 <label className="form-label fw-semibold">
 
                                     Payment Mode
+                                    <BrandImage type="payment" value={form.paymentMode} size="2rem" className="ms-2" />
 
                                 </label>
 

@@ -6,6 +6,7 @@ import {
 } from "chart.js";
 
 import { Doughnut } from "react-chartjs-2";
+import BrandImage from "../common/BrandImage";
 
 import { getSliceColors } from "./chartColors";
 
@@ -577,15 +578,7 @@ const PaymentModeTable = ({
 
                                                     <td>
 
-                                                        <strong>
-
-                                                            {
-                                                                getPaymentMode(
-                                                                    item
-                                                                )
-                                                            }
-
-                                                        </strong>
+                                                        <BrandImage type="payment" value={getPaymentMode(item)} size="3rem" />
 
                                                     </td>
 
