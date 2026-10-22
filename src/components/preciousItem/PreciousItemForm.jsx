@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDocuments } from "../../api/documentApi";
@@ -84,12 +85,12 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) {
-            alert("PreciousItem name is required.");
+            notify("PreciousItem name is required.");
             return;
         }
 
         if (!form.type) {
-            alert("PreciousItem type is required.");
+            notify("PreciousItem type is required.");
             return;
         }
 

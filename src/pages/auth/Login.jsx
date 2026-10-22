@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -47,13 +48,13 @@ const Login = () => {
 
             } else {
 
-                alert(response.message);
+                notify(response.message);
 
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Login failed"
             );

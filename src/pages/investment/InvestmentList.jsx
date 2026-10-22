@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -346,7 +347,7 @@ const InvestmentList = () => {
 
             setTotal(0);
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to load investments."
@@ -682,7 +683,7 @@ const InvestmentList = () => {
                 response?.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Investment deleted successfully."
                 );
@@ -712,7 +713,7 @@ const InvestmentList = () => {
 
             } else {
 
-                alert(
+                notify(
                     response?.message ||
                     "Unable to delete investment."
                 );
@@ -727,7 +728,7 @@ const InvestmentList = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

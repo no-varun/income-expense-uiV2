@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -103,7 +104,7 @@ const TransferList = () => {
 
             setAccounts([]);
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load accounts."
             );
@@ -204,7 +205,7 @@ const TransferList = () => {
                 // error
             // );
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load transfers."
             );
@@ -363,7 +364,7 @@ const TransferList = () => {
 
             if (response.success) {
 
-                alert(
+                notify(
                     "Transfer deleted successfully."
                 );
 
@@ -389,7 +390,7 @@ const TransferList = () => {
 
             } else {
 
-                alert(
+                notify(
                     response.message ||
                     "Unable to delete transfer."
                 );
@@ -403,7 +404,7 @@ const TransferList = () => {
                 // error
             // );
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to delete transfer."
             );

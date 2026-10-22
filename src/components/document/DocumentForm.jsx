@@ -21,11 +21,11 @@ const DocumentForm = ({ initialValues, onSubmit, submitLabel, saving }) => {
     const submit = async (event) => {
         event.preventDefault();
         if (!form.title.trim()) {
-            alert("Document title is required.");
+            notify("Document title is required.");
             return;
         }
         if (!file && !form.fileUrl.trim() && !initialValues._id) {
-            alert("Please select a document file or provide a file URL.");
+            notify("Please select a document file or provide a file URL.");
             return;
         }
         await onSubmit(form, file);
@@ -87,3 +87,4 @@ const DocumentForm = ({ initialValues, onSubmit, submitLabel, saving }) => {
 };
 
 export default DocumentForm;
+import { notify } from "../../utils/notifications";

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -620,7 +621,7 @@ const DebtForm = ({
 
         if (!form.category) {
 
-            alert(
+            notify(
                 "Please select category"
             );
 
@@ -631,7 +632,7 @@ const DebtForm = ({
 
         if (!form.title.trim()) {
 
-            alert(
+            notify(
                 "Please select item"
             );
 
@@ -647,7 +648,7 @@ const DebtForm = ({
             ) <= 0
         ) {
 
-            alert(
+            notify(
                 "Amount should be greater than zero"
             );
 
@@ -658,7 +659,7 @@ const DebtForm = ({
 
         if (!form.account) {
 
-            alert(
+            notify(
                 "Please select account"
             );
 
@@ -674,7 +675,7 @@ const DebtForm = ({
             ) < 0
         ) {
 
-            alert(
+            notify(
                 "Please enter valid pending amount"
             );
 
@@ -692,7 +693,7 @@ const DebtForm = ({
             )
         ) {
 
-            alert(
+            notify(
                 "Pending amount cannot be greater than total amount"
             );
 

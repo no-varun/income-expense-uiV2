@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import {
     useCallback,
     useEffect,
@@ -475,7 +477,7 @@ const IncomeList = () => {
                     payload?.success
                 ) {
 
-                    alert(
+                    notify(
 
                         payload.message ||
                         "Income deleted successfully."
@@ -509,7 +511,7 @@ const IncomeList = () => {
 
                 } else {
 
-                    alert(
+                    notify(
 
                         payload?.message ||
                         "Unable to delete income."
@@ -526,7 +528,7 @@ const IncomeList = () => {
                 // );
 
 
-                alert(
+                notify(
 
                     error?.response?.data?.message ||
 
@@ -1675,7 +1677,7 @@ const IncomeList = () => {
                                                             className="btn btn-warning btn-sm"
                                                         >
 
-                                                            Edit
+                                                            <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                         </Link>
 
@@ -1690,7 +1692,7 @@ const IncomeList = () => {
                                                             }
                                                         >
 
-                                                            Delete
+                                                            <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                         </button>
 

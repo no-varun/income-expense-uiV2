@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -48,7 +49,7 @@ const Profile = () => {
 
             // await updateProfile(profile);
 
-            alert("Profile Updated Successfully");
+            notify("Profile Updated Successfully");
 
             setIsEditing(false);
 
@@ -56,7 +57,7 @@ const Profile = () => {
 
         catch (error) {
 
-            alert("Unable to update profile.");
+            notify("Unable to update profile.");
 
         }
 

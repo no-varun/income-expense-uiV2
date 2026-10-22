@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getPreciousItems, deletePreciousItem } from "../../api/preciousItemApi";
@@ -88,7 +90,7 @@ const PreciousItemList = () => {
             setpreciousItem([]);
             setTotal(0);
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to fetch preciousItem."
             );
@@ -147,7 +149,7 @@ const PreciousItemList = () => {
                 mimeType: blob.type || item.document?.mimeType || ""
             });
         } catch (error) {
-            alert(error?.response?.data?.message || error?.message || "Unable to open attached document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to open attached document.");
         } finally {
             setViewingDocumentId(null);
         }
@@ -216,7 +218,7 @@ const PreciousItemList = () => {
 
             if (response.success) {
 
-                alert(
+                notify(
                     response.message
                 );
 
@@ -240,7 +242,7 @@ const PreciousItemList = () => {
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Delete failed."
             );
@@ -576,7 +578,7 @@ const PreciousItemList = () => {
                                                         className="btn btn-warning btn-sm me-2"
                                                     >
 
-                                                        Edit
+                                                        <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                     </Link>
 
@@ -591,7 +593,7 @@ const PreciousItemList = () => {
                                                         }
                                                     >
 
-                                                        Delete
+                                                        <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                     </button>
 

@@ -20,10 +20,10 @@ const AddDocument = () => {
             setSaving(true);
             const response = await createDocument(payload);
             if (!response?.success) throw new Error(response?.message || "Unable to upload document.");
-            alert(response.message || "Document uploaded successfully.");
+            notify(response.message || "Document uploaded successfully.");
             navigate("/documents");
         } catch (error) {
-            alert(error?.response?.data?.message || error?.message || "Unable to upload document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to upload document.");
         } finally {
             setSaving(false);
         }
@@ -33,3 +33,4 @@ const AddDocument = () => {
 };
 
 export default AddDocument;
+import { notify } from "../../utils/notifications";

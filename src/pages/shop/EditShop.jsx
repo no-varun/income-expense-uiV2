@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -37,13 +38,13 @@ const EditShop = () => {
 
             } else {
 
-                alert(response.message);
+                notify(response.message);
 
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load shop."
             );
@@ -73,19 +74,19 @@ const EditShop = () => {
 
             if (response.success) {
 
-                alert(response.message);
+                notify(response.message);
 
                 navigate("/shops");
 
             } else {
 
-                alert(response.message);
+                notify(response.message);
 
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to update shop."
             );

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -65,7 +66,7 @@ const EditMilk = () => {
                         response?.success !== true
                     ) {
 
-                        alert(
+                        notify(
                             response?.message ||
                             "Unable to fetch milk record."
                         );
@@ -116,7 +117,7 @@ const EditMilk = () => {
                     // );
 
 
-                    alert(
+                    notify(
 
                         error?.response?.data?.message ||
 
@@ -204,7 +205,7 @@ const EditMilk = () => {
                 response?.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Milk record updated successfully."
                 );
@@ -223,7 +224,7 @@ const EditMilk = () => {
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to update milk record."
             );
@@ -237,7 +238,7 @@ const EditMilk = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

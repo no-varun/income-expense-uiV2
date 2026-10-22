@@ -12,6 +12,19 @@ export const getMilkList = async (params = {}) => {
     return response;
 };
 
+/*
+|--------------------------------------------------------------------------
+| MARK MILK RECORDS PAID FOR A DATE RANGE
+|--------------------------------------------------------------------------
+*/
+export const markMilkPaidByDateRange = async ({ dateFrom, dateTo }) => {
+    const response = await axios.patch("/milk/mark-paid", {
+        dateFrom,
+        dateTo
+    });
+    return response;
+};
+
 
 /*
 |--------------------------------------------------------------------------

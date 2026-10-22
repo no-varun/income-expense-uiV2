@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -82,7 +84,7 @@ const ShopList = () => {
             setShop([]);
             setTotal(0);
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to fetch shops."
             );
@@ -175,7 +177,7 @@ const ShopList = () => {
 
             if (response.success) {
 
-                alert(
+                notify(
                     response.message
                 );
 
@@ -199,7 +201,7 @@ const ShopList = () => {
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Delete failed."
             );
@@ -513,7 +515,7 @@ const ShopList = () => {
                                                         className="btn btn-warning btn-sm me-2"
                                                     >
 
-                                                        Edit
+                                                        <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                     </Link>
 
@@ -528,7 +530,7 @@ const ShopList = () => {
                                                         }
                                                     >
 
-                                                        Delete
+                                                        <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                     </button>
 

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +32,7 @@ const AddSaving = () => {
             setLoading(true);
             const response = await createSaving(formData);
             if (response?.success) {
-                alert(
+                notify(
                     response.message ||
                     "Saving created successfully."
                 );
@@ -46,7 +47,7 @@ const AddSaving = () => {
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to create saving."
             );
@@ -60,7 +61,7 @@ const AddSaving = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

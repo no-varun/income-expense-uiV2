@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import {
     useCallback,
     useEffect,
@@ -574,7 +576,7 @@ const SavingList = () => {
                     response?.success
                 ) {
 
-                    alert(
+                    notify(
                         response.message ||
                         "Saving deleted successfully."
                     );
@@ -597,7 +599,7 @@ const SavingList = () => {
 
                 } else {
 
-                    alert(
+                    notify(
                         response?.message ||
                         "Unable to delete saving."
                     );
@@ -612,7 +614,7 @@ const SavingList = () => {
                 // );
 
 
-                alert(
+                notify(
                     error?.response?.data?.message ||
                     "Failed to delete saving."
                 );
@@ -1377,7 +1379,7 @@ const SavingList = () => {
                                                     className="btn btn-warning btn-sm me-2"
                                                 >
 
-                                                    Edit
+                                                    <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                 </Link>
 
@@ -1392,7 +1394,7 @@ const SavingList = () => {
                                                     }
                                                 >
 
-                                                    Delete
+                                                    <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                 </button>
 

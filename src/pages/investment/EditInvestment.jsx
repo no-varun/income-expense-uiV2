@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import {
     Link,
@@ -268,7 +269,7 @@ const EditInvestment = () => {
                 setAccounts([]);
 
 
-                alert(
+                notify(
                     response?.message ||
                     "Unable to load accounts."
                 );
@@ -298,7 +299,7 @@ const EditInvestment = () => {
             setAccounts([]);
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to load accounts."
@@ -344,7 +345,7 @@ const EditInvestment = () => {
                 response?.success !== true
             ) {
 
-                alert(
+                notify(
                     response?.message ||
                     "Investment not found."
                 );
@@ -377,7 +378,7 @@ const EditInvestment = () => {
                 !investment
             ) {
 
-                alert(
+                notify(
                     "Investment data not found."
                 );
 
@@ -493,7 +494,7 @@ const EditInvestment = () => {
             // );
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to load investment."
@@ -687,7 +688,7 @@ const EditInvestment = () => {
             !form.name.trim()
         ) {
 
-            alert(
+            notify(
                 "Please enter investment name."
             );
 
@@ -706,7 +707,7 @@ const EditInvestment = () => {
             !form.type
         ) {
 
-            alert(
+            notify(
                 "Please select investment type."
             );
 
@@ -725,7 +726,7 @@ const EditInvestment = () => {
             !form.account
         ) {
 
-            alert(
+            notify(
                 "Please select account."
             );
 
@@ -744,7 +745,7 @@ const EditInvestment = () => {
             !form.date
         ) {
 
-            alert(
+            notify(
                 "Please select investment date."
             );
 
@@ -772,7 +773,7 @@ const EditInvestment = () => {
             investedAmount <= 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid invested amount."
             );
 
@@ -805,7 +806,7 @@ const EditInvestment = () => {
             current < 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid current value."
             );
 
@@ -833,7 +834,7 @@ const EditInvestment = () => {
 
         ) {
 
-            alert(
+            notify(
                 "Please select maturity date for FD/RD."
             );
 
@@ -862,7 +863,7 @@ const EditInvestment = () => {
 
         ) {
 
-            alert(
+            notify(
                 "Maturity date cannot be before investment date."
             );
 
@@ -951,7 +952,7 @@ const EditInvestment = () => {
                 response?.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Investment updated successfully."
                 );
@@ -976,7 +977,7 @@ const EditInvestment = () => {
             |--------------------------------------------------------------------------
             */
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to update investment."
             );
@@ -1002,7 +1003,7 @@ const EditInvestment = () => {
             // );
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to update investment."

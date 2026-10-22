@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -52,7 +53,7 @@ const AddExpense = () => {
                 |--------------------------------------------------------------------------
                 */
 
-                alert(
+                notify(
                     response.message ||
                     "Expense created successfully."
                 );
@@ -89,7 +90,7 @@ const AddExpense = () => {
             // );
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to create expense."
             );
@@ -120,7 +121,7 @@ const AddExpense = () => {
                 error?.response?.data;
 
 
-            alert(
+            notify(
 
                 errorResponse?.message ||
 

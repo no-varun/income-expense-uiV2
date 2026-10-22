@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import {
     useNavigate,
@@ -218,7 +219,7 @@ const EditSaving = () => {
 
             if (isSuccess) {
 
-                alert(
+                notify(
                     response?.message ||
                     "Saving updated successfully."
                 );
@@ -233,7 +234,7 @@ const EditSaving = () => {
             }
 
 
-            alert(
+            notify(
 
                 response?.message ||
 
@@ -250,7 +251,7 @@ const EditSaving = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

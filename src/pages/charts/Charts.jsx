@@ -416,7 +416,7 @@ const Charts = () => {
                     <div className="text-muted">View and analyse your financial data.</div>
                 </div>
 
-                <div className="d-flex align-items-end gap-3 flex-nowrap">
+                <div className="chart-filters d-flex align-items-end gap-3">
                     {(chartType === "daily" || chartType === "weekWise" || chartType === "shopWise" || chartType === "titleType" || chartType === "category" || chartType === "paymentMode") && (
                         <div style={{ width: 180 }}>
                             <label className="form-label mb-1">Month</label>

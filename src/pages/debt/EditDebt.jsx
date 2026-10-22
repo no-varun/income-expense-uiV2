@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -208,7 +209,7 @@ const EditDebt = () => {
                 response?.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Debt updated successfully."
                 );
@@ -223,7 +224,7 @@ const EditDebt = () => {
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to update debt."
             );
@@ -237,7 +238,7 @@ const EditDebt = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

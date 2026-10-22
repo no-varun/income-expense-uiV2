@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useState
 } from "react";
@@ -50,7 +51,7 @@ const AddDebt = () => {
                 response?.success
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Debt created successfully."
                 );
@@ -65,7 +66,7 @@ const AddDebt = () => {
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to create debt."
             );
@@ -79,7 +80,7 @@ const AddDebt = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

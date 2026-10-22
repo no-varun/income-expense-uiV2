@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -185,7 +186,7 @@ const MilkForm = ({
             (!form.onLeave && quantity <= 0)
         ) {
 
-            alert(
+            notify(
                 "Quantity must be greater than 0 unless this is an on-leave day."
             );
 
@@ -201,7 +202,7 @@ const MilkForm = ({
             price < 0
         ) {
 
-            alert(
+            notify(
                 "Price must be a valid number."
             );
 
@@ -214,7 +215,7 @@ const MilkForm = ({
             !form.date
         ) {
 
-            alert(
+            notify(
                 "Please select date."
             );
 
@@ -228,7 +229,7 @@ const MilkForm = ({
             "function"
         ) {
 
-            alert(
+            notify(
                 "Submit handler is missing."
             );
 

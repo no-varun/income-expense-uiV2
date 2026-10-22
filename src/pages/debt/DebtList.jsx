@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import {
     useCallback,
     useEffect,
@@ -568,7 +570,7 @@ const DebtList = () => {
 
             if (response?.success) {
 
-                alert(
+                notify(
                     response.message ||
                     "Debt deleted successfully."
                 );
@@ -597,7 +599,7 @@ const DebtList = () => {
 
             } else {
 
-                alert(
+                notify(
                     response?.message ||
                     "Unable to delete debt."
                 );
@@ -607,7 +609,7 @@ const DebtList = () => {
         } catch (error) {
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to delete debt."
@@ -1353,7 +1355,7 @@ const DebtList = () => {
                                                             "
                                                         >
 
-                                                            Edit
+                                                            <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                         </Link>
 
@@ -1372,7 +1374,7 @@ const DebtList = () => {
                                                             }
                                                         >
 
-                                                            Delete
+                                                            <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                         </button>
 

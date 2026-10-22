@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import {
     Link,
@@ -214,7 +215,7 @@ const AddTransfer = () => {
                 setAccounts([]);
 
 
-                alert(
+                notify(
                     response?.message ||
                     "Unable to load accounts."
                 );
@@ -233,7 +234,7 @@ const AddTransfer = () => {
             setAccounts([]);
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to load accounts."
@@ -373,7 +374,7 @@ const AddTransfer = () => {
                 // );
 
 
-                alert(
+                notify(
                     "Account balance data not found."
                 );
 
@@ -398,7 +399,7 @@ const AddTransfer = () => {
             setBalance(null);
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to get account balance."
             );
@@ -427,7 +428,7 @@ const AddTransfer = () => {
             setBalance(null);
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to get account balance."
@@ -759,7 +760,7 @@ const AddTransfer = () => {
 
     if (!form.fromAccount) {
 
-        alert("Please select the source account.");
+        notify("Please select the source account.");
 
         return;
 
@@ -767,7 +768,7 @@ const AddTransfer = () => {
 
     if (!form.toAccount) {
 
-        alert("Please select the destination account.");
+        notify("Please select the destination account.");
 
         return;
 
@@ -778,7 +779,7 @@ const AddTransfer = () => {
         form.toAccount
     ) {
 
-        alert(
+        notify(
             "From account and to account cannot be the same."
         );
 
@@ -791,7 +792,7 @@ const AddTransfer = () => {
         amount <= 0
     ) {
 
-        alert(
+        notify(
             "Please enter a valid transfer amount."
         );
 
@@ -801,7 +802,7 @@ const AddTransfer = () => {
 
     if (!balance) {
 
-        alert(
+        notify(
             "Unable to verify source account balance."
         );
 
@@ -830,7 +831,7 @@ const AddTransfer = () => {
         currentBalance
     ) {
 
-        alert(
+        notify(
             `Insufficient balance. Available balance is ₹${currentBalance.toLocaleString(
                 "en-IN",
                 {
@@ -891,7 +892,7 @@ const AddTransfer = () => {
             response?.success === true
         ) {
 
-            alert(
+            notify(
                 response.message ||
                 "Transfer created successfully."
             );
@@ -919,7 +920,7 @@ const AddTransfer = () => {
         // );
 
 
-        alert(
+        notify(
             response?.message ||
             "Unable to create transfer."
         );
@@ -945,7 +946,7 @@ const AddTransfer = () => {
         // );
 
 
-        alert(
+        notify(
             error?.response?.data?.message ||
             error?.message ||
             "Unable to create transfer."

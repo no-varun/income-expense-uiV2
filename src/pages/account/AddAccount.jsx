@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -91,7 +92,7 @@ const AddAccount = () => {
 
         if (!form.name.trim()) {
 
-            alert("Account name is required.");
+            notify("Account name is required.");
 
             return;
 
@@ -99,7 +100,7 @@ const AddAccount = () => {
 
         if (!form.bank) {
 
-            alert("Bank is required.");
+            notify("Bank is required.");
 
             return;
 
@@ -110,7 +111,7 @@ const AddAccount = () => {
             Number(form.openingBalance) < 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid opening balance."
             );
 
@@ -123,7 +124,7 @@ const AddAccount = () => {
             Number(form.minimumBalance) < 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid minimum balance."
             );
 
@@ -174,7 +175,7 @@ const AddAccount = () => {
                 response.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Account created successfully."
                 );
@@ -200,7 +201,7 @@ const AddAccount = () => {
             |--------------------------------------------------------------------------
             */
 
-            alert(
+            notify(
 
                 response?.message ||
 
@@ -244,7 +245,7 @@ const AddAccount = () => {
                 "Unable to create account.";
 
 
-            alert(
+            notify(
                 message
             );
 

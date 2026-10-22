@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import React, {
     useEffect,
     useState
@@ -237,7 +239,7 @@ const FuturePlanning = () => {
                 response.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     "Future planning deleted successfully."
                 );
@@ -246,7 +248,7 @@ const FuturePlanning = () => {
 
             } else {
 
-                alert(
+                notify(
                     response?.message ||
                     "Unable to delete future planning."
                 );
@@ -260,7 +262,7 @@ const FuturePlanning = () => {
                 // err
             // );
 
-            alert(
+            notify(
                 err?.response?.data?.message ||
                 err?.message ||
                 "Unable to delete future planning."
@@ -652,7 +654,7 @@ const FuturePlanning = () => {
                                                                 )
                                                             }
                                                         >
-                                                            Edit
+                                                            <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
                                                         </button>
 
 
@@ -669,7 +671,7 @@ const FuturePlanning = () => {
                                                                 )
                                                             }
                                                         >
-                                                            Delete
+                                                            <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
                                                         </button>
 
                                                     </div>

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -20,19 +21,19 @@ const AddCategory = () => {
 
             if (response.success) {
 
-                alert(response.message);
+                notify(response.message);
 
                 navigate("/categories");
 
             } else {
 
-                alert(response.message);
+                notify(response.message);
 
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to create category."
             );

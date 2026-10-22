@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import React, {
     useEffect,
     useState
@@ -129,7 +130,7 @@ const FuturePlanningForm = ({
 
                 } else {
 
-                    alert(
+                    notify(
                         response?.message ||
                         "Unable to fetch future planning."
                     );
@@ -143,7 +144,7 @@ const FuturePlanningForm = ({
                     // error
                 // );
 
-                alert(
+                notify(
                     error?.response?.data?.message ||
                     error?.message ||
                     "Unable to fetch future planning."
@@ -256,7 +257,7 @@ const FuturePlanningForm = ({
 
         if (!form.month) {
 
-            alert(
+            notify(
                 "Please select month."
             );
 
@@ -337,7 +338,7 @@ const FuturePlanningForm = ({
                 response.success === true
             ) {
 
-                alert(
+                notify(
                     response.message ||
                     (
                         isEdit
@@ -359,7 +360,7 @@ const FuturePlanningForm = ({
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 (
                     isEdit
@@ -376,7 +377,7 @@ const FuturePlanningForm = ({
             // );
 
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 (

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -81,7 +82,7 @@ const CategoryForm = ({
 
         if (!form.name.trim()) {
 
-            alert(
+            notify(
                 "Category name is required."
             );
 
@@ -92,7 +93,7 @@ const CategoryForm = ({
 
         if (!form.type) {
 
-            alert(
+            notify(
                 "Category type is required."
             );
 

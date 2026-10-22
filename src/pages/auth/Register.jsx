@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -35,7 +36,7 @@ const Register = () => {
 
         if (form.password !== form.confirmPassword) {
 
-            alert("Password and Confirm Password do not match.");
+            notify("Password and Confirm Password do not match.");
 
             return;
 
@@ -55,19 +56,19 @@ const Register = () => {
 
             if (response.success) {
 
-                alert("Registration successful.");
+                notify("Registration successful.");
 
                 navigate("/login");
 
             } else {
 
-                alert(response.message);
+                notify(response.message);
 
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Registration failed"
             );

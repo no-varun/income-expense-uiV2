@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -36,7 +37,7 @@ const EditItem = () => {
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load item."
             );
@@ -60,13 +61,13 @@ const EditItem = () => {
             const response = await updateItem(id, formData);
 
             if (response.success) {
-                alert(response.message);
+                notify(response.message);
                 navigate("/items");
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to update item."
             );

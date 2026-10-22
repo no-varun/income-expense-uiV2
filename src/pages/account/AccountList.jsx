@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrash, FaPlus, FaSearch, FaSync } from "react-icons/fa";
@@ -29,7 +30,7 @@ const AccountList = () => {
             }
         } catch (error) {
             // console.error("Get Accounts Error:", error);
-            alert(error.response?.data?.message || "Unable to load accounts.");
+            notify(error.response?.data?.message || "Unable to load accounts.");
         } finally {
             setLoading(false);
         }
@@ -48,18 +49,18 @@ const AccountList = () => {
             setDeleting(id);
             const response = await deleteAccount(id);
             if (response.success) {
-                alert("Account deleted successfully.");
+                notify("Account deleted successfully.");
                 if (accounts.length === 1 && page > 1) {
                     setPage(page - 1);
                 } else {
                     loadAccounts();
                 }
             } else {
-                alert(response.message || "Unable to delete account.");
+                notify(response.message || "Unable to delete account.");
             }
         } catch (error) {
             // console.error("Delete Account Error:", error);
-            alert(error.response?.data?.message || "Unable to delete account.");
+            notify(error.response?.data?.message || "Unable to delete account.");
         } finally {
             setDeleting(null);
         }

@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -12,7 +14,8 @@ import MilkSummary
 
 import {
     getMilkList,
-    deleteMilk
+    deleteMilk,
+    markMilkPaidByDateRange
 } from "../../api/milkManageApi";
 
 
@@ -94,6 +97,15 @@ const MilkManage = () => {
 
     const [deleting, setDeleting] =
         useState(null);
+
+    const [markingPaid, setMarkingPaid] =
+        useState(false);
+
+    const [showPaidConfirm, setShowPaidConfirm] =
+        useState(false);
+
+    const [successMessage, setSuccessMessage] =
+        useState("");
 
 
     /*
@@ -299,7 +311,7 @@ const MilkManage = () => {
                         new Date().getDate()
                     );
 
-                    alert(
+                    notify(
                         response?.message ||
                         "Unable to fetch milk records."
                     );
@@ -507,7 +519,7 @@ const MilkManage = () => {
                     1
                 );
 
-                alert(
+                notify(
 
                     error?.response?.data?.message ||
 
@@ -643,6 +655,49 @@ const MilkManage = () => {
         };
 
 
+    const handleMarkDateRangePaid = async () => {
+        if (!from || !to) {
+            notify("Select both a start date and an end date.");
+            return;
+        }
+
+        if (from > to) {
+            notify("The start date cannot be later than the end date.");
+            return;
+        }
+
+        setShowPaidConfirm(true);
+    };
+
+    const confirmMarkDateRangePaid = async () => {
+        try {
+            setMarkingPaid(true);
+            const response = await markMilkPaidByDateRange({
+                dateFrom: from,
+                dateTo: to,
+            });
+
+            if (!response || response.success !== true) {
+                notify(response?.message || "Unable to mark milk records as paid.");
+                return;
+            }
+
+            const modifiedCount = Number(response.data?.modifiedCount || 0);
+            setShowPaidConfirm(false);
+            setSuccessMessage(`${modifiedCount} milk record${modifiedCount === 1 ? "" : "s"} marked as paid.`);
+            await loadMilk({ page });
+        } catch (error) {
+            notify(
+                error?.response?.data?.message ||
+                error?.message ||
+                "Unable to mark milk records as paid.",
+            );
+        } finally {
+            setMarkingPaid(false);
+        }
+    };
+
+
     /*
     |--------------------------------------------------------------------------
     | DELETE
@@ -683,7 +738,7 @@ const MilkManage = () => {
                     response.success !== true
                 ) {
 
-                    alert(
+                    notify(
                         response?.message ||
                         "Unable to delete milk record."
                     );
@@ -693,7 +748,7 @@ const MilkManage = () => {
                 }
 
 
-                alert(
+                notify(
                     response.message ||
                     "Milk record deleted."
                 );
@@ -706,7 +761,7 @@ const MilkManage = () => {
                 error
             ) {
 
-                alert(
+                notify(
 
                     error?.response?.data?.message ||
 
@@ -780,6 +835,18 @@ const MilkManage = () => {
 
 
             {/* SUMMARY */}
+
+            {successMessage && (
+                <div className="alert alert-success alert-dismissible fade show" role="status">
+                    {successMessage}
+                    <button
+                        type="button"
+                        className="btn-close"
+                        aria-label="Dismiss success message"
+                        onClick={() => setSuccessMessage("")}
+                    />
+                </div>
+            )}
 
             <MilkSummary
                 {...summary}
@@ -986,7 +1053,17 @@ const MilkManage = () => {
 
                         {/* BUTTONS */}
 
-                        <div className="col-12 d-flex justify-content-end gap-2">
+                        <div className="col-12 d-flex flex-wrap justify-content-end gap-2">
+
+                            <button
+                                type="button"
+                                className="btn btn-success px-4"
+                                onClick={handleMarkDateRangePaid}
+                                disabled={loading || markingPaid || !from || !to || from > to}
+                                title="Mark all milk records in the selected date range as paid"
+                            >
+                                {markingPaid ? "Marking paid..." : "Mark Range Paid"}
+                            </button>
 
                             <button
 
@@ -1040,6 +1117,46 @@ const MilkManage = () => {
 
 
             {/* TABLE */}
+
+            {showPaidConfirm && (
+                <div
+                    className="modal d-block"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="mark-paid-confirm-title"
+                    tabIndex="-1"
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content shadow">
+                            <div className="modal-header">
+                                <h5 className="modal-title" id="mark-paid-confirm-title">Confirm payment update</h5>
+                            </div>
+                            <div className="modal-body">
+                                Mark all milk records from <strong>{from}</strong> through <strong>{to}</strong> as paid?
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-outline-secondary"
+                                    onClick={() => setShowPaidConfirm(false)}
+                                    disabled={markingPaid}
+                                >
+                                    No, cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    onClick={confirmMarkDateRangePaid}
+                                    disabled={markingPaid}
+                                >
+                                    {markingPaid ? "Updating..." : "Yes, mark paid"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="card shadow-sm border-0">
 
@@ -1317,7 +1434,11 @@ const MilkManage = () => {
 
                                                         type="button"
 
-                                                        className="btn btn-sm btn-outline-primary"
+                                                        className="btn btn-sm btn-outline-warning"
+
+                                                        title="Edit"
+
+                                                        aria-label="Edit milk record"
 
                                                         onClick={() =>
                                                             navigate(
@@ -1327,7 +1448,7 @@ const MilkManage = () => {
 
                                                     >
 
-                                                        Edit
+                                                        <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                     </button>
 
@@ -1337,6 +1458,10 @@ const MilkManage = () => {
                                                         type="button"
 
                                                         className="btn btn-sm btn-outline-danger"
+
+                                                        title="Delete"
+
+                                                        aria-label="Delete milk record"
 
                                                         onClick={() =>
                                                             handleDelete(
@@ -1351,14 +1476,7 @@ const MilkManage = () => {
 
                                                     >
 
-                                                        {
-                                                            deleting ===
-                                                            item._id
-
-                                                                ? "Deleting..."
-
-                                                                : "Delete"
-                                                        }
+                                                        {deleting === item._id ? <span className="spinner-border spinner-border-sm" aria-hidden="true" /> : <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>}
 
                                                     </button>
 

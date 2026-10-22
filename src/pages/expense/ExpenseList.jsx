@@ -1,3 +1,5 @@
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { notify } from "../../utils/notifications";
 import {
     useCallback,
     useEffect,
@@ -793,7 +795,7 @@ const ExpenseList = () => {
 
         } catch (error) {
 
-            alert(
+            notify(
                 error?.response?.data?.message ||
                 error?.message ||
                 "Unable to open attached document."
@@ -954,7 +956,7 @@ const ExpenseList = () => {
                 payload?.success
             ) {
 
-                alert(
+                notify(
                     payload.message ||
                     "Expense deleted successfully."
                 );
@@ -970,7 +972,7 @@ const ExpenseList = () => {
 
             } else {
 
-                alert(
+                notify(
                     payload?.message ||
                     "Delete failed."
                 );
@@ -985,7 +987,7 @@ const ExpenseList = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 
@@ -1061,7 +1063,7 @@ const ExpenseList = () => {
                 payload?.success
             ) {
 
-                alert(
+                notify(
                     payload.message ||
                     "Expenses imported successfully."
                 );
@@ -1080,7 +1082,7 @@ const ExpenseList = () => {
 
             } else {
 
-                alert(
+                notify(
                     payload?.message ||
                     "Import failed."
                 );
@@ -1095,7 +1097,7 @@ const ExpenseList = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 
@@ -1195,7 +1197,7 @@ const ExpenseList = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 
@@ -2326,7 +2328,7 @@ const ExpenseList = () => {
                                                     className="btn btn-warning btn-sm me-2"
                                                 >
 
-                                                    Edit
+                                                    <><FaEdit aria-hidden="true" /><span className="visually-hidden">Edit</span></>
 
                                                 </Link>
 
@@ -2341,7 +2343,7 @@ const ExpenseList = () => {
                                                     }
                                                 >
 
-                                                    Delete
+                                                    <><FaTrash aria-hidden="true" /><span className="visually-hidden">Delete</span></>
 
                                                 </button>
 

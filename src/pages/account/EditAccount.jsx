@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -40,7 +41,7 @@ const EditAccount = () => {
 
             if (!response.success) {
 
-                alert(
+                notify(
                     response.message ||
                     "Account not found."
                 );
@@ -94,7 +95,7 @@ const EditAccount = () => {
                 // error
             // );
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load account."
             );
@@ -151,7 +152,7 @@ const EditAccount = () => {
 
         if (!form.name.trim()) {
 
-            alert(
+            notify(
                 "Account name is required."
             );
 
@@ -162,7 +163,7 @@ const EditAccount = () => {
 
         if (!form.bank) {
 
-            alert(
+            notify(
                 "Please select a bank."
             );
 
@@ -215,7 +216,7 @@ const EditAccount = () => {
 
             if (response.success) {
 
-                alert(
+                notify(
                     "Account updated successfully."
                 );
 
@@ -223,7 +224,7 @@ const EditAccount = () => {
 
             } else {
 
-                alert(
+                notify(
                     response.message ||
                     "Unable to update account."
                 );
@@ -237,7 +238,7 @@ const EditAccount = () => {
                 // error
             // );
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to update account."
             );

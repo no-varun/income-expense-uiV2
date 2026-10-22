@@ -219,6 +219,51 @@ a {
     vertical-align: middle;
 }
 
+/* Keep action icon buttons aligned consistently across every table. */
+.table td:has(.btn) .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    line-height: 1;
+}
+
+.table td:has(.btn) .btn[class*="btn-outline-"] {
+    color: #fff;
+}
+
+.table td:has(.btn) .btn-outline-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.table td:has(.btn) .btn-outline-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.table td:has(.btn) .btn-outline-success {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+.table td:has(.btn) .btn-outline-warning {
+    color: #212529;
+    background-color: var(--bs-warning);
+    border-color: var(--bs-warning);
+}
+
+.table td:has(.btn) .btn-outline-danger {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+}
+
+.table td:has(.btn) .btn[class*="btn-outline-"]:hover:not(:disabled) {
+    filter: brightness(0.92);
+}
 
 /* ==========================
    Forms
@@ -287,6 +332,37 @@ a {
 ========================== */
 
 @media (max-width: 767px) {
+
+    /* Keep row actions in one visible line and allow the table to scroll to them. */
+    .table-responsive td:has(.btn) {
+        min-width: 112px;
+        white-space: nowrap;
+    }
+
+    .table-responsive td:has(.btn) > .d-flex {
+        flex-wrap: nowrap;
+        gap: 0.35rem !important;
+    }
+
+    .table-responsive td:has(.btn) .btn {
+        flex: 0 0 auto;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.75rem;
+        line-height: 1.25;
+    }
+
+    .table-responsive .document-status-cell {
+        min-width: 88px;
+    }
+
+    .table-responsive .document-actions-cell {
+        min-width: 164px;
+    }
+
+    .table-responsive .document-actions-cell > .d-flex {
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
 
     .header {
         height: 62px;
@@ -357,7 +433,22 @@ a {
     .d-flex.justify-content-between > .btn,
     .d-flex.justify-content-between > div,
     .d-flex.justify-content-between > a {
-        flex-shrink: 0;
+        flex-shrink: 1;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .chart-filters {
+        width: 100%;
+        flex-wrap: wrap;
+        align-items: stretch !important;
+    }
+
+    .chart-filters > div {
+        flex: 1 1 135px;
+        width: auto !important;
+        max-width: 100%;
+        min-width: 0;
     }
 
     /*
@@ -422,6 +513,28 @@ a {
 
 @media (max-width: 575px) {
 
+    .header .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .header .container-fluid > .d-flex > .d-flex {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .header h4 {
+        max-width: 55vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .header .dropdown {
+        flex: 0 0 auto;
+        margin-left: 0.5rem;
+    }
+
     .card.shadow,
     .card {
         border-radius: 8px;
@@ -437,7 +550,7 @@ a {
     .btn + .btn,
     .btn + a,
     a + .btn {
-        margin-top: 0.35rem;
+        margin-top: 0;
     }
 
     .table {

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -344,7 +345,7 @@ const EditIncome = () => {
                 payload?.success
             ) {
 
-                alert(
+                notify(
 
                     payload.message ||
                     "Income updated successfully."
@@ -367,7 +368,7 @@ const EditIncome = () => {
             }
 
 
-            alert(
+            notify(
 
                 payload?.message ||
                 "Unable to update income."
@@ -388,7 +389,7 @@ const EditIncome = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

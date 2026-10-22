@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -412,7 +413,7 @@ const SavingForm = ({
 
         if (!form.category) {
 
-            alert("Please select category.");
+            notify("Please select category.");
 
             return;
 
@@ -420,7 +421,7 @@ const SavingForm = ({
 
         if (!form.item && !form.title) {
 
-            alert("Please select item.");
+            notify("Please select item.");
 
             return;
 
@@ -431,7 +432,7 @@ const SavingForm = ({
             Number(form.amount) <= 0
         ) {
 
-            alert(
+            notify(
                 "Amount must be greater than 0."
             );
 
@@ -441,7 +442,7 @@ const SavingForm = ({
 
         if (!form.account) {
 
-            alert("Please select account.");
+            notify("Please select account.");
 
             return;
 
@@ -449,7 +450,7 @@ const SavingForm = ({
 
         if (!form.date) {
 
-            alert("Please select date.");
+            notify("Please select date.");
 
             return;
 

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -539,7 +540,7 @@ const IncomeForm = ({
 
         if (!form.category) {
 
-            alert(
+            notify(
                 "Please select category"
             );
 
@@ -550,7 +551,7 @@ const IncomeForm = ({
 
         if (!form.itemId) {
 
-            alert(
+            notify(
                 "Please select item"
             );
 
@@ -564,7 +565,7 @@ const IncomeForm = ({
             Number(form.amount) <= 0
         ) {
 
-            alert(
+            notify(
                 "Amount should be greater than 0"
             );
 
@@ -575,7 +576,7 @@ const IncomeForm = ({
 
         if (!form.account) {
 
-            alert(
+            notify(
                 "Please select account"
             );
 
@@ -587,7 +588,7 @@ const IncomeForm = ({
         const selectedDate = new Date(form.date);
 
         if (Number.isNaN(selectedDate.getTime())) {
-            alert("Please select a valid date and time");
+            notify("Please select a valid date and time");
             return;
         }
 

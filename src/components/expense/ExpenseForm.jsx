@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -710,7 +711,7 @@ const ExpenseForm = ({
             !form.category
         ) {
 
-            alert(
+            notify(
                 "Please select Category"
             );
 
@@ -729,7 +730,7 @@ const ExpenseForm = ({
             !form.title
         ) {
 
-            alert(
+            notify(
                 "Please select Item"
             );
 
@@ -748,7 +749,7 @@ const ExpenseForm = ({
             !form.account
         ) {
 
-            alert(
+            notify(
                 "Please select Account"
             );
 
@@ -776,7 +777,7 @@ const ExpenseForm = ({
             amount <= 0
         ) {
 
-            alert(
+            notify(
                 "Amount must be greater than 0"
             );
 
@@ -795,7 +796,7 @@ const ExpenseForm = ({
             !form.date
         ) {
 
-            alert(
+            notify(
                 "Please select Date"
             );
 
@@ -817,7 +818,7 @@ const ExpenseForm = ({
 
        
 
-            alert(
+            notify(
                 "Unable to submit expense."
             );
 
@@ -835,7 +836,7 @@ const ExpenseForm = ({
         const selectedDate = new Date(form.date);
 
         if (Number.isNaN(selectedDate.getTime())) {
-            alert("Please select a valid date and time");
+            notify("Please select a valid date and time");
             return;
         }
 

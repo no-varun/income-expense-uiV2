@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../../api/categoryApi";
@@ -45,7 +46,7 @@ const ItemForm = ({
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to load categories."
             );
@@ -126,17 +127,17 @@ const ItemForm = ({
         event.preventDefault();
 
         if (!form.name.trim()) {
-            alert("Item name is required.");
+            notify("Item name is required.");
             return;
         }
 
         if (!form.type) {
-            alert("Category type is required.");
+            notify("Category type is required.");
             return;
         }
 
         if (!form.category) {
-            alert("Category is required.");
+            notify("Category is required.");
             return;
         }
 

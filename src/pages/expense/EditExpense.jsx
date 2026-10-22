@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import {
     useEffect,
     useState
@@ -230,7 +231,7 @@ const EditExpense = () => {
                 response?.success
             ) {
 
-                alert(
+                notify(
 
                     response.message ||
                     "Expense updated successfully."
@@ -247,7 +248,7 @@ const EditExpense = () => {
             }
 
 
-            alert(
+            notify(
 
                 response?.message ||
                 "Unable to update expense."
@@ -262,7 +263,7 @@ const EditExpense = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -59,12 +60,12 @@ const ShopForm = ({ initialValues = {}, onSubmit, loading = false }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.name.trim()) {
-            alert("Shop name is required.");
+            notify("Shop name is required.");
             return;
         }
 
         if (!form.type) {
-            alert("Shop type is required.");
+            notify("Shop type is required.");
             return;
         }
 

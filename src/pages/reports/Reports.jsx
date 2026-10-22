@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 
 import ReportFilter from "../../components/report/ReportFilter";
@@ -91,7 +92,7 @@ const Reports = () => {
             }
 
         } catch (error) {
-            alert(error.response?.data?.message || "Unable to generate report.");
+            notify(error.response?.data?.message || "Unable to generate report.");
         } finally {
 
             setLoading(false);

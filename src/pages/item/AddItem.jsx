@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createItem } from "../../api/itemApi";
@@ -17,13 +18,13 @@ const AddItem = () => {
             const response = await createItem(formData);
 
             if (response.success) {
-                alert(response.message);
+                notify(response.message);
                 navigate("/items");
             }
 
         } catch (error) {
 
-            alert(
+            notify(
                 error.response?.data?.message ||
                 "Unable to create item."
             );

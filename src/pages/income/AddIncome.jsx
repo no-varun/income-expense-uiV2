@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +29,7 @@ const AddIncome = () => {
 
             if (response?.success) {
 
-                alert(
+                notify(
                     response.message ||
                     "Income created successfully."
                 );
@@ -41,7 +42,7 @@ const AddIncome = () => {
             }
 
 
-            alert(
+            notify(
                 response?.message ||
                 "Unable to create income."
             );
@@ -54,7 +55,7 @@ const AddIncome = () => {
             // );
 
 
-            alert(
+            notify(
 
                 error?.response?.data?.message ||
 

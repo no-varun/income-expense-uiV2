@@ -45,7 +45,7 @@ const DocumentList = () => {
         } catch (error) {
             setDocuments([]);
             setTotal(0);
-            alert(error?.response?.data?.message || error?.message || "Unable to load documents.");
+            notify(error?.response?.data?.message || error?.message || "Unable to load documents.");
         } finally {
             setLoading(false);
         }
@@ -88,7 +88,7 @@ const DocumentList = () => {
                 });
                 return;
             }
-            alert(error?.response?.data?.message || error?.message || "Unable to open document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to open document.");
         } finally {
             setDownloading(null);
         }
@@ -115,7 +115,7 @@ const DocumentList = () => {
                 window.open(blobUrl, "_blank", "noopener,noreferrer");
                 return;
             }
-            alert(error?.response?.data?.message || error?.message || "Unable to download document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to download document.");
         } finally {
             setDownloading(null);
         }
@@ -130,7 +130,7 @@ const DocumentList = () => {
             if (documents.length === 1 && page > 1) setPage(page - 1);
             else await loadDocuments();
         } catch (error) {
-            alert(error?.response?.data?.message || error?.message || "Unable to delete document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to delete document.");
         } finally {
             setDeleting(null);
         }
@@ -163,16 +163,16 @@ const DocumentList = () => {
             <th className="text-end">Actions</th>
         </tr>
         </thead><tbody>
-                {loading ? <tr><td colSpan="7" className="text-center py-5"><span className="spinner-border spinner-border-sm me-2" />Loading...</td></tr> : documents.length === 0 ? <tr>
-                    <td colSpan="7" className="text-center text-muted py-5"><FaFileAlt className="me-2" />No documents found</td></tr> : documents.map((item, index) => <tr key={item._id}>
+                {loading ? <tr><td colSpan="8" className="text-center py-5"><span className="spinner-border spinner-border-sm me-2" />Loading...</td></tr> : documents.length === 0 ? <tr>
+                    <td colSpan="8" className="text-center text-muted py-5"><FaFileAlt className="me-2" />No documents found</td></tr> : documents.map((item, index) => <tr key={item._id}>
                         <td>{(page - 1) * limit + index + 1}</td>
                         <td><div className="fw-semibold">{item.title}</div><small className="text-muted">{item.originalName || (item.fileUrl ? "External link" : "No file")}</small></td>
                         <td><span className="badge text-bg-light border">{label(item.documentType)}</span></td>
                         <td><span className="badge text-bg-light border">{label(item.note)}</span></td>
                         <td>{item.documentNumber || "-"}</td>
                         <td>{formatDate(item.expiryDate)}</td>
-                        <td><span className={`badge ${item.status ? "text-bg-success" : "text-bg-secondary"}`}>{item.status ? "Active" : "Inactive"}</span></td>
-                        <td><div className="d-flex justify-content-end gap-1"><button className="btn btn-outline-secondary btn-sm" title="View" onClick={() => handleView(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaEye /></button><button className="btn btn-outline-primary btn-sm" title="Download" onClick={() => handleDownload(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaDownload /></button><Link className="btn btn-outline-warning btn-sm" title="Edit" to={`/documents/edit/${item._id}`}><FaEdit /></Link><button className="btn btn-outline-danger btn-sm" title="Delete" onClick={() => handleDelete(item)} disabled={deleting === item._id}><FaTrash /></button></div></td></tr>)}
+                        <td className="document-status-cell"><span className={`badge ${item.status ? "text-bg-success" : "text-bg-secondary"}`}>{item.status ? "Active" : "Inactive"}</span></td>
+                        <td className="document-actions-cell"><div className="d-flex justify-content-end gap-1"><button className="btn btn-outline-secondary btn-sm" title="View" aria-label="View document" onClick={() => handleView(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaEye aria-hidden="true" /></button><button className="btn btn-outline-primary btn-sm" title="Download" aria-label="Download document" onClick={() => handleDownload(item)} disabled={downloading === item._id || (!item.filePath && !item.fileUrl && !item.blobUrl)}><FaDownload aria-hidden="true" /></button><Link className="btn btn-outline-warning btn-sm" title="Edit" aria-label="Edit document" to={`/documents/edit/${item._id}`}><FaEdit aria-hidden="true" /></Link><button className="btn btn-outline-danger btn-sm" title="Delete" aria-label="Delete document" onClick={() => handleDelete(item)} disabled={deleting === item._id}><FaTrash aria-hidden="true" /></button></div></td></tr>)}
             </tbody></table></div><div className="card-footer bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <small className="text-muted">Showing {total ? (page - 1) * limit + 1 : 0} to {Math.min(page * limit, total)} of {total} documents</small>{total > limit && <Pagination page={page} limit={limit} total={total} onPageChange={(next) => next >= 1 && next <= totalPages && setPage(next)} />}</div></div>
         {viewer && <div className="modal d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0, 0, 0, 0.6)", zIndex: 1060 }} onClick={() => setViewer(null)}><div className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" onClick={(event) => event.stopPropagation()}><div className="modal-content"><div className="modal-header"><h5 className="modal-title text-truncate">{viewer.name}</h5><button className="btn-close" type="button" aria-label="Close" onClick={() => setViewer(null)} /></div><div className="modal-body bg-light p-0 d-flex justify-content-center align-items-center" style={{ minHeight: "65vh" }}>{canPreview ? isImage ? <img src={viewer.url} alt={viewer.name} className="img-fluid" style={{ maxHeight: "70vh" }} /> : <iframe title={viewer.name} src={viewer.url} className="w-100 border-0" style={{ height: "70vh" }} /> : <div className="text-center p-5"><FaFileAlt className="fs-1 text-muted mb-3" /><p className="mb-3">This file type cannot be previewed in the browser.</p><a className="btn btn-primary" href={viewer.url} download={viewer.name}>Download File</a></div>}</div><div className="modal-footer"><button className="btn btn-secondary" type="button" onClick={() => setViewer(null)}><FaTimes className="me-2" />Close</button></div></div></div></div>}
@@ -180,3 +180,4 @@ const DocumentList = () => {
 };
 
 export default DocumentList;
+import { notify } from "../../utils/notifications";

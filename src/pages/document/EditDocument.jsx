@@ -19,7 +19,7 @@ const EditDocument = () => {
                 if (!response?.success || !value) throw new Error(response?.message || "Document not found.");
                 setDocument({ ...value, issueDate: dateValue(value.issueDate), expiryDate: dateValue(value.expiryDate), fileUrl: value.fileUrl || "", note: value.note || "", documentNumber: value.documentNumber || "", status: value.status !== false });
             } catch (error) {
-                alert(error?.response?.data?.message || error?.message || "Unable to load document.");
+                notify(error?.response?.data?.message || error?.message || "Unable to load document.");
                 navigate("/documents");
             }
         };
@@ -34,10 +34,10 @@ const EditDocument = () => {
             setSaving(true);
             const response = await updateDocument(id, payload);
             if (!response?.success) throw new Error(response?.message || "Unable to update document.");
-            alert(response.message || "Document updated successfully.");
+            notify(response.message || "Document updated successfully.");
             navigate("/documents");
         } catch (error) {
-            alert(error?.response?.data?.message || error?.message || "Unable to update document.");
+            notify(error?.response?.data?.message || error?.message || "Unable to update document.");
         } finally {
             setSaving(false);
         }
@@ -48,3 +48,4 @@ const EditDocument = () => {
 };
 
 export default EditDocument;
+import { notify } from "../../utils/notifications";

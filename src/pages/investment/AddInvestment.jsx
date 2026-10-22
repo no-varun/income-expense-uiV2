@@ -1,3 +1,4 @@
+import { notify } from "../../utils/notifications";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -402,7 +403,7 @@ const AddInvestment = () => {
 
         if (!form.maturityDate) {
 
-            alert(
+            notify(
                 "Please select maturity date for FD/RD."
             );
 
@@ -419,7 +420,7 @@ const AddInvestment = () => {
 
         if (!form.date) {
 
-            alert(
+            notify(
                 "Please select investment date."
             );
 
@@ -442,7 +443,7 @@ const AddInvestment = () => {
             form.date
         ) {
 
-            alert(
+            notify(
                 "Maturity date cannot be before investment date."
             );
 
@@ -478,7 +479,7 @@ const AddInvestment = () => {
 
         if (!form.name.trim()) {
 
-            alert("Please enter investment name.");
+            notify("Please enter investment name.");
 
             return;
         }
@@ -492,7 +493,7 @@ const AddInvestment = () => {
 
         if (!form.account) {
 
-            alert("Please select account.");
+            notify("Please select account.");
 
             return;
         }
@@ -513,7 +514,7 @@ const AddInvestment = () => {
             investedAmount <= 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid invested amount."
             );
 
@@ -538,7 +539,7 @@ const AddInvestment = () => {
             currentValue < 0
         ) {
 
-            alert(
+            notify(
                 "Please enter a valid current value."
             );
 
@@ -554,7 +555,7 @@ const AddInvestment = () => {
 
         if (!form.date) {
 
-            alert(
+            notify(
                 "Please select investment date."
             );
 
@@ -577,7 +578,7 @@ const AddInvestment = () => {
 
             if (!form.maturityDate) {
 
-                alert(
+                notify(
                     "Please select maturity date for FD/RD."
                 );
 
@@ -590,7 +591,7 @@ const AddInvestment = () => {
                 form.date
             ) {
 
-                alert(
+                notify(
                     "Maturity date cannot be before investment date."
                 );
 
@@ -742,7 +743,7 @@ const AddInvestment = () => {
 
 
 
-                alert(message);
+                notify(message);
 
 
                 /*
@@ -784,7 +785,7 @@ const AddInvestment = () => {
             // );
 
 
-            alert(errorMessage);
+            notify(errorMessage);
 
 
         } catch (error) {
@@ -816,7 +817,7 @@ const AddInvestment = () => {
                 "Unable to create investment.";
 
 
-            alert(errorMessage);
+            notify(errorMessage);
 
 
         } finally {
