@@ -213,24 +213,24 @@ const AddAccount = () => {
         } catch (error) {
 
             // console.error(
-                // "================================="
+            // "================================="
             // );
 
             // console.error(
-                // "CREATE ACCOUNT ERROR:",
-                // error
-            // );
-
-
-            // console.error(
-                // "ERROR RESPONSE:",
-                // error?.response
+            // "CREATE ACCOUNT ERROR:",
+            // error
             // );
 
 
             // console.error(
-                // "ERROR RESPONSE DATA:",
-                // error?.response?.data
+            // "ERROR RESPONSE:",
+            // error?.response
+            // );
+
+
+            // console.error(
+            // "ERROR RESPONSE DATA:",
+            // error?.response?.data
             // );
 
 
@@ -422,6 +422,9 @@ const AddAccount = () => {
 
                                     <option value="Meeso">
                                         Meeso
+                                    </option>
+                                    <option value="PF">
+                                        PF
                                     </option>
                                     <option value="Other">
                                         Other

@@ -65,6 +65,9 @@ import AddTransfer from "../pages/transfer/AddTransfer";
 import InvestmentList from "../pages/investment/InvestmentList";
 import AddInvestment from "../pages/investment/AddInvestment";
 import EditInvestment from "../pages/investment/EditInvestment";
+import PFAccountStatementList from "../pages/pf/PFAccountStatementList";
+import AddPFAccountStatement from "../pages/pf/AddPFAccountStatement";
+import EditPFAccountStatement from "../pages/pf/EditPFAccountStatement";
 import MilkManage from "../pages/milk/MilkManage";
 import AddMilk from "../pages/milk/AddMilk";
 import EditMilk from "../pages/milk/EditMilk";
@@ -295,6 +298,21 @@ const AppRoutes = () => {
                         <Route
                             path="/investments/edit/:id"
                             element={<EditInvestment />}
+                        />
+
+                        <Route
+                            path="/pf-statements"
+                            element={<PFAccountStatementList />}
+                        />
+
+                        <Route
+                            path="/pf-statements/add"
+                            element={<AddPFAccountStatement />}
+                        />
+
+                        <Route
+                            path="/pf-statements/edit/:id"
+                            element={<EditPFAccountStatement />}
                         />
 
                         <Route

@@ -91,8 +91,8 @@ const EditAccount = () => {
         } catch (error) {
 
             // console.error(
-                // "Get Account Error:",
-                // error
+            // "Get Account Error:",
+            // error
             // );
 
             notify(
@@ -234,8 +234,8 @@ const EditAccount = () => {
         } catch (error) {
 
             // console.error(
-                // "Update Account Error:",
-                // error
+            // "Update Account Error:",
+            // error
             // );
 
             notify(
@@ -441,10 +441,11 @@ const EditAccount = () => {
                                             <option value="Meeso">
                                                 Meeso
                                             </option>
+                                            <option value="PF">
+                                                PF
+                                            </option>
                                             <option value="Other">
-
                                                 Other
-
                                             </option>
 
                                         </select>
