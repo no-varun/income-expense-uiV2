@@ -423,7 +423,7 @@ const EditAccount = () => {
 
                                             </option>
 
-                                            <option value="Icici">
+                                            <option value="icici">
 
                                                 ICICI
 
