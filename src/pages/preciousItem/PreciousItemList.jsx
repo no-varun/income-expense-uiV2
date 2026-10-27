@@ -26,7 +26,6 @@ const PreciousItemList = () => {
      * =========================
      */
 
-    const [typeInput, setTypeInput] = useState("");
     const [type, setType] = useState("");
 
 
@@ -164,10 +163,6 @@ const PreciousItemList = () => {
 
     const handleTypeChange = (event) => {
 
-        setTypeInput(
-            event.target.value
-        );
-
         setType(
             event.target.value
         );
@@ -185,7 +180,6 @@ const PreciousItemList = () => {
 
     const handleClearFilter = () => {
 
-        setTypeInput("");
         setType("");
 
         setPage(1);
@@ -334,7 +328,7 @@ const PreciousItemList = () => {
 
                             <select
                                 className="form-select"
-                                value={typeInput}
+                                value={type}
                                 onChange={
                                     handleTypeChange
                                 }
@@ -410,7 +404,7 @@ const PreciousItemList = () => {
                                     handleClearFilter
                                 }
                                 disabled={
-                                    !typeInput
+                                    !type
                                 }
                             >
 

@@ -3,6 +3,55 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDocuments } from "../../api/documentApi";
 
+const PREDEFINED_ITEMS = {
+    GOLD: [
+        ["Gold Necklace", "सोने का हार"],
+        ["Gold Chain", "सोने की चेन"],
+        ["Gold Mangalsutra", "सोने का मंगलसूत्र"],
+        ["Gold Earrings", "सोने के कान के झुमके"],
+        ["Gold Tops", "सोने के टॉप्स"],
+        ["Gold Jhumka", "सोने के झुमके"],
+        ["Gold Nose Ring", "सोने की नथ"],
+        ["Gold Nose Pin", "सोने की नोज पिन"],
+        ["Gold Ring", "सोने की अंगूठी"],
+        ["Gold Bangles", "सोने की चूड़ियाँ"],
+        ["Gold Kada", "सोने का कड़ा"],
+        ["Gold Bracelet", "सोने का ब्रेसलेट"],
+        ["Gold Payal", "सोने की पायल"],
+        ["Gold Anklet", "सोने का पाजेब"],
+        ["Gold Maang Tikka", "सोने का मांग टीका"],
+        ["Gold Nath", "सोने की नथनी"],
+        ["Gold Waist Belt", "सोने की कमरबंद"],
+        ["Gold Armlet (बाजूबंद)", "सोने का बाजूबंद"],
+        ["Gold Pendant", "सोने का पेंडेंट"],
+        ["Gold Hair Accessory", "सोने का हेयर एक्सेसरी"]
+    ],
+    SILVER: [
+        ["Silver Payal", "चाँदी की पायल"],
+        ["Silver Bichhiya", "चाँदी की बिछिया"],
+        ["Silver Anklet", "चाँदी का पाजेब"],
+        ["Silver Toe Rings", "चाँदी के पैर के छल्ले"],
+        ["Silver Ring", "चाँदी की अंगूठी"],
+        ["Silver Chain", "चाँदी की चेन"],
+        ["Silver Necklace", "चाँदी का हार"],
+        ["Silver Earrings", "चाँदी के झुमके"],
+        ["Silver Tops", "चाँदी के टॉप्स"],
+        ["Silver Jhumka", "चाँदी के झुमके"],
+        ["Silver Bangles", "चाँदी की चूड़ियाँ"],
+        ["Silver Kada", "चाँदी का कड़ा"],
+        ["Silver Bracelet", "चाँदी का ब्रेसलेट"],
+        ["Silver Nose Pin", "चाँदी की नोज पिन"],
+        ["Silver Nose Ring", "चाँदी की नथ"],
+        ["Silver Pendant", "चाँदी का पेंडेंट"],
+        ["Silver Mangalsutra", "चाँदी का मंगलसूत्र"],
+        ["Silver Maang Tikka", "चाँदी का मांग टीका"],
+        ["Silver Kamarbandh", "चाँदी का कमरबंद"],
+        ["Silver Bajuband", "चाँदी का बाजूबंद"]
+    ]
+};
+
+const formatPresetName = (name, hindiName) => `${name} - ${hindiName}`;
+
 const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => {
     const navigate = useNavigate();
     const [form, setForm] = useState({
@@ -15,6 +64,7 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
 
     const [documents, setDocuments] = useState([]);
     const [documentsLoading, setDocumentsLoading] = useState(false);
+    const [selectedPreset, setSelectedPreset] = useState("");
 
     useEffect(() => {
         const loadDocuments = async () => {
@@ -40,13 +90,18 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
     useEffect(() => {
 
         if (Object.keys(initialValues).length > 0) {
+            const type = initialValues.type || "GOLD";
+            const preset = PREDEFINED_ITEMS[type]?.find(([name, hindiName]) =>
+                initialValues.name === name || initialValues.name === formatPresetName(name, hindiName)
+            );
             setForm({
                 name: initialValues.name || "",
-                type: initialValues.type || "GOLD",
+                type,
                 description: initialValues.description || "",
                 location: initialValues.location || "",
                 document: initialValues.document?._id || initialValues.document || ""
             });
+            setSelectedPreset(preset?.[0] || "");
         }
 
     }, [initialValues]);
@@ -65,14 +120,21 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
             value
         } = e.target;
 
-        setForm(prev => ({
+        setForm(prev => ({ ...prev, [name]: value }));
 
-            ...prev,
+        if (name === "type" || name === "name") {
+            setSelectedPreset("");
+        }
 
-            [name]: value
+    };
 
-        }));
-
+    const handlePresetChange = (event) => {
+        const name = event.target.value;
+        const preset = PREDEFINED_ITEMS[form.type].find(([itemName]) => itemName === name);
+        setSelectedPreset(name);
+        if (preset) {
+            setForm(prev => ({ ...prev, name: formatPresetName(preset[0], preset[1]) }));
+        }
     };
 
 
@@ -98,6 +160,8 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
         onSubmit({
 
             ...form,
+
+            document: form.document || null,
 
             name:
                 form.name.trim(),
@@ -177,27 +241,65 @@ const PreciousItemForm = ({ initialValues = {}, onSubmit, loading = false }) => 
 
                     {/* ================= TYPE ================= */}
 
+                    <fieldset className="mb-3">
+
+                        <legend className="form-label mb-2">
+                            Precious Item Type
+                        </legend>
+
+                        <div className="btn-group" role="group" aria-label="Precious item type">
+                            <input
+                                type="radio"
+                                className="btn-check"
+                                name="type"
+                                id="precious-item-gold"
+                                value="GOLD"
+                                checked={form.type === "GOLD"}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            <label className="btn btn-outline-warning" htmlFor="precious-item-gold">
+                                Gold
+                            </label>
+
+                            <input
+                                type="radio"
+                                className="btn-check"
+                                name="type"
+                                id="precious-item-silver"
+                                value="SILVER"
+                                checked={form.type === "SILVER"}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                            <label className="btn btn-outline-secondary" htmlFor="precious-item-silver">
+                                Silver
+                            </label>
+                        </div>
+
+                    </fieldset>
+
+
+                    {/* ================= PREDEFINED ITEM ================= */}
+
                     <div className="mb-3">
 
                         <label className="form-label">
-
-                            PreciousItem Type
-
+                            Choose Predefined Item
                         </label>
-
 
                         <select
                             className="form-select"
-                            name="type"
-                            value={form.type}
-                            onChange={handleChange}
-                            required
+                            value={selectedPreset}
+                            onChange={handlePresetChange}
+                            disabled={loading}
                         >
-
-                            <option value="GOLD">GOLD</option>
-
-                            <option value="SILVER">SILVER</option>
-
+                            <option value="">Custom item</option>
+                            {PREDEFINED_ITEMS[form.type].map(([name, hindiName]) => (
+                                <option key={name} value={name}>
+                                    {name} - {hindiName}
+                                </option>
+                            ))}
                         </select>
 
                     </div>
