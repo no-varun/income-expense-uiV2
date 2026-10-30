@@ -483,33 +483,6 @@ const RecentTransaction = ({
             </div>
 
 
-            {/* =====================================================
-                FOOTER
-            ====================================================== */}
-
-            <div className="card-footer bg-white">
-
-                <div className="
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                    small
-                    text-muted
-                ">
-
-                    <span>
-                        Showing latest transactions
-                    </span>
-
-                    <span>
-                        Saving is tracked through accounts,
-                        transfers and investments.
-                    </span>
-
-                </div>
-
-            </div>
-
         </div>
 
     );

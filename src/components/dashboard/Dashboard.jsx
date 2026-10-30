@@ -3,18 +3,15 @@ import { useEffect, useState } from "react";
 import SummaryCard from "../../components/dashboard/SummaryCard";
 import RecentTransaction from "../../components/dashboard/RecentTransaction";
 import BrandImage from "../common/BrandImage";
-
-import {
-    getSummary,
-    getRecentTransactions,
-    totalDebtItemWise
-} from "../../api/dashboardApi";
-
-
+import MilkSummaryDashboard from "../milk/MilkSummaryDashboard";
+import { getSummary, getRecentTransactions, totalDebtItemWise, getMilkSummary } from "../../api/dashboardApi";
 const Dashboard = () => {
 
     const [summary, setSummary] = useState({});
     const [transactions, setTransactions] = useState([]);
+    const [milkSummary, setMilkSummary] = useState({});
+    const [openDashboardSection, setOpenDashboardSection] = useState("net-worth");
+    const [selectedAccountBank, setSelectedAccountBank] = useState("");
     const [debtSummary, setDebtSummary] = useState({
         totalDebt: 0,
         totalPendingAmount: 0,
@@ -64,14 +61,17 @@ const Dashboard = () => {
             const [
                 summaryResponse,
                 transactionResponse,
-                debtResponse
+                debtResponse,
+                milkResponse
             ] = await Promise.all([
 
                 getSummary(),
 
                 getRecentTransactions(),
 
-                totalDebtItemWise()
+                totalDebtItemWise(),
+
+                getMilkSummary().catch(() => null)
 
             ]);
 
@@ -164,7 +164,7 @@ const Dashboard = () => {
 
             const debtData =
                 debtResponse?.data &&
-                typeof debtResponse.data === "object"
+                    typeof debtResponse.data === "object"
                     ? debtResponse.data
                     : debtResponse || {};
 
@@ -176,12 +176,19 @@ const Dashboard = () => {
                     : []
             });
 
+            const milkData = milkResponse?.data;
+            setMilkSummary(
+                milkData && typeof milkData === "object" && !Array.isArray(milkData)
+                    ? milkData
+                    : {}
+            );
+
 
         } catch (err) {
 
             // console.error(
-                // "Dashboard Load Error:",
-                // err
+            // "Dashboard Load Error:",
+            // err
             // );
 
 
@@ -228,20 +235,46 @@ const Dashboard = () => {
             ? summary.accounts
             : [];
 
+    const accountBanks = [...new Set(accounts.map((account) => account?.bank).filter(Boolean))];
+    const visibleAccounts = selectedAccountBank
+        ? accounts.filter((account) => account?.bank === selectedAccountBank)
+        : accounts;
+
+    const visibleAccountTotals = visibleAccounts.reduce((totals, account) => {
+        const balance = Number(account?.balance || 0);
+        const invested = Number(account?.investmentAmount || 0);
+        const investmentValue = Number(account?.investmentCurrentValue || 0);
+        const bankName = String(account?.bank || "").trim().toLowerCase();
+        const accountType = String(account?.accountType || "").trim().toLowerCase();
+        const isCash = bankName === "cash" || accountType === "cash";
+        const isWallet = ["amazonpay", "meeso","pf"].includes(bankName) || accountType === "wallet";
+        return {
+            bankBalance: totals.bankBalance + (!isCash && !isWallet ? balance : 0),
+            walletBalance: totals.walletBalance + (isWallet ? balance : 0),
+            cashBalance: totals.cashBalance + (isCash ? balance : 0),
+            invested: totals.invested + invested,
+            investmentValue: totals.investmentValue + investmentValue,
+            profitLoss: totals.profitLoss + Number(account?.investmentProfitLoss ?? investmentValue - invested),
+            investmentCount: totals.investmentCount + Number(account?.investmentCount || 0),
+            totalValue: totals.totalValue + Number(account?.totalBalance ?? balance + investmentValue)
+        };
+    }, {
+        bankBalance: 0,
+        walletBalance: 0,
+        cashBalance: 0,
+        invested: 0,
+        investmentValue: 0,
+        profitLoss: 0,
+        investmentCount: 0,
+        totalValue: 0
+    });
+
 
     const investments =
         Array.isArray(
             summary?.investments
         )
             ? summary.investments
-            : [];
-
-
-    const bankWise =
-        Array.isArray(
-            summary?.bankWise
-        )
-            ? summary.bankWise
             : [];
 
 
@@ -399,6 +432,17 @@ const Dashboard = () => {
     return (
 
         <div
+            onClick={(event) => {
+                const heading = event.target.closest("h4, [data-dashboard-section='recent-transactions'] h5");
+                const section = heading?.closest("[data-dashboard-section]");
+                if (section) {
+                    setOpenDashboardSection((current) =>
+                        current === section.dataset.dashboardSection
+                            ? ""
+                            : section.dataset.dashboardSection
+                    );
+                }
+            }}
             className="
                 container-fluid
                 py-3
@@ -406,9 +450,20 @@ const Dashboard = () => {
             style={{
                 width: "100%",
                 maxWidth: "100%",
-                minWidth: 0
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                rowGap: "1.5rem"
             }}
         >
+
+            <style>{`.dashboard-accordion-section[data-open="false"] > .card-body > :not(:first-child) { display: none; }
+.dashboard-accordion-section > .card-body h4,
+.dashboard-accordion-section[data-dashboard-section="recent-transactions"] h5 { cursor: pointer; }
+.dashboard-accordion-section[data-dashboard-section="recent-transactions"][data-open="false"] .card-body { display: none; }
+.dashboard-accordion-section { margin-bottom: 0 !important; }
+.dashboard-accordion-section[data-dashboard-section="recent-transactions"] .card { margin-top: 0 !important; }
+.dashboard-page-header { margin-bottom: 0 !important; }`}</style>
 
 
             {/* =========================================================
@@ -420,6 +475,7 @@ const Dashboard = () => {
                     d-flex
                     justify-content-between
                     align-items-center
+                    dashboard-page-header
                     mb-4
                 "
             >
@@ -462,12 +518,10 @@ const Dashboard = () => {
             ========================================================= */}
 
             <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
+                data-dashboard-section="net-worth"
+                data-open={openDashboardSection === "net-worth"}
+                style={{ order: 1 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
                 <div className="card-body">
@@ -519,82 +573,14 @@ const Dashboard = () => {
 
 
             {/* =========================================================
-                CASH / ACCOUNTS
-            ========================================================= */}
-
-            <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
-            >
-
-                <div className="card-body">
-
-                    <div className="mb-4">
-
-                        <h4 className="mb-1">
-                            Cash & Accounts
-                        </h4>
-
-                        <div className="text-muted small">
-                            Money currently available in your accounts
-                        </div>
-
-                    </div>
-
-
-                    <div className="row g-3">
-
-                        <SummaryCard
-                            title="Total Account Balance"
-                            value={totalAccountBalance}
-                            bg="bg-success"
-                        />
-
-
-                        <SummaryCard
-                            title="Current Balance"
-                            value={
-                                Number(
-                                    summary?.currentBalance || 0
-                                )
-                            }
-                            bg="bg-primary"
-                        />
-
-
-                        <SummaryCard
-                            title="Accounts"
-                            value={
-                                Number(
-                                    summary?.accountCount || 0
-                                )
-                            }
-                            bg="bg-dark"
-                            prefix=""
-                        />
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* =========================================================
                 INVESTMENT SUMMARY
             ========================================================= */}
 
             <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
+                data-dashboard-section="investments"
+                data-open={openDashboardSection === "investments"}
+                style={{ order: 9 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
                 <div className="card-body">
@@ -671,37 +657,7 @@ const Dashboard = () => {
 
                     </div>
 
-                </div>
-
-            </div>
-
-
-            {/* =========================================================
-                INVESTMENT LIST
-            ========================================================= */}
-
-            <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
-            >
-
-                <div className="card-body">
-
-                    <div className="mb-4">
-
-                        <h4 className="mb-1">
-                            Investment Portfolio
-                        </h4>
-
-                        <div className="text-muted small">
-                            Investment-wise current value and returns
-                        </div>
-
-                    </div>
+                <hr className="my-4" />
 
 
                     {investments.length > 0 ? (
@@ -959,19 +915,42 @@ const Dashboard = () => {
             ========================================================= */}
 
             <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
+                data-dashboard-section="cash-flow-accounts"
+                data-open={openDashboardSection === "cash-flow-accounts"}
+                style={{ order: 2 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
                 <div className="card-body">
 
-                    <h4 className="mb-4">
-                        Cash Flow
+                    <h4 className="mb-1">
+                        Cash Flow & Accounts
                     </h4>
+
+                    <div className="text-muted small mb-4">
+                        Account balances and cash flow across today, this month, and this year
+                    </div>
+
+                    <h6 className="text-muted mb-3">Accounts</h6>
+
+                    <div className="row g-3 mb-4">
+                        <SummaryCard
+                            title="Total Account Balance"
+                            value={totalAccountBalance}
+                            bg="bg-success"
+                        />
+                        <SummaryCard
+                            title="Current Balance"
+                            value={Number(summary?.currentBalance || 0)}
+                            bg="bg-primary"
+                        />
+                        <SummaryCard
+                            title="Accounts"
+                            value={Number(summary?.accountCount || 0)}
+                            bg="bg-dark"
+                            prefix=""
+                        />
+                    </div>
 
 
                     {/* TODAY */}
@@ -1128,17 +1107,27 @@ const Dashboard = () => {
             </div>
 
 
+            {/* MILK SUMMARY */}
+            <div data-dashboard-section="milk" data-open={openDashboardSection === "milk"} style={{ order: 3 }} className="dashboard-accordion-section card shadow-sm border-0 mb-4">
+                <div className="card-body">
+                    <h4 className="mb-1">Milk</h4>
+                    <div className="text-muted small mb-4">
+                        Overall milk quantity, amount, and unpaid balance
+                    </div>
+                    <MilkSummaryDashboard {...milkSummary} />
+                </div>
+            </div>
+
+
             {/* =========================================================
                 DEBT
             ========================================================= */}
 
             <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
+                data-dashboard-section="debt"
+                data-open={openDashboardSection === "debt"}
+                style={{ order: 8 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
                 <div className="card-body">
@@ -1237,12 +1226,10 @@ const Dashboard = () => {
             ========================================================= */}
 
             <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
+                data-dashboard-section="accounts-banks"
+                data-open={openDashboardSection === "accounts-banks"}
+                style={{ order: 4 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
                 <div className="card-body">
@@ -1258,12 +1245,12 @@ const Dashboard = () => {
 
                         <div>
 
-                            <h4 className="mb-1">
-                                My Accounts
+                        <h4 className="mb-1">
+                            My Accounts
                             </h4>
 
                             <div className="text-muted small">
-                                Cash balance and investments by account
+                                Account balances, bank details, and investments
                             </div>
 
                         </div>
@@ -1271,10 +1258,57 @@ const Dashboard = () => {
 
                         <span className="badge bg-primary">
 
-                            {accounts.length} Accounts
+                            {visibleAccounts.length} Accounts
 
                         </span>
 
+                    </div>
+
+
+                    <div className="d-flex flex-wrap gap-2 mb-4" aria-label="Filter accounts by bank">
+                        <button
+                            type="button"
+                            className={`btn btn-sm rounded-pill ${selectedAccountBank === "" ? "btn-primary" : "btn-outline-primary"}`}
+                            onClick={() => setSelectedAccountBank("")}
+                            aria-pressed={selectedAccountBank === ""}
+                        >
+                            All Banks <span className="badge bg-white text-primary ms-1">{accounts.length}</span>
+                        </button>
+                        {accountBanks.map((bank) => {
+                            const count = accounts.filter((account) => account?.bank === bank).length;
+                            const active = selectedAccountBank === bank;
+                            return (
+                                <button
+                                    key={bank}
+                                    type="button"
+                                    className={`btn btn-sm rounded-pill d-inline-flex align-items-center gap-2 ${active ? "btn-primary" : "btn-outline-primary"}`}
+                                    onClick={() => setSelectedAccountBank(active ? "" : bank)}
+                                    aria-pressed={active}
+                                >
+                                    <BrandImage type="bank" value={bank} size="1.25rem" />
+                                    {bank}
+                                    <span className={`badge ${active ? "bg-white text-primary" : "text-bg-primary"}`}>{count}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <h6 className="text-muted mb-3">
+                        {selectedAccountBank ? `${selectedAccountBank} Account Summary` : "Total Account Summary"}
+                    </h6>
+                    <div className="row g-3 mb-4">
+                        <SummaryCard title="Bank Balance" value={visibleAccountTotals.bankBalance} bg="bg-primary" />
+                        <SummaryCard title="Wallet Balance (Apay, Meeso and Pf)" value={visibleAccountTotals.walletBalance} bg="bg-info" />
+                        <SummaryCard title="Cash Balance" value={visibleAccountTotals.cashBalance} bg="bg-success" />
+                        <SummaryCard title="Invested Amount" value={visibleAccountTotals.invested} bg="bg-primary" />
+                        <SummaryCard title="Investment Value" value={visibleAccountTotals.investmentValue} bg="bg-info" />
+                        <SummaryCard
+                            title="Investment P/L"
+                            value={visibleAccountTotals.profitLoss}
+                            bg={visibleAccountTotals.profitLoss >= 0 ? "bg-success" : "bg-danger"}
+                        />
+                        <SummaryCard title="Investment Count" value={visibleAccountTotals.investmentCount} bg="bg-dark" prefix="" />
+                        <SummaryCard title="Total Account Value" value={visibleAccountTotals.totalValue} bg="bg-secondary" />
                     </div>
 
 
@@ -1360,327 +1394,295 @@ const Dashboard = () => {
 
                     <div>
 
-                    {accounts.length > 0 ? (
+                        {visibleAccounts.length > 0 ? (
 
-                        <div className="row g-3">
+                            <div className="row g-3">
 
-                            {accounts.map(
-                                (account) => {
+                                {visibleAccounts.map(
+                                    (account) => {
 
-                                    const balance =
-                                        Number(
-                                            account?.balance || 0
+                                        const balance =
+                                            Number(
+                                                account?.balance || 0
+                                            );
+
+
+                                        const minimumBalance =
+                                            Number(
+                                                account?.minimumBalance || 0
+                                            );
+
+
+                                        const investmentAmount =
+                                            Number(
+                                                account?.investmentAmount || 0
+                                            );
+
+
+                                        const investmentCurrentValue =
+                                            Number(
+                                                account?.investmentCurrentValue || 0
+                                            );
+
+
+                                        const investmentProfitLoss =
+                                            Number(
+                                                account?.investmentProfitLoss || 0
+                                            );
+
+
+                                        const totalBalance =
+                                            Number(
+                                                account?.totalBalance ??
+                                                (
+                                                    balance +
+                                                    investmentCurrentValue
+                                                )
+                                            );
+
+
+                                        const belowMinimum =
+                                            minimumBalance > 0 &&
+                                            balance < minimumBalance;
+
+                                        const showMinimumWarning = ["icici", "rbl", "pnb"].includes(
+                                            String(account?.bank || "").trim().toLowerCase()
                                         );
 
 
-                                    const minimumBalance =
-                                        Number(
-                                            account?.minimumBalance || 0
-                                        );
+                                        return (
 
-
-                                    const investmentAmount =
-                                        Number(
-                                            account?.investmentAmount || 0
-                                        );
-
-
-                                    const investmentCurrentValue =
-                                        Number(
-                                            account?.investmentCurrentValue || 0
-                                        );
-
-
-                                    const investmentProfitLoss =
-                                        Number(
-                                            account?.investmentProfitLoss || 0
-                                        );
-
-
-                                    const totalBalance =
-                                        Number(
-                                            account?.totalBalance ??
-                                            (
-                                                balance +
-                                                investmentCurrentValue
-                                            )
-                                        );
-
-
-                                    const belowMinimum =
-                                        minimumBalance > 0 &&
-                                        balance < minimumBalance;
-
-
-                                    return (
-
-                                        <div
-                                            className="
+                                            <div
+                                                className="
                                                 col-12
                                                 col-md-6
                                                 col-xl-4
                                             "
-                                            key={
-                                                account._id
-                                            }
-                                        >
+                                                key={
+                                                    account._id
+                                                }
+                                            >
 
-                                            <div
-                                                className={`
+                                                <div
+                                                    className={`
                                                     card
                                                     h-100
                                                     shadow-sm
+                                                    rounded-4
+                                                    overflow-hidden
                                                     ${belowMinimum
-                                                        ? "border-danger"
-                                                        : "border-0"
-                                                    }
+                                                            ? "border-danger"
+                                                            : "border-0"
+                                                        }
                                                 `}
-                                            >
+                                                >
 
-                                                <div className="card-body">
-
-
-                                                    {/* ACCOUNT HEADER */}
-
-                                                    <div className="text-center">
-                                                        <h5 className="mb-1">{account.name}</h5>
-                                                        <BrandImage type="bank" value={account.bank} size="3rem" />
-                                                    </div>
+                                                    <div className="card-body">
 
 
-                                                    {/* CASH BALANCE */}
+                                                        {/* ACCOUNT HEADER */}
 
-                                                    <div className="mt-4">
-
-                                                        <div className="text-muted small">
-                                                            Available Balance
+                                                        <div className="d-flex align-items-center gap-3 border-bottom pb-3">
+                                                            <BrandImage type="bank" value={account.bank} size="2.75rem" />
+                                                            <div>
+                                                                <h5 className="mb-1">{account.name || "Unnamed account"}</h5>
+                                                                <span className="badge bg-light text-dark">
+                                                                    {account.accountType || "Account"}
+                                                                </span>
+                                                                {showMinimumWarning && (
+                                                                    <div className="alert alert-danger py-1 px-2 mt-2 mb-0 small" role="status">
+                                                                        Account is below minimum balance.
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
 
-                                                        <div
-                                                            className={`
+
+                                                        {/* CASH BALANCE */}
+
+                                                        <div className={`mt-3 p-3 rounded-3 ${belowMinimum ? "bg-danger-subtle" : "bg-success-subtle"}`}>
+
+                                                            <div className="text-muted small">
+                                                                Available Balance
+                                                            </div>
+
+                                                            <div
+                                                                className={`
                                                                 fs-4
                                                                 fw-bold
                                                                 ${belowMinimum
-                                                                    ? "text-danger"
-                                                                    : "text-success"
-                                                                }
+                                                                        ? "text-danger"
+                                                                        : "text-success"
+                                                                    }
                                                             `}
-                                                        >
-
-                                                            ₹{" "}
-
-                                                            {
-                                                                formatAmount(
-                                                                    balance
-                                                                )
-                                                            }
-
-                                                        </div>
-
-                                                    </div>
-
-
-                                                    {/* INVESTMENT */}
-
-                                                    <div
-                                                        className="
-                                                            mt-3
-                                                            p-3
-                                                            rounded
-                                                            bg-light
-                                                        "
-                                                    >
-
-                                                        <div className="small text-muted mb-2">
-                                                            Investments
-                                                        </div>
-
-
-                                                        <div
-                                                            className="
-                                                                d-flex
-                                                                justify-content-between
-                                                            "
-                                                        >
-
-                                                            <span className="small">
-                                                                Invested
-                                                            </span>
-
-                                                            <strong>
-                                                                ₹{" "}
-                                                                {
-                                                                    formatAmount(
-                                                                        investmentAmount
-                                                                    )
-                                                                }
-                                                            </strong>
-
-                                                        </div>
-
-
-                                                        <div
-                                                            className="
-                                                                d-flex
-                                                                justify-content-between
-                                                            "
-                                                        >
-
-                                                            <span className="small">
-                                                                Current Value
-                                                            </span>
-
-                                                            <strong>
-                                                                ₹{" "}
-                                                                {
-                                                                    formatAmount(
-                                                                        investmentCurrentValue
-                                                                    )
-                                                                }
-                                                            </strong>
-
-                                                        </div>
-
-
-                                                        <div
-                                                            className="
-                                                                d-flex
-                                                                justify-content-between
-                                                            "
-                                                        >
-
-                                                            <span className="small">
-                                                                P/L
-                                                            </span>
-
-                                                            <strong
-                                                                className={
-                                                                    investmentProfitLoss >= 0
-                                                                        ? "text-success"
-                                                                        : "text-danger"
-                                                                }
                                                             >
 
-                                                                {
-                                                                    investmentProfitLoss >= 0
-                                                                        ? "+"
-                                                                        : ""
-                                                                }
-
                                                                 ₹{" "}
 
                                                                 {
                                                                     formatAmount(
-                                                                        investmentProfitLoss
+                                                                        balance
                                                                     )
                                                                 }
 
-                                                            </strong>
+                                                            </div>
 
                                                         </div>
 
 
-                                                        <div
-                                                            className="
+                                                        {/* INVESTMENT */}
+
+                                                        <div className="mt-3 p-3 rounded-3 bg-primary-subtle">
+
+                                                            <div className="small text-primary-emphasis fw-semibold mb-2">
+                                                                Investments
+                                                            </div>
+
+
+                                                            <div
+                                                                className="
                                                                 d-flex
                                                                 justify-content-between
                                                             "
-                                                        >
+                                                            >
 
-                                                            <span className="small">
-                                                                Investments
-                                                            </span>
+                                                                <span className="small">
+                                                                    Invested
+                                                                </span>
 
-                                                            <strong>
-                                                                {
-                                                                    Number(
-                                                                        account?.investmentCount || 0
-                                                                    )
-                                                                }
-                                                            </strong>
+                                                                <strong>
+                                                                    ₹{" "}
+                                                                    {
+                                                                        formatAmount(
+                                                                            investmentAmount
+                                                                        )
+                                                                    }
+                                                                </strong>
+
+                                                            </div>
+
+
+                                                            <div
+                                                                className="
+                                                                d-flex
+                                                                justify-content-between
+                                                            "
+                                                            >
+
+                                                                <span className="small">
+                                                                    Current Value
+                                                                </span>
+
+                                                                <strong>
+                                                                    ₹{" "}
+                                                                    {
+                                                                        formatAmount(
+                                                                            investmentCurrentValue
+                                                                        )
+                                                                    }
+                                                                </strong>
+
+                                                            </div>
+
+
+                                                            <div
+                                                                className="
+                                                                d-flex
+                                                                justify-content-between
+                                                            "
+                                                            >
+
+                                                                <span className="small">
+                                                                    P/L
+                                                                </span>
+
+                                                                <strong
+                                                                    className={
+                                                                        investmentProfitLoss >= 0
+                                                                            ? "text-success"
+                                                                            : "text-danger"
+                                                                    }
+                                                                >
+
+                                                                    {
+                                                                        investmentProfitLoss >= 0
+                                                                            ? "+"
+                                                                            : ""
+                                                                    }
+
+                                                                    ₹{" "}
+
+                                                                    {
+                                                                        formatAmount(
+                                                                            investmentProfitLoss
+                                                                        )
+                                                                    }
+
+                                                                </strong>
+
+                                                            </div>
+
+
+                                                            <div
+                                                                className="
+                                                                d-flex
+                                                                justify-content-between
+                                                            "
+                                                            >
+
+                                                                <span className="small">
+                                                                    Investments
+                                                                </span>
+
+                                                                <strong>
+                                                                    {
+                                                                        Number(
+                                                                            account?.investmentCount || 0
+                                                                        )
+                                                                    }
+                                                                </strong>
+
+                                                            </div>
 
                                                         </div>
 
-                                                    </div>
 
+                                                        {/* TOTAL */}
 
-                                                    {/* TOTAL */}
-
-                                                    <div
-                                                        className="
+                                                        <div
+                                                            className="
                                                             mt-3
                                                             pt-3
                                                             border-top
                                                         "
-                                                    >
+                                                        >
 
-                                                        <div
-                                                            className="
+                                                            <div
+                                                                className="
                                                                 d-flex
                                                                 justify-content-between
                                                                 align-items-center
                                                             "
-                                                        >
+                                                            >
 
-                                                            <span className="fw-semibold">
-                                                                Total Value
-                                                            </span>
+                                                                <span className="fw-semibold">
+                                                                    Total Value
+                                                                </span>
 
 
-                                                            <span
-                                                                className="
+                                                                <span
+                                                                    className="
                                                                     fs-5
                                                                     fw-bold
                                                                     text-primary
                                                                 "
-                                                            >
-
-                                                                ₹{" "}
-
-                                                                {
-                                                                    formatAmount(
-                                                                        totalBalance
-                                                                    )
-                                                                }
-
-                                                            </span>
-
-                                                        </div>
-
-                                                    </div>
-
-
-                                                    {/* MINIMUM */}
-
-                                                    {minimumBalance > 0 && (
-
-                                                        <div className="mt-3">
-
-                                                            <div
-                                                                className="
-                                                                    d-flex
-                                                                    justify-content-between
-                                                                    small
-                                                                "
-                                                            >
-
-                                                                <span className="text-muted">
-                                                                    Minimum Balance
-                                                                </span>
-
-                                                                <span
-                                                                    className={
-                                                                        belowMinimum
-                                                                            ? "text-danger fw-bold"
-                                                                            : "text-muted"
-                                                                    }
                                                                 >
 
                                                                     ₹{" "}
 
                                                                     {
                                                                         formatAmount(
-                                                                            minimumBalance
+                                                                            totalBalance
                                                                         )
                                                                     }
 
@@ -1688,366 +1690,101 @@ const Dashboard = () => {
 
                                                             </div>
 
+                                                        </div>
 
-                                                            {belowMinimum && (
+
+                                                        {/* MINIMUM */}
+
+                                                        {minimumBalance > 0 && (
+
+                                                            <div className="mt-3">
 
                                                                 <div
                                                                     className="
-                                                                        alert
-                                                                        alert-danger
-                                                                        py-2
-                                                                        px-3
-                                                                        mt-2
-                                                                        mb-0
-                                                                        small
-                                                                    "
+                                                                    d-flex
+                                                                    justify-content-between
+                                                                    small
+                                                                "
                                                                 >
 
-                                                                    Account is below minimum balance.
+                                                                    <span className="text-muted">
+                                                                        Minimum Balance
+                                                                    </span>
+
+                                                                    <span
+                                                                        className={
+                                                                            belowMinimum
+                                                                                ? "text-danger fw-bold"
+                                                                                : "text-muted"
+                                                                        }
+                                                                    >
+
+                                                                        ₹{" "}
+
+                                                                        {
+                                                                            formatAmount(
+                                                                                minimumBalance
+                                                                            )
+                                                                        }
+
+                                                                    </span>
 
                                                                 </div>
 
-                                                            )}
 
-                                                        </div>
+                                                            </div>
 
-                                                    )}
+                                                        )}
+
+                                                    </div>
 
                                                 </div>
 
                                             </div>
-
-                                        </div>
-
-                                    );
-
-                                }
-                            )}
-
-                        </div>
-
-                    ) : (
-
-                        <div
-                            className="
-                                text-center
-                                text-muted
-                                py-5
-                            "
-                        >
-
-                            No accounts found.
-
-                        </div>
-
-                    )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {/* =========================================================
-                BANK WISE
-            ========================================================= */}
-
-            <div
-                className="
-                    card
-                    shadow-sm
-                    border-0
-                    mb-4
-                "
-            >
-
-                <div className="card-body">
-
-                    <div
-                        className="
-                            d-flex
-                            justify-content-between
-                            align-items-center
-                            mb-4
-                        "
-                    >
-
-                        <div>
-
-                            <h4 className="mb-1">
-                                Bank Wise Summary
-                            </h4>
-
-                            <div className="text-muted small">
-                                Cash and investment value by bank
-                            </div>
-
-                        </div>
-
-
-                        <span className="badge bg-primary">
-
-                            {bankWise.length} Banks
-
-                        </span>
-
-                    </div>
-
-
-                    <div className="table-responsive">
-
-                        <table
-                            className="
-                                table
-                                table-bordered
-                                table-hover
-                                align-middle
-                                mb-0
-                            "
-                        >
-
-                            <thead className="table-light">
-
-                                <tr>
-
-                                    <th>
-                                        #
-                                    </th>
-
-                                    <th className="text-center">
-                                        Bank
-                                    </th>
-
-                                    <th className="text-center">
-                                        Accounts
-                                    </th>
-
-                                    <th className="text-end">
-                                        Cash Balance
-                                    </th>
-
-                                    <th className="text-end">
-                                        Investment Value
-                                    </th>
-
-                                    <th className="text-end">
-                                        Total Value
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                {bankWise.map(
-                                    (
-                                        item,
-                                        index
-                                    ) => {
-
-                                        const balance =
-                                            Number(
-                                                item?.balance || 0
-                                            );
-
-
-                                        const investmentValue =
-                                            Number(
-                                                item?.investmentCurrentValue || 0
-                                            );
-
-
-                                        const total =
-                                            Number(
-                                                item?.totalBalance ??
-                                                (
-                                                    balance +
-                                                    investmentValue
-                                                )
-                                            );
-
-
-                                        return (
-
-                                            <tr
-                                                key={
-                                                    `${item?.bank}-${index}`
-                                                }
-                                            >
-
-                                                <td>
-                                                    {index + 1}
-                                                </td>
-
-
-                                                <td className="text-center align-middle">
-                                                    <div className="d-flex flex-column align-items-center gap-1">
-                                                        <BrandImage type="bank" value={item?.bank} size="3rem" />
-                                                        <span className="small text-muted">{item?.bank || "-"}</span>
-                                                    </div>
-                                                </td>
-
-
-                                                <td className="text-center">
-
-                                                    {
-                                                        Number(
-                                                            item?.accountCount || 0
-                                                        )
-                                                    }
-
-                                                </td>
-
-
-                                                <td className="text-end text-success fw-semibold">
-
-                                                    ₹{" "}
-
-                                                    {
-                                                        formatAmount(
-                                                            balance
-                                                        )
-                                                    }
-
-                                                </td>
-
-
-                                                <td className="text-end text-primary fw-semibold">
-
-                                                    ₹{" "}
-
-                                                    {
-                                                        formatAmount(
-                                                            investmentValue
-                                                        )
-                                                    }
-
-                                                </td>
-
-
-                                                <td className="text-end fw-bold">
-
-                                                    ₹{" "}
-
-                                                    {
-                                                        formatAmount(
-                                                            total
-                                                        )
-                                                    }
-
-                                                </td>
-
-                                            </tr>
 
                                         );
 
                                     }
                                 )}
 
-                            </tbody>
+                            </div>
 
+                        ) : (
 
-                            <tfoot className="table-light">
+                            <div
+                                className="
+                                text-center
+                                text-muted
+                                py-5
+                            "
+                            >
 
-                                <tr>
+                                {selectedAccountBank
+                                    ? `No accounts found for ${selectedAccountBank}.`
+                                    : "No accounts found."}
 
-                                    <th
-                                        colSpan="3"
-                                        className="text-end"
-                                    >
-                                        Total
-                                    </th>
+                            </div>
 
+                        )}
 
-                                    <th className="text-end">
+                                </div>
 
-                                        ₹{" "}
-
-                                        {
-                                            formatAmount(
-                                                bankWise.reduce(
-                                                    (
-                                                        total,
-                                                        item
-                                                    ) =>
-                                                        total +
-                                                        Number(
-                                                            item?.balance || 0
-                                                        ),
-                                                    0
-                                                )
-                                            )
-                                        }
-
-                                    </th>
-
-
-                                    <th className="text-end">
-
-                                        ₹{" "}
-
-                                        {
-                                            formatAmount(
-                                                bankWise.reduce(
-                                                    (
-                                                        total,
-                                                        item
-                                                    ) =>
-                                                        total +
-                                                        Number(
-                                                            item?.investmentCurrentValue || 0
-                                                        ),
-                                                    0
-                                                )
-                                            )
-                                        }
-
-                                    </th>
-
-
-                                    <th className="text-end">
-
-                                        ₹{" "}
-
-                                        {
-                                            formatAmount(
-                                                bankWise.reduce(
-                                                    (
-                                                        total,
-                                                        item
-                                                    ) =>
-                                                        total +
-                                                        Number(
-                                                            item?.totalBalance || 0
-                                                        ),
-                                                    0
-                                                )
-                                            )
-                                        }
-
-                                    </th>
-
-                                </tr>
-
-                            </tfoot>
-
-                        </table>
-
-                    </div>
 
                 </div>
 
             </div>
 
-
             {/* =========================================================
                 RECENT TRANSACTIONS
             ========================================================= */}
-
-            <RecentTransaction transactions={transactions} />
+            <div
+                data-dashboard-section="recent-transactions"
+                data-open={openDashboardSection === "recent-transactions"}
+                className="dashboard-accordion-section"
+                style={{ order: 7 }}
+            >
+                <RecentTransaction transactions={transactions} />
+            </div>
 
         </div>
 
