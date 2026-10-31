@@ -2004,7 +2004,7 @@ const ExpenseList = () => {
                                         750
                                     </option>
                                     <option value="1000">
-                                        100p
+                                        1000
                                     </option>
                                 </select>
 
