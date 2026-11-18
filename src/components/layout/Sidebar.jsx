@@ -17,6 +17,7 @@ import {
     FaCalendarAlt,
     FaFileAlt,
     FaGem,
+    FaUsers,
     FaChevronDown,
 } from "react-icons/fa";
 
@@ -54,6 +55,15 @@ const menuGroups = [
             { title: "Precious Items", path: "/preciousItem", icon: <FaGem /> },
             { title: "PF Statements", path: "/pf-statements", icon: <FaUniversity /> },
             { title: "Future Planning", path: "/future-planning", icon: <FaCalendarAlt /> },
+        ],
+    },
+    {
+        title: "Shared Expenses",
+        icon: <FaUsers />,
+        paths: ["/splitwise"],
+        items: [
+            { title: "Splitwise Groups", path: "/splitwise", icon: <FaUsers /> },
+            { title: "Splitwise Contacts", path: "/splitwise/users", icon: <FaUsers /> },
         ],
     },
     {

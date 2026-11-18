@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import SummaryCard from "../../components/dashboard/SummaryCard";
 import RecentTransaction from "../../components/dashboard/RecentTransaction";
 import BrandImage from "../common/BrandImage";
 import MilkSummaryDashboard from "../milk/MilkSummaryDashboard";
+import SplitwiseTripDashboard from "./SplitwiseTripDashboard";
 import { getSummary, getRecentTransactions, totalDebtItemWise, getMilkSummary } from "../../api/dashboardApi";
 const Dashboard = () => {
 
@@ -1115,6 +1117,16 @@ const Dashboard = () => {
                         Overall milk quantity, amount, and unpaid balance
                     </div>
                     <MilkSummaryDashboard {...milkSummary} />
+                </div>
+            </div>
+
+            <div className="card shadow-sm border-0 mb-4" style={{ order: 4 }}>
+                <div className="card-body">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h4 className="mb-0">Trip Settlements</h4>
+                        <Link to="/splitwise" className="btn btn-sm btn-outline-primary">Manage Trips</Link>
+                    </div>
+                    <SplitwiseTripDashboard />
                 </div>
             </div>
 

@@ -68,6 +68,9 @@ import EditInvestment from "../pages/investment/EditInvestment";
 import PFAccountStatementList from "../pages/pf/PFAccountStatementList";
 import AddPFAccountStatement from "../pages/pf/AddPFAccountStatement";
 import EditPFAccountStatement from "../pages/pf/EditPFAccountStatement";
+import SplitwiseGroups from "../pages/splitwise/SplitwiseGroups";
+import SplitwiseUsers from "../pages/splitwise/SplitwiseUsers";
+import SplitwiseGroupDetail from "../pages/splitwise/SplitwiseGroupDetail";
 import MilkManage from "../pages/milk/MilkManage";
 import AddMilk from "../pages/milk/AddMilk";
 import EditMilk from "../pages/milk/EditMilk";
@@ -313,6 +316,26 @@ const AppRoutes = () => {
                         <Route
                             path="/pf-statements/edit/:id"
                             element={<EditPFAccountStatement />}
+                        />
+
+                        <Route
+                            path="/splitwise"
+                            element={<SplitwiseGroups />}
+                        />
+
+                        <Route
+                            path="/splitwise/users"
+                            element={<SplitwiseUsers />}
+                        />
+
+                        <Route
+                            path="/splitwise/groups/:id"
+                            element={<SplitwiseGroupDetail />}
+                        />
+
+                        <Route
+                            path="/splitwise/groups/:id/:section"
+                            element={<SplitwiseGroupDetail />}
                         />
 
                         <Route
