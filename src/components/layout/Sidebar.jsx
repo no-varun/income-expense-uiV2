@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
     FaTachometerAlt,
     FaTags,
@@ -58,12 +58,12 @@ const menuGroups = [
         ],
     },
     {
-        title: "Shared Expenses",
+        title: "Split wise",
         icon: <FaUsers />,
         paths: ["/splitwise"],
         items: [
-            { title: "Splitwise Groups", path: "/splitwise", icon: <FaUsers /> },
-            { title: "Splitwise Contacts", path: "/splitwise/users", icon: <FaUsers /> },
+            { title: "Groups", path: "/splitwise", icon: <FaUsers /> },
+            { title: "Contacts", path: "/splitwise/users", icon: <FaUsers /> },
         ],
     },
     {
@@ -125,8 +125,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, onMenuInteract, closeGroupSignal
             );
         });
     };
-    const linkClass = ({ isActive }) =>
-        `nav-link d-flex align-items-center text-light ${isActive ? "bg-primary text-white fw-bold" : ""}`;
+    const isItemActive = (itemPath) => {
+        if (itemPath === "/splitwise") {
+            return location.pathname === "/splitwise" || location.pathname.startsWith("/splitwise/groups");
+        }
+        if (itemPath === "/splitwise/users") {
+            return location.pathname === "/splitwise/users" || location.pathname.startsWith("/splitwise/users/");
+        }
+        return location.pathname === itemPath || location.pathname.startsWith(`${itemPath}/`);
+    };
+
+    const linkClass = (isActive) =>
+        `nav-link d-flex align-items-center text-light ${isActive ? "active bg-primary text-white fw-bold" : ""}`;
 
     return (
         <>
@@ -152,12 +162,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, onMenuInteract, closeGroupSignal
                 <div className="flex-grow-1 overflow-auto">
                     <ul className="nav flex-column py-3">
                         <li className="nav-item">
-                            <NavLink to="/" end className={linkClass} onClick={closeSidebar}>
+                            <NavLink to="/" end className={({ isActive }) => linkClass(isActive)} onClick={closeSidebar}>
                                 <span className="me-3 fs-5"><FaTachometerAlt /></span>Dashboard
                             </NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink to="/documents" className={linkClass} onClick={closeSidebar}>
+                            <NavLink to="/documents" className={({ isActive }) => linkClass(isActive)} onClick={closeSidebar}>
                                 <span className="me-3 fs-5"><FaFileAlt /></span>Documents
                             </NavLink>
                         </li>
@@ -183,19 +193,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, onMenuInteract, closeGroupSignal
 
                                     {isOpen && (
                                         <ul className="nav flex-column pb-2">
-                                            {group.items.map((item) => (
-                                                <li key={item.path}>
-                                                    <NavLink
-                                                        to={item.path}
-                                                        end={item.path === "/charts"}
-                                                        className={(linkState) => `${linkClass(linkState)} ps-5 py-2`}
-                                                        onClick={closeSidebar}
-                                                    >
-                                                        <span className="me-2">{item.icon || "•"}</span>
-                                                        {item.title}
-                                                    </NavLink>
-                                                </li>
-                                            ))}
+                                            {group.items.map((item) => {
+                                                const itemActive = isItemActive(item.path);
+                                                return (
+                                                    <li key={item.path}>
+                                                        <Link
+                                                            to={item.path}
+                                                            className={`nav-link d-flex align-items-center text-light ${itemActive ? "active bg-primary text-white fw-bold" : ""} ps-5 py-2`}
+                                                            onClick={closeSidebar}
+                                                        >
+                                                            <span className="me-2">{item.icon || "•"}</span>
+                                                            {item.title}
+                                                        </Link>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     )}
                                 </li>

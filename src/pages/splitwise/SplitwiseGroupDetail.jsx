@@ -12,6 +12,17 @@ import "../../styles/splitwise.css";
 
 const money = (amount, currency = "INR") => new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 2 }).format(Number(amount || 0));
 const today = () => new Date().toISOString().slice(0, 10);
+const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+};
+const formatDateRange = (start, end) => {
+    if (!start && !end) return null;
+    const startStr = formatDate(start);
+    const endStr = formatDate(end);
+    if (startStr && endStr) return startStr === endStr ? startStr : `${startStr} – ${endStr}`;
+    return startStr || endStr;
+};
 const extractId = (value) => (typeof value === "object" && value !== null ? value._id : value) || "";
 const buildEqualPercentages = (participantIds = []) => {
     const count = participantIds.length;
@@ -299,7 +310,7 @@ const SplitwiseGroupDetail = () => {
     if (!group) return <div className="container-fluid px-4 py-4"><Link to="/splitwise" className="btn btn-outline-secondary"><FaArrowLeft className="me-2" />Back to Groups</Link></div>;
 
     return <div className="container-fluid px-4 py-4 splitwise-page" data-splitwise-section={activeSection}>
-        <div className="splitwise-header d-flex flex-wrap align-items-center justify-content-between gap-3"><div><Link to="/splitwise" className="splitwise-back-link text-decoration-none"><FaArrowLeft className="me-1" />All groups</Link><div className="splitwise-kicker mt-2">Group workspace</div><h3 className="splitwise-title">{group.name}</h3><p className="splitwise-subtitle">{group.description || "Shared expense workspace"}</p></div><span className="badge bg-light text-dark border fs-6">{group.currency}</span></div>
+        <div className="splitwise-header d-flex flex-wrap align-items-center justify-content-between gap-3"><div><Link to="/splitwise" className="splitwise-back-link text-decoration-none"><FaArrowLeft className="me-1" />All groups</Link><div className="splitwise-kicker mt-2">Group workspace</div><h3 className="splitwise-title">{group.name}</h3><p className="splitwise-subtitle">{group.description || "Shared expense workspace"}</p>{formatDateRange(group.startDate, group.endDate) && <div className="small text-muted mt-1">📅 {formatDateRange(group.startDate, group.endDate)}</div>}</div><span className="badge bg-light text-dark border fs-6">{group.currency}</span></div>
         <nav className="splitwise-section-nav" aria-label="Group sections">{[["overview", "Overview"], ["members", "Members"], ["expenses", "Expenses"], ["funds", "Tour Fund"], ["settlements", "Settle Up"]].map(([key, label]) => <Link key={key} to={key === "overview" ? `/splitwise/groups/${id}` : `/splitwise/groups/${id}/${key}`} className={activeSection === key ? "is-active" : ""}>{label}</Link>)}</nav>
         <div className="row g-3 mb-4"><div className="col-sm-6"><div className="card splitwise-total-card h-100"><div className="card-body p-3"><div className="small text-muted">Total Tour Fund</div><div className="fs-5 fw-semibold balance-credit">{money(group.totalFund, group.currency)}</div><div className="small text-muted">Money sent to members for tour spending</div></div></div></div><div className="col-sm-6"><div className="card splitwise-total-card h-100"><div className="card-body p-3"><div className="small text-muted">Total Expense Till Date</div><div className="fs-5 fw-semibold">{money(group.totalExpense, group.currency)}</div><div className="small text-muted">All shared expenses recorded in this group</div></div></div></div></div>
         <div className="row g-3 mb-4">{balances.map((member) => <div className="col-sm-6 col-lg-3" key={member._id}><div className={`card splitwise-balance-card h-100 ${member.balance > 0 ? "is-credit" : member.balance < 0 ? "is-debit" : ""}`}><div className="card-body p-3"><div className="fw-semibold text-truncate">{member.name}</div><div className={`mt-1 fw-semibold ${member.balance > 0 ? "balance-credit" : member.balance < 0 ? "balance-debit" : "text-muted"}`}>{member.balance > 0 ? "Gets " : member.balance < 0 ? "Owes " : "Settled "}{money(Math.abs(member.balance), group.currency)}</div><div className="splitwise-balance-breakdown">Expense share {money(member.expenseShare, group.currency)} · Paid {money(member.expensePaid, group.currency)}{Number(member.tourFundSent) > 0 && <><br />Tour contribution {money(member.tourFundSent, group.currency)}</>}{Number(member.tourFundReceived) > 0 && <><br />Tour fund received {money(member.tourFundReceived, group.currency)}</>}</div></div></div></div>)}</div>

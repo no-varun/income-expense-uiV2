@@ -1123,7 +1123,7 @@ const Dashboard = () => {
             <div className="card shadow-sm border-0 mb-4" style={{ order: 4 }}>
                 <div className="card-body">
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h4 className="mb-0">Trip Settlements</h4>
+                        <h4 className="mb-0">Latest Trip Settlements</h4>
                         <Link to="/splitwise" className="btn btn-sm btn-outline-primary">Manage Trips</Link>
                     </div>
                     <SplitwiseTripDashboard />
