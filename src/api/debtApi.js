@@ -72,7 +72,7 @@ export const updateDebt = async (
         data
     );
 
-    return response.data;
+    return response;
 
 };
 
@@ -89,6 +89,6 @@ export const deleteDebt = async (id) => {
         `/debt/${id}`
     );
 
-    return response.data;
+    return response;
 
 };

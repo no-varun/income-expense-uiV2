@@ -205,12 +205,15 @@ const EditDebt = () => {
 
 
 
-            if (
-                response?.success === true
-            ) {
+            const isSuccess =
+                response?.success === true ||
+                response?.data?.success === true;
+
+            if (isSuccess) {
 
                 notify(
-                    response.message ||
+                    response?.message ||
+                    response?.data?.message ||
                     "Debt updated successfully."
                 );
 
@@ -226,6 +229,7 @@ const EditDebt = () => {
 
             notify(
                 response?.message ||
+                response?.data?.message ||
                 "Unable to update debt."
             );
 
