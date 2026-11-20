@@ -10,6 +10,12 @@ import {
 
 import Pagination from "../../components/common/Pagination";
 
+const CATEGORY_TABS = [
+    { label: "INCOME", value: "INCOME" },
+    { label: "Expense", value: "EXPENSE" },
+    { label: "Debt", value: "DEBT" }
+];
+
 const CategoryList = () => {
 
     const [categories, setCategories] = useState([]);
@@ -21,12 +27,12 @@ const CategoryList = () => {
 
     /*
      * =========================
-     * TYPE FILTER
+     * TYPE FILTER (DEFAULT: EXPENSE)
      * =========================
      */
 
-    const [typeInput, setTypeInput] = useState("");
-    const [type, setType] = useState("");
+    const [typeInput, setTypeInput] = useState("EXPENSE");
+    const [type, setType] = useState("EXPENSE");
 
 
     /*
@@ -82,8 +88,6 @@ const CategoryList = () => {
 
         } catch (error) {
 
-            // console.error(error);
-
             setCategories([]);
             setTotal(0);
 
@@ -120,36 +124,14 @@ const CategoryList = () => {
 
     /*
      * =========================
-     * TYPE FILTER
+     * TYPE FILTER CHANGE
      * =========================
      */
 
-    const handleTypeChange = (event) => {
+    const handleTypeSelect = (selectedType) => {
 
-        setTypeInput(
-            event.target.value
-        );
-
-        setType(
-            event.target.value
-        );
-
-        setPage(1);
-
-    };
-
-
-    /*
-     * =========================
-     * CLEAR FILTER
-     * =========================
-     */
-
-    const handleClearFilter = () => {
-
-        setTypeInput("");
-        setType("");
-
+        setTypeInput(selectedType);
+        setType(selectedType);
         setPage(1);
 
     };
@@ -249,6 +231,12 @@ const CategoryList = () => {
 
         <div className="container-fluid">
 
+            <style>{`
+                .category-type-btn:not(.active):hover {
+                    background-color: #f1f3f5 !important;
+                }
+            `}</style>
+
 
             {/* ================= HEADER ================= */}
 
@@ -276,80 +264,101 @@ const CategoryList = () => {
             <div className="card shadow">
 
 
-                {/* ================= FILTER ================= */}
+                {/* ================= FILTER (LIKE IMAGE) ================= */}
 
                 <div className="card-body">
 
-                    <div className="row g-2 align-items-end">
+                    {/* Segmented Type Bar */}
+                    <div className="mb-3">
+
+                        <div
+                            className="d-flex w-100"
+                            style={{
+                                border: "2px solid #000",
+                                borderRadius: "4px",
+                                overflow: "hidden",
+                                backgroundColor: "#fff"
+                            }}
+                            role="group"
+                            aria-label="Category Type Filter"
+                        >
+
+                            {CATEGORY_TABS.map((tab, idx) => {
+
+                                const isActive = type === tab.value;
+
+                                return (
+
+                                    <button
+                                        key={tab.value}
+                                        type="button"
+                                        onClick={() => handleTypeSelect(tab.value)}
+                                        style={{
+                                            flex: 1,
+                                            padding: "12px 16px",
+                                            fontWeight: "700",
+                                            fontSize: "1rem",
+                                            textAlign: "center",
+                                            border: "none",
+                                            borderLeft: idx > 0 ? "2px solid #000" : "none",
+                                            backgroundColor: isActive ? "#000" : "#fff",
+                                            color: isActive ? "#fff" : "#000",
+                                            cursor: "pointer",
+                                            transition: "background-color 0.15s ease, color 0.15s ease"
+                                        }}
+                                        className={`category-type-btn ${isActive ? "active" : ""}`}
+                                    >
+
+                                        {tab.label}
+
+                                    </button>
+
+                                );
+
+                            })}
+
+                        </div>
+
+                    </div>
 
 
-                        {/* TYPE */}
+                    {/* Sub-row: Active status & Per page */}
+                    <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
 
-                        <div className="col-12 col-md-4">
+                        <div className="small text-muted">
 
-                            <label className="form-label">
+                            Showing <strong>{type || "All"}</strong> categories ({total} records)
 
-                                Type
+                            {type && (
 
-                            </label>
+                                <button
+                                    type="button"
+                                    className="btn btn-link btn-sm p-0 ms-2 text-decoration-none"
+                                    onClick={() => handleTypeSelect("")}
+                                    title="Show all categories across all types"
+                                >
 
+                                    (Show All)
 
-                            <select
-                                className="form-select"
-                                value={typeInput}
-                                onChange={
-                                    handleTypeChange
-                                }
-                            >
+                                </button>
 
-                                <option value="">
-
-                                    All Types
-
-                                </option>
-
-                                <option value="INCOME">
-
-                                    Income
-
-                                </option>
-
-                                <option value="EXPENSE">
-
-                                    Expense
-
-                                </option>
-
-                                <option value="SAVING">
-
-                                    Saving
-
-                                </option>
-
-                                <option value="DEBT">
-
-                                    Debt
-
-                                </option>
-
-                            </select>
+                            )}
 
                         </div>
 
 
-                        {/* PER PAGE */}
+                        <div className="d-flex align-items-center gap-2">
 
-                        <div className="col-6 col-md-2">
+                            <label className="form-label mb-0 small text-muted">
 
-                            <label className="form-label">
-
-                                Per page
+                                Per page:
 
                             </label>
 
 
                             <select
-                                className="form-select"
+                                className="form-select form-select-sm"
+                                style={{ width: "auto" }}
                                 value={limit}
                                 onChange={event => {
 
@@ -377,28 +386,6 @@ const CategoryList = () => {
                                 </option>
 
                             </select>
-
-                        </div>
-
-
-                        {/* CLEAR */}
-
-                        <div className="col-6 col-md-2">
-
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary w-100"
-                                onClick={
-                                    handleClearFilter
-                                }
-                                disabled={
-                                    !typeInput
-                                }
-                            >
-
-                                Clear
-
-                            </button>
 
                         </div>
 
@@ -430,10 +417,6 @@ const CategoryList = () => {
                                     Type
                                 </th>
 
-                                <th>
-                                    Color
-                                </th>
-
                                 <th width="180">
                                     Action
                                 </th>
@@ -452,7 +435,7 @@ const CategoryList = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="5"
+                                            colSpan="4"
                                             className="text-center"
                                         >
 
@@ -467,7 +450,7 @@ const CategoryList = () => {
                                     <tr>
 
                                         <td
-                                            colSpan="5"
+                                            colSpan="4"
                                             className="text-center"
                                         >
 
@@ -532,22 +515,6 @@ const CategoryList = () => {
                                                         }
 
                                                     </span>
-
-                                                </td>
-
-
-                                                <td>
-
-                                                    <span
-                                                        style={{
-                                                            width: "25px",
-                                                            height: "25px",
-                                                            display: "inline-block",
-                                                            borderRadius: "50%",
-                                                            background:
-                                                                item.color
-                                                        }}
-                                                    />
 
                                                 </td>
 

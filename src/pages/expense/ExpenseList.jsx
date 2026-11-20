@@ -1,4 +1,4 @@
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCopy } from "react-icons/fa";
 import { notify } from "../../utils/notifications";
 import {
     useCallback,
@@ -2329,6 +2329,18 @@ const ExpenseList = () => {
                                                     </button>
 
                                                 )}
+
+                                                <Link
+                                                    to={
+                                                        `/expense/add?copyFrom=${item._id}`
+                                                    }
+                                                    className="btn btn-outline-primary btn-sm me-2"
+                                                    title="Copy / Autofill to Add Expense"
+                                                >
+
+                                                    <><FaCopy aria-hidden="true" /><span className="visually-hidden">Copy</span></>
+
+                                                </Link>
 
                                                 <Link
                                                     to={
