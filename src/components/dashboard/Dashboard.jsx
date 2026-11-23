@@ -1120,11 +1120,16 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="card shadow-sm border-0 mb-4" style={{ order: 4 }}>
+            <div
+                data-dashboard-section="latest-trip"
+                data-open={openDashboardSection === "latest-trip"}
+                style={{ order: 4 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
+            >
                 <div className="card-body">
                     <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h4 className="mb-0">Latest Trip Settlements</h4>
-                        <Link to="/splitwise" className="btn btn-sm btn-outline-primary">Manage Trips</Link>
+                        <h4 className="mb-0 flex-grow-1">Latest Trip Settlements</h4>
+                        <Link to="/splitwise" className="btn btn-sm btn-outline-primary" onClick={(e) => e.stopPropagation()}>Manage Trips</Link>
                     </div>
                     <SplitwiseTripDashboard />
                 </div>
@@ -1240,7 +1245,7 @@ const Dashboard = () => {
             <div
                 data-dashboard-section="accounts-banks"
                 data-open={openDashboardSection === "accounts-banks"}
-                style={{ order: 4 }}
+                style={{ order: 5 }}
                 className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
@@ -1457,10 +1462,11 @@ const Dashboard = () => {
                                             minimumBalance > 0 &&
                                             balance < minimumBalance;
 
-                                        const showMinimumWarning = ["icici", "rbl", "pnb"].includes(
+                                        const isEligibleBank = ["pnb", "rbl", "icici"].includes(
                                             String(account?.bank || "").trim().toLowerCase()
                                         );
 
+                                        const showMinimumWarning = isEligibleBank && belowMinimum;
 
                                         return (
 
