@@ -86,6 +86,17 @@ export const totalDebtItemWise = async () => {
     return axios.get("/dashboard/total-debt-item-wise");
 };
 
+export const totalLoanItemWise = async () => {
+    return axios.get("/dashboard/total-loan-item-wise");
+};
+
+export const getRecentLoans = async () => {
+    const response = await axios.get(
+        "/dashboard/recent-loan"
+    );
+    return response.data;
+};
+
 export const getMilkSummary = async () => {
     const response = await axios.get(
         "/milk/summary"

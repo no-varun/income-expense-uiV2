@@ -442,6 +442,10 @@ const ItemList = () => {
                                     Debt
                                 </option>
 
+                                <option value="LOAN">
+                                    Loan
+                                </option>
+
                             </select>
 
                         </div>

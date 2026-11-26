@@ -49,6 +49,11 @@ import DebtList from "../pages/debt/DebtList";
 import AddDebt from "../pages/debt/AddDebt";
 import EditDebt from "../pages/debt/EditDebt";
 
+// Loans
+import LoanList from "../pages/loan/LoanList";
+import AddLoan from "../pages/loan/AddLoan";
+import EditLoan from "../pages/loan/EditLoan";
+
 // Reports
 import Reports from "../pages/reports/Reports";
 
@@ -263,6 +268,32 @@ const AppRoutes = () => {
                         <Route
                             path="/debt/edit/:id"
                             element={<EditDebt />}
+                        />
+
+                        {/* Loans */}
+                        <Route
+                            path="/loans"
+                            element={<LoanList />}
+                        />
+                        <Route
+                            path="/loans/add"
+                            element={<AddLoan />}
+                        />
+                        <Route
+                            path="/loans/edit/:id"
+                            element={<EditLoan />}
+                        />
+                        <Route
+                            path="/loan"
+                            element={<LoanList />}
+                        />
+                        <Route
+                            path="/loan/add"
+                            element={<AddLoan />}
+                        />
+                        <Route
+                            path="/loan/edit/:id"
+                            element={<EditLoan />}
                         />
 
                         <Route

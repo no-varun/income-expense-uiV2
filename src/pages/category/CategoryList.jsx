@@ -13,7 +13,8 @@ import Pagination from "../../components/common/Pagination";
 const CATEGORY_TABS = [
     { label: "INCOME", value: "INCOME" },
     { label: "Expense", value: "EXPENSE" },
-    { label: "Debt", value: "DEBT" }
+    { label: "Debt", value: "DEBT" },
+    { label: "Loan", value: "LOAN" }
 ];
 
 const CategoryList = () => {
@@ -505,7 +506,9 @@ const CategoryList = () => {
                                                                             ? "bg-warning text-dark"
                                                                             : item.type === "DEBT"
                                                                                 ? "bg-info"
-                                                                                : "bg-secondary"
+                                                                                : item.type === "LOAN"
+                                                                                    ? "bg-primary"
+                                                                                    : "bg-secondary"
                                                             }
                                                         `}
                                                     >

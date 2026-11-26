@@ -19,6 +19,7 @@ import {
     FaGem,
     FaUsers,
     FaChevronDown,
+    FaHandHoldingUsd,
 } from "react-icons/fa";
 
 const menuGroups = [
@@ -36,12 +37,13 @@ const menuGroups = [
     {
         title: "Financial",
         icon: <FaMoneyBillWave />,
-        paths: ["/income", "/expense", "/saving", "/debt", "/transfers", "/accounts"],
+        paths: ["/income", "/expense", "/saving", "/debt", "/loans", "/transfers", "/accounts"],
         items: [
             { title: "Income", path: "/income", icon: <FaMoneyBillWave /> },
             { title: "Expense", path: "/expense", icon: <FaWallet /> },
             { title: "Transfers", path: "/transfers", icon: <FaExchangeAlt /> },
             { title: "Debt", path: "/debt", icon: <FaWallet /> },
+            { title: "Loans", path: "/loans", icon: <FaHandHoldingUsd /> },
             { title: "Accounts", path: "/accounts", icon: <FaUniversity /> },
             // { title: "Savings", path: "/saving", icon: <FaChartLine /> },
         ],

@@ -217,6 +217,10 @@ const CategoryForm = ({
                                 Debt
                             </option>
 
+                            <option value="LOAN">
+                                Loan
+                            </option>
+
                         </select>
 
                     </div>

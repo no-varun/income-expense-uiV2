@@ -6,7 +6,7 @@ import RecentTransaction from "../../components/dashboard/RecentTransaction";
 import BrandImage from "../common/BrandImage";
 import MilkSummaryDashboard from "../milk/MilkSummaryDashboard";
 import SplitwiseTripDashboard from "./SplitwiseTripDashboard";
-import { getSummary, getRecentTransactions, totalDebtItemWise, getMilkSummary } from "../../api/dashboardApi";
+import { getSummary, getRecentTransactions, totalDebtItemWise, totalLoanItemWise, getMilkSummary } from "../../api/dashboardApi";
 const Dashboard = () => {
 
     const [summary, setSummary] = useState({});
@@ -17,6 +17,12 @@ const Dashboard = () => {
     const [debtSummary, setDebtSummary] = useState({
         totalDebt: 0,
         totalPendingAmount: 0,
+        items: []
+    });
+    const [loanSummary, setLoanSummary] = useState({
+        totalLoan: 0,
+        totalPendingAmount: 0,
+        totalRepaidAmount: 0,
         items: []
     });
 
@@ -64,7 +70,8 @@ const Dashboard = () => {
                 summaryResponse,
                 transactionResponse,
                 debtResponse,
-                milkResponse
+                milkResponse,
+                loanResponse
             ] = await Promise.all([
 
                 getSummary(),
@@ -73,7 +80,9 @@ const Dashboard = () => {
 
                 totalDebtItemWise(),
 
-                getMilkSummary().catch(() => null)
+                getMilkSummary().catch(() => null),
+
+                totalLoanItemWise().catch(() => null)
 
             ]);
 
@@ -175,6 +184,21 @@ const Dashboard = () => {
                 totalPendingAmount: Number(debtData.totalPendingAmount || 0),
                 items: Array.isArray(debtData.items)
                     ? debtData.items
+                    : []
+            });
+
+            const loanData =
+                loanResponse?.data &&
+                    typeof loanResponse.data === "object"
+                    ? loanResponse.data
+                    : loanResponse || {};
+
+            setLoanSummary({
+                totalLoan: Number(loanData.totalLoan ?? summaryData?.loanSummary?.totalLoan ?? 0),
+                totalPendingAmount: Number(loanData.totalPendingAmount ?? summaryData?.loanSummary?.totalPendingLoan ?? 0),
+                totalRepaidAmount: Number(loanData.totalRepaidAmount ?? summaryData?.loanSummary?.totalRepaidLoan ?? 0),
+                items: Array.isArray(loanData.items)
+                    ? loanData.items
                     : []
             });
 
@@ -581,7 +605,7 @@ const Dashboard = () => {
             <div
                 data-dashboard-section="investments"
                 data-open={openDashboardSection === "investments"}
-                style={{ order: 9 }}
+                style={{ order: 10 }}
                 className="dashboard-accordion-section card shadow-sm border-0 mb-4"
             >
 
@@ -1222,6 +1246,119 @@ const Dashboard = () => {
                                     <tr>
                                         <td colSpan="4" className="text-center text-muted py-4">
                                             No debt items found.
+                                        </td>
+                                    </tr>
+
+                                )}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* =========================================================
+                LOANS
+            ========================================================= */}
+
+            <div
+                data-dashboard-section="loan"
+                data-open={openDashboardSection === "loan"}
+                style={{ order: 9 }}
+                className="dashboard-accordion-section card shadow-sm border-0 mb-4"
+            >
+
+                <div className="card-body">
+
+                    <div className="d-flex justify-content-between align-items-center mb-1">
+                        <h4 className="mb-0">
+                            Loans (Borrowed)
+                        </h4>
+                        <Link to="/loans" className="btn btn-sm btn-outline-primary" onClick={(e) => e.stopPropagation()}>
+                            Manage Loans
+                        </Link>
+                    </div>
+
+                    <div className="text-muted small mb-4">
+                        Loans taken, pending liability, and repayments
+                    </div>
+
+                    <div className="row g-3">
+
+                        <SummaryCard
+                            title="Total Borrowed"
+                            value={
+                                loanSummary.totalLoan
+                            }
+                            bg="bg-danger"
+                        />
+
+                        <SummaryCard
+                            title="Pending to Repay"
+                            value={
+                                loanSummary.totalPendingAmount
+                            }
+                            bg="bg-warning"
+                        />
+
+                        <SummaryCard
+                            title="Total Repaid"
+                            value={
+                                loanSummary.totalRepaidAmount
+                            }
+                            bg="bg-success"
+                        />
+
+                    </div>
+
+                    <div className="table-responsive mt-4">
+
+                        <table className="table table-hover align-middle mb-0">
+
+                            <thead className="table-light">
+
+                                <tr>
+                                    <th>Loan Title</th>
+                                    <th className="text-center">Records</th>
+                                    <th className="text-end">Total Loan</th>
+                                    <th className="text-end">Pending Amount</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {loanSummary.items.length > 0 ? (
+
+                                    loanSummary.items.map((item, index) => (
+
+                                        <tr key={item?._id || index}>
+                                            <td className="fw-semibold">
+                                                {item?._id || "Untitled loan"}
+                                            </td>
+                                            <td className="text-center">
+                                                {Number(item?.totalItems || 0)}
+                                            </td>
+                                            <td className="text-end">
+                                                {"Rs. "}{formatAmount(item?.totalLoan)}
+                                            </td>
+                                            <td className="text-end text-danger fw-semibold">
+                                                {"Rs. "}{formatAmount(item?.totalPendingAmount)}
+                                            </td>
+                                        </tr>
+
+                                    ))
+
+                                ) : (
+
+                                    <tr>
+                                        <td colSpan="4" className="text-center text-muted py-4">
+                                            No loan items found.
                                         </td>
                                     </tr>
 
