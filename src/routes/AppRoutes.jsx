@@ -81,6 +81,11 @@ import AddMilk from "../pages/milk/AddMilk";
 import EditMilk from "../pages/milk/EditMilk";
 import FuturePlanning from "../pages/FuturePlanning/FuturePlanning";
 
+// Next Month Planning
+import NextMonthPlanList from "../pages/nextMonthPlan/NextMonthPlanList";
+import AddNextMonthPlan from "../pages/nextMonthPlan/AddNextMonthPlan";
+import EditNextMonthPlan from "../pages/nextMonthPlan/EditNextMonthPlan";
+
 // PreciousItems
 import PreciousItemList from "../pages/preciousItem/PreciousItemList";
 import AddPreciousItem from "../pages/preciousItem/AddPreciousItem";
@@ -412,6 +417,22 @@ const AppRoutes = () => {
                         <Route
                             path="/future-planning"
                             element={<FuturePlanning />}
+                        />
+
+                        {/* Next Month Planning */}
+                        <Route
+                            path="/next-month-plan"
+                            element={<NextMonthPlanList />}
+                        />
+
+                        <Route
+                            path="/next-month-plan/add"
+                            element={<AddNextMonthPlan />}
+                        />
+
+                        <Route
+                            path="/next-month-plan/edit/:id"
+                            element={<EditNextMonthPlan />}
                         />
 
                         {/* Charts */}

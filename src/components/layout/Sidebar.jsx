@@ -51,12 +51,13 @@ const menuGroups = [
     {
         title: "Assets & Planning",
         icon: <FaGem />,
-        paths: ["/investments", "/preciousItem", "/pf-statements", "/future-planning"],
+        paths: ["/investments", "/preciousItem", "/pf-statements", "/future-planning", "/next-month-plan"],
         items: [
             { title: "Investments", path: "/investments", icon: <FaChartLine /> },
             { title: "Precious Items", path: "/preciousItem", icon: <FaGem /> },
             { title: "PF Statements", path: "/pf-statements", icon: <FaUniversity /> },
             { title: "Future Planning", path: "/future-planning", icon: <FaCalendarAlt /> },
+            { title: "Next Month Planning", path: "/next-month-plan", icon: <FaCalendarAlt /> },
         ],
     },
     {
